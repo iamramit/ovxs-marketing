@@ -68,6 +68,7 @@ Never invent clients, numbers or outcomes. Stock photos never pose as clients or
 
 **LinkedIn post (company page or Ramit)**
 - The first line is the hook and must work before "…see more" (about 140 characters).
+- Include story telling in posts as well. 
 - Short lines with white space between them. → arrows for lists.
 - 120–250 words. End with the CTA, then "Link in comments." Put the URL in the first comment, not the post.
 - 3 hashtags at most, at the end.
@@ -78,7 +79,7 @@ Never invent clients, numbers or outcomes. Stock photos never pose as clients or
 - One question to the reader is fine. No hashtag blocks.
 
 **Instagram carousel**
-- 8 slides, 1080×1350.
+- 4-8 slides, 1080×1350.
 - 1: cover hook. 2: setup or spoiler. 3–7: one point per slide. 8: payoff + CTA.
 - 12 words or fewer per slide headline. Photos on the cover and problem slides.
 - Caption: 80–150 words. Hook line, three short lines, CTA "link in bio", then 3–5 hashtags.
