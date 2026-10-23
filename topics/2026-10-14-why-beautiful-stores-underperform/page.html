@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brief — Why beautiful stores still underperform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"IvyPresto Display";font-weight:700;font-display:swap;src:url(fonts/ivy-presto-display.woff2) format("woff2"),url(../../brand/ivy-presto-display.woff2) format("woff2")}
+@font-face{font-family:"Elza Condensed";font-weight:900;font-display:swap;src:url(fonts/elza-condensed-black.woff2) format("woff2"),url(../../brand/elza-condensed-black.woff2) format("woff2")}
+:root{
+  --primary:#1B6A63;--on-primary:#FFFFFF;--container:#CDEBE5;--surface:#F6FAF8;--on-surface:#161D1C;
+  --muted:#4A5754;--dark:#0F2F2C;--outline:#BFC9C6;--card:#FFFFFF;--accent:#7FC8BC;
+  --serif:"IvyPresto Display",Georgia,serif;--label:"Elza Condensed","Arial Narrow",sans-serif;--sans:Inter,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--surface:#0E1514;--on-surface:#E3EAE8;--muted:#A9B6B3;--card:#16201E;--outline:#3A4744}}
+:root[data-theme="dark"]{--surface:#0E1514;--on-surface:#E3EAE8;--muted:#A9B6B3;--card:#16201E;--outline:#3A4744}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--surface);color:var(--on-surface);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+.eyebrow{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .eyebrow{color:var(--accent)}}
+h1.title{font:700 clamp(40px,7vw,76px)/1 var(--serif);letter-spacing:-.02em;margin:14px 0 26px}
+em.p{font-style:italic;text-decoration:underline wavy var(--primary);text-decoration-thickness:2px;text-underline-offset:.18em}
+.lede{color:var(--muted);max-width:640px;margin:0 0 28px}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 32px}
+.tabs a{font:900 15px/1 var(--label);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:12px 20px;border-radius:999px;border:1.5px solid var(--primary);color:var(--primary)}
+.tabs a[aria-selected="true"]{background:var(--primary);color:var(--on-primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs a:not([aria-selected="true"]){color:var(--accent);border-color:var(--accent)}}
+.panel{display:none}.panel.on{display:block}
+.h3{font:700 13px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--outline);border-radius:28px;padding:24px}
+.two{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:1fr}.wrap{padding:28px 16px 64px}}
+.li-head{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.av{width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font:900 18px var(--label);letter-spacing:.04em}
+.li-head b{display:block;font-weight:600}.li-head span{font-size:13px;color:var(--muted)}
+.post{white-space:pre-wrap;font-size:15px;line-height:1.55}
+.tag{color:var(--primary);font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag{color:var(--accent)}}
+.small{border-radius:16px;padding:16px 18px;font-size:14px;margin-top:20px;background:var(--card);border:1px solid var(--outline)}
+.small a{color:inherit;word-break:break-all}
+.frame{width:100%;aspect-ratio:4/5;position:relative;overflow:hidden;border-radius:16px;box-shadow:0 1px 0 var(--outline)}
+.frame>.board{position:absolute;top:0;left:0;transform-origin:0 0}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cap{white-space:pre-wrap;margin-top:28px}
+.email{max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--outline);border-radius:28px;overflow:hidden}
+.email .meta{padding:18px 28px;border-bottom:1px solid var(--outline);font-size:14px}
+.email .meta div+div{color:var(--muted)}
+.email .body{padding:28px}
+.email ol{padding-left:20px}.email li{margin:6px 0}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--primary);color:#fff;text-decoration:none;font:900 16px/1 var(--label);letter-spacing:.06em;text-transform:uppercase;padding:16px 26px;border-radius:999px}
+.article{max-width:680px;margin:0 auto}
+.article h2.t{font:700 clamp(32px,5vw,48px)/1.04 var(--serif);letter-spacing:-.02em;margin:0 0 14px}
+.article .dek{font-style:italic;font-size:19px;color:var(--muted);margin:0 0 28px}
+.article p,.article li{font-size:17px;line-height:1.6}
+.article h3{font:700 28px/1.1 var(--serif);letter-spacing:-.02em;margin:36px 0 10px}
+.article a{color:var(--primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .article a{color:var(--accent)}}
+.seo{margin-top:36px;border-radius:16px;padding:18px 20px;background:var(--card);border:1px solid var(--outline);font-size:14px}
+.seo div{margin:4px 0}
+
+.board{width:1080px;height:1350px;position:relative;overflow:hidden;font-family:var(--sans);display:flex;flex-direction:column}
+.board .ph{flex:0 0 46%;background-size:cover;background-position:center}
+#li-graphic .ph{flex-basis:54%}
+.board .pn{flex:1;padding:60px 80px 0;display:flex;flex-direction:column;position:relative}
+.board.full .pn{padding:0 80px 140px;justify-content:center}
+.board.ph-on .hd{font-size:84px}
+.board .ey{font:700 26px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin-bottom:28px}
+.board .hd{font:700 96px/1 var(--serif);letter-spacing:-.02em;margin:0;max-width:800px}
+.board.full .hd{font-size:118px}
+.board .hd em{font-style:italic;text-decoration:underline wavy;text-decoration-thickness:4px;text-underline-offset:.16em}
+.board .sb{font:500 34px/1.38 var(--sans);margin-top:34px;max-width:880px}
+.board .src{font:500 22px/1 var(--sans);margin-top:18px;opacity:.8}
+.board .badge{position:absolute;top:56px;right:80px;width:112px;height:112px;border-radius:50%;display:grid;place-items:center;font:900 46px/1 var(--label);letter-spacing:.02em}
+.board.ph-on .badge{top:calc(46% + 48px)}
+#li-graphic.ph-on .hd{font-size:96px}
+.board .ft{position:absolute;left:80px;right:80px;bottom:56px;display:flex;justify-content:space-between;align-items:center;font:600 22px/1 var(--sans);letter-spacing:.04em}
+.board .ft img{height:46px}
+.board .cta{display:inline-flex;align-self:flex-start;gap:14px;margin-top:44px;padding:28px 44px;border-radius:999px;font:900 34px/1 var(--label);letter-spacing:.06em;text-transform:uppercase}
+.bg-primary{background:var(--primary);color:#fff}.bg-primary .hd em{text-decoration-color:var(--accent)}.bg-primary .ey{color:var(--container)}.bg-primary .badge{background:#fff;color:var(--primary)}.bg-primary .cta{background:#fff;color:var(--primary)}
+.bg-dark{background:#0F2F2C;color:#fff}.bg-dark .hd em{text-decoration-color:var(--accent)}.bg-dark .ey{color:var(--accent)}.bg-dark .badge{background:var(--accent);color:#0F2F2C}.bg-dark .cta{background:var(--container);color:#0F2F2C}
+.bg-surface{background:#F6FAF8;color:#161D1C}.bg-surface .hd em{text-decoration-color:var(--primary)}.bg-surface .ey{color:var(--primary)}.bg-surface .badge{background:var(--primary);color:#fff}
+.bg-container{background:#CDEBE5;color:#161D1C}.bg-container .hd em{text-decoration-color:var(--primary)}.bg-container .ey{color:#14534D}.bg-container .badge{background:#0F2F2C;color:#fff}
+
+body.export{background:#fff;overflow:hidden}
+body.export .board{transform:none!important}
+</style>
+</head>
+<body>
+<main class="wrap" id="app">
+  <div class="eyebrow">Brief 1 · Honest advice · Angle B</div>
+  <h1 class="title">Six checks. <em class="p">Before any redesign.</em></h1>
+  <p class="lede">Why beautiful stores still underperform, as a one-afternoon checklist. LinkedIn post, IG carousel, newsletter and article for review.</p>
+  <nav class="tabs" role="tablist">
+    <a href="#linkedin" role="tab" data-t="linkedin">LinkedIn post</a>
+    <a href="#carousel" role="tab" data-t="carousel">IG carousel</a>
+    <a href="#newsletter" role="tab" data-t="newsletter">Newsletter</a>
+    <a href="#article" role="tab" data-t="article">Article</a>
+  </nav>
+
+  <section class="panel" id="p-linkedin">
+    <div class="two">
+      <div class="card">
+        <div class="li-head"><div class="av">OV</div><div><b>Studio OVXS</b><span>@ovxs.studio · 1d</span></div></div>
+        <div class="post">Before you pay for a redesign, spend one afternoon on these six checks.
+
+A version of the same message reaches us most weeks.
+
+“Everyone says the store looks great. So why isn’t it selling?”
+
+The next line is usually: “We’re thinking about a redesign.”
+
+Sometimes that’s right. Most of the time the problem is cheaper, and you can find it yourself.
+
+→ The market. Say in one line why someone buys from you, not the first search result. If you can’t, the shopper can’t either.
+→ Apps. List every one. Write what it earned last month. Remove the blanks.
+→ Checkout. Buy from your own store on your phone. Count the taps and the fields.
+→ Pricing. Put yours next to three others. If you cost more, the page has to say why.
+→ Order value. What appears after “Add to cart”? Nothing is a sale you didn’t ask for.
+→ Trust. Reviews, returns, a real contact, social that posted this month.
+
+About 70% of online carts are abandoned. In our experience, most of the fixable reasons are on this list, not in the theme.
+
+Run all six and still can’t see it? We’ll look for you: a $99 video audit, 10–15 minutes, three ranked fixes, no call.
+
+Link in comments.
+
+<span class="tag">#Shopify #Ecommerce #ConversionRate</span></div>
+      </div>
+      <div>
+        <div class="h3">Graphic · 4:5</div>
+        <div class="frame"><div class="board bg-primary ph-on" id="li-graphic">
+          <div class="ph" style="background-image:url(assets/laptop.jpg)"></div>
+          <div class="pn">
+            <div class="ey">Honest advice · Six checks</div>
+            <h2 class="hd">Six checks. <em>Before any redesign.</em></h2>
+            <div class="sb" style="margin-top:26px">One afternoon to find what’s really costing you sales.</div>
+            <div class="cta" style="margin-top:36px">Book a $99 video audit →</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="small"><b>First comment:</b> The $99 video audit: <a href="https://ovxs.studio/pages/request-audit">https://ovxs.studio/pages/request-audit</a> · Cart abandonment figure: Baymard Institute, 2025 — <a href="https://baymard.com/lists/cart-abandonment-rate">https://baymard.com/lists/cart-abandonment-rate</a></div>
+  </section>
+
+  <section class="panel" id="p-carousel">
+    <div class="grid" id="slides"></div>
+    <div class="card cap"><div class="h3">Caption</div>Before you pay for a redesign, spend one afternoon on these six checks.
+
+Most stores that look great but don’t sell don’t need a new theme.
+They need someone to buy from them on a phone and count the taps.
+And a hard look at price, apps and reviews before fonts.
+
+Save this and run it in order: market, apps, checkout, pricing, order value, trust. Most of it costs nothing but time.
+
+If you run all six and still can’t see the problem, we’ll record a 10–15 minute walkthrough of your store with three ranked fixes. $99, no call. Link in bio.
+
+<span class="tag">#shopify #ecommerce #shopifystore #smallbusiness</span></div>
+  </section>
+
+  <section class="panel" id="p-newsletter">
+    <div class="email">
+      <div class="meta"><div><b>Subject:</b> Six checks before you pay for a redesign</div><div><b>Preview:</b> One afternoon, no budget, and a straight list.</div></div>
+      <div class="body">
+        <p>Most stores that “look great but don’t sell” don’t need a new theme. They need an afternoon with a list.</p>
+        <ol>
+          <li><b>The market:</b> can you say in one line why someone buys from you, not the first search result?</li>
+          <li><b>Apps:</b> write what each one earned last month. Remove the blanks.</li>
+          <li><b>Checkout:</b> buy from your own store on your phone and count the fields. About 1 in 5 shoppers have dropped a cart over a long or complicated checkout (<a href="https://baymard.com/lists/cart-abandonment-rate">Baymard, 2025</a>).</li>
+          <li><b>Pricing:</b> put yours next to three others. Costing more is fine if the page says why.</li>
+          <li><b>Order value:</b> what appears after “Add to cart”?</li>
+          <li><b>Trust:</b> reviews, returns, a real contact, social that’s alive.</li>
+        </ol>
+        <p>Run all six and still can’t see it? We’ll record a 10–15 minute walkthrough of your store with three ranked fixes. No logins, no call.</p>
+        <p style="margin-top:24px"><a class="btn" href="https://ovxs.studio/pages/request-audit">Book a $99 video audit →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-article">
+    <article class="article">
+      <h2 class="t">Shopify store not converting? <em class="p">Six checks before you redesign</em></h2>
+      <p class="dek">One afternoon, no budget, and a straight list. Run it before anyone sells you a new theme.</p>
+      <p>A version of the same message reaches us most weeks. The store has been live for a few months. Friends say it looks great. Traffic is coming in. Sales aren’t. And the last line is nearly always the same: “We’re thinking about a redesign.”</p>
+      <p>If your Shopify store is not converting, a redesign is the most expensive thing you can try, and it’s rarely the first thing that’s wrong. Most of the time the problem is cheaper than that, and you can find it yourself in one afternoon. Here are the six checks we’d run first. Do them in order, with a notebook, on your phone.</p>
+      <h3>1. The market: why you, and not the first result?</h3>
+      <p>Search the main thing you sell, the way a shopper would. Open the first three results. Note their price, their promise and how fast they deliver.</p>
+      <p>Now write one line: why would someone buy this from you rather than from them? If that line is hard to write, the shopper is having the same trouble. No theme fixes it. The fix is on the product page, in plain words, above the fold.</p>
+      <h3>2. Apps: what did each one earn last month?</h3>
+      <p>Open your installed apps and list them. Next to each one, write what it did for sales last month. Not what it promised — what it did.</p>
+      <p>We often find two apps doing the same job, or an app doing something the theme already does. Each one adds scripts, weight and another thing that can break. Remove the blanks. A lighter store is a faster store, and you don’t need us to do it.</p>
+      <h3>3. Checkout: buy from your own store</h3>
+      <p>Buy one of your own products, on your phone, on mobile data. Count the taps from the product page to “Paid”. Count the form fields. Note every surprise, especially shipping costs that appear late.</p>
+      <p>This is where the numbers are clearest. The average documented cart abandonment rate is <a href="https://baymard.com/lists/cart-abandonment-rate">70.22%</a>, and about 1 in 5 shoppers say they’ve abandoned an order because checkout was <a href="https://baymard.com/lists/cart-abandonment-rate">too long or complicated</a> (Baymard Institute, 2025). Baymard also finds that <a href="https://baymard.com/blog/current-state-of-checkout-ux">64% of sites</a> have checkout UX that is “mediocre” or worse (2025). Shopify’s checkout is already good. What usually hurts is what’s added around it: forced accounts, extra steps, late costs.</p>
+      <h3>4. Pricing: put yours next to three others</h3>
+      <p>Take the three competitors from check one and put their prices next to yours, including shipping.</p>
+      <p>Being more expensive is fine. Saying nothing about it isn’t. If you cost more, the page needs to say why — materials, service, guarantees, who makes it. If you can’t say why, that’s a pricing question, not a design one.</p>
+      <h3>5. Order value: what appears after “Add to cart”?</h3>
+      <p>Add something to your cart and watch what happens next. Is there a sensible second item? A bundle? A note on the free shipping threshold?</p>
+      <p>Getting a visitor to your store costs money. Getting a little more from each visitor costs very little. If the answer to “what appears next” is nothing, that’s a sale you didn’t ask for. Keep it to one relevant suggestion. Three pop-ups are worse than none.</p>
+      <h3>6. Trust: would you buy from you?</h3>
+      <p>Open a product page as if you’d never heard of the brand. Look for reviews, a clear returns policy, a real way to contact someone, and a social account that posted something this month.</p>
+      <p>A product page with no reviews is asking a stranger to go first. Reviews are one of the cheapest problems to fix, and they build on each other. For <a href="https://ovxs.studio/blogs/case-studies/halm-club">Halm</a> the store runs on a subscription and a steady flow of customer feedback: a 4.8 star average rating, 400+ customer reviews and 3 seasonal deliveries a year on subscription.</p>
+      <h3>Business first, then design</h3>
+      <p>Notice what isn’t on the list: fonts, colours, the hero image. Design matters, and we do a lot of it. But in our experience it’s the last 20%. A plain store that gets these six right will usually outsell a beautiful one that doesn’t.</p>
+      <p>So before you brief anyone for a redesign, give the six checks an afternoon. You may find the problem yourself. If you do, fix it, and keep your budget.</p>
+      <h3>Still can’t see it?</h3>
+      <p>That happens. Being close to your own store makes it hard to see. Our $99 video audit is a 10–15 minute recorded walkthrough of your public site: what’s working, what’s costing you, and three ranked fixes. No logins, no call, delivered within 3 working days. If you start a project with us within 60 days, the $99 is credited in full.</p>
+      <p style="margin-top:24px"><a class="btn" href="https://ovxs.studio/pages/request-audit" style="color:#fff">Book a $99 video audit →</a></p>
+      <div class="seo">
+        <div><b>Meta description:</b> Shopify store not converting? Run these six checks in one afternoon before you pay for a redesign. A straight list from a senior Shopify studio.</div>
+        <div><b>Target keyword:</b> Shopify store not converting</div>
+        <div><b>Slug:</b> /blogs/journal/shopify-store-not-converting-six-checks</div>
+        <div><b>Length:</b> about 800 words</div>
+      </div>
+    </article>
+  </section>
+</main>
+<script>
+const slides=[
+  {bg:"primary",ph:"laptop",ey:"Before you redesign",hd:"Six checks. <em>Before any redesign.</em>",sb:"One afternoon, no budget. Swipe in order."},
+  {bg:"dark",ph:"phone-table",n:"01",ey:"The market",hd:"Why you, not the first result? <em>Say it in one line.</em>",sb:"If you can’t, the shopper can’t either."},
+  {bg:"surface",n:"02",ey:"Apps",hd:"List every app. <em>Write what it earned.</em>",sb:"Last month, in sales. Remove the blanks."},
+  {bg:"container",ph:"phone-desk",n:"03",ey:"Checkout",hd:"Buy from your own store. <em>On your phone.</em>",sb:"Count the taps and fields. About 1 in 5 shoppers have dropped a cart over a long checkout.",src:"Baymard Institute, 2025"},
+  {bg:"dark",n:"04",ey:"Pricing",hd:"Costing more is fine. <em>Silence about it isn’t.</em>",sb:"Put your price next to three others. Then say why."},
+  {bg:"primary",n:"05",ey:"Order value",hd:"What appears after <em>“Add to cart”?</em>",sb:"If it’s nothing, that’s a sale you didn’t ask for."},
+  {bg:"container",n:"06",ey:"Trust",hd:"No reviews asks a stranger <em>to go first.</em>",sb:"Reviews, returns, a real contact, social that posted this month."},
+  {bg:"dark",ey:"Video audit · $99",hd:"Still stuck? <em>We’ll look for you.</em>",sb:"10–15 minutes, three ranked fixes, no call.",cta:"Book a $99 video audit →"}
+];
+const light=b=>b==="surface"||b==="container";
+document.getElementById("slides").innerHTML=slides.map((s,i)=>`
+<div class="frame"><div class="board bg-${s.bg}${s.ph?" ph-on":" full"}" id="slide-${i+1}">
+  ${s.ph?`<div class="ph" style="background-image:url(assets/${s.ph}.jpg)"></div>`:""}
+  ${s.n?`<div class="badge">${s.n}</div>`:""}
+  <div class="pn">
+    <div class="ey">${s.ey}</div>
+    <h2 class="hd">${s.hd}</h2>
+    <div class="sb">${s.sb}</div>
+    ${s.src?`<div class="src">${s.src}</div>`:""}
+    ${s.cta?`<div class="cta">${s.cta}</div>`:""}
+  </div>
+  <div class="ft"><img src="assets/${light(s.bg)?"ovxs-logo":"ovxs-logo-white"}.svg" alt="Studio OVXS"><span>ovxs.studio · ${i+1}/8</span></div>
+</div></div>`).join("");
+
+const q=new URLSearchParams(location.search).get("export");
+if(q){
+  const el=document.getElementById(q);
+  document.body.className="export";
+  document.body.replaceChildren(el);
+}else{
+  const fit=()=>document.querySelectorAll(".frame").forEach(f=>{const b=f.firstElementChild;b.style.transform=`scale(${f.clientWidth/1080})`});
+  new ResizeObserver(fit).observe(document.body);fit();
+  const show=()=>{const t=(location.hash.slice(1)||"linkedin");const ok=document.getElementById("p-"+t)?t:"linkedin";
+    document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+ok));
+    document.querySelectorAll(".tabs a").forEach(a=>a.setAttribute("aria-selected",a.dataset.t===ok));fit();};
+  addEventListener("hashchange",show);show();
+}
+document.fonts.ready.then(()=>document.documentElement.dataset.ready="1");
+</script>
+</body>
+</html>

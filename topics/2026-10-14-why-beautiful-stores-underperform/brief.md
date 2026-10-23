@@ -1,5 +1,5 @@
 # Why beautiful stores still underperform
-Pillar: Honest advice · Audience: Everyone · Make: LinkedIn post, IG carousel, Newsletter, Article · CTA: Book a $99 video audit · Status: awaiting-decision
+Pillar: Honest advice · Audience: Everyone · Make: LinkedIn post, IG carousel, Newsletter, Article · CTA: Book a $99 video audit · Status: review
 
 ## Raw input
 - Angle: invest in good and experience team, who knows more than design, but also business aspect of it, so business should be priority than design.
@@ -62,3 +62,6 @@ Pillar: Honest advice · Audience: Everyone · Make: LinkedIn post, IG carousel,
 ## Decisions
 - Angle A was decided on 2026-10-14 in Claude Design. It's open again for a new choice on the Desk.
 - Must avoid: Pinterest photos in the final carousel (not licensed); swap for Unsplash or Pexels.
+- 2026-10-23: Ramit picked angle B, “The six-check afternoon”, on the Desk, no notes.
+- Photos: Pinterest links dropped; Unsplash only (f2JMVDnarks laptop, plus two phone shots). Preview: https://claude.ai/artifact/MfGJWqN9e6n3H7DGFafCEG
+- Spiegel 2017 review stat left out (older than the 3-year rule); Halm proof used for reviews instead.
