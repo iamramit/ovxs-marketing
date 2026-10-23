@@ -1,0 +1,499 @@
+<title>OVXS Content Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Editorial desk: one column of decision cards, Studio OVXS teal, IvyPresto titles, Elza labels */
+@font-face { font-family: "IvyPresto Display"; src: url("fonts/ivy-presto-display.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Elza Condensed"; src: url("fonts/elza-condensed-black.woff2") format("woff2"); font-weight: 900; font-display: swap; }
+:root {
+  --bg: #F3F7F5;
+  --surface: #FFFFFF;
+  --surface-2: #E8F0ED;
+  --ink: #142120;
+  --muted: #4E5E5A;
+  --line: #C9D5D1;
+  --primary: #1B6A63;
+  --on-primary: #FFFFFF;
+  --primary-soft: #D3EBE5;
+  --warn: #7A4F00;
+  --warn-soft: #FBEBC8;
+  --danger: #A8261E;
+  --focus: #2B5D9C;
+  --display: "IvyPresto Display", "Iowan Old Style", Georgia, serif;
+  --label: "Elza Condensed", "Arial Narrow", "Roboto Condensed", Impact, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1614; --surface: #142120; --surface-2: #1B2B28; --ink: #E2EDEA; --muted: #9DB1AC; --line: #2B3D39;
+    --primary: #7CCFC2; --on-primary: #06302B; --primary-soft: #1D3C37; --warn: #F2C46B; --warn-soft: #3A2E12; --danger: #F2A49E; --focus: #9DC2F5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1614; --surface: #142120; --surface-2: #1B2B28; --ink: #E2EDEA; --muted: #9DB1AC; --line: #2B3D39;
+  --primary: #7CCFC2; --on-primary: #06302B; --primary-soft: #1D3C37; --warn: #F2C46B; --warn-soft: #3A2E12; --danger: #F2A49E; --focus: #9DC2F5;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 880px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 28px; }
+header { display: grid; gap: 6px; }
+.eyebrow { font: 700 12px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--primary); }
+h1 { font: 700 clamp(38px, 7vw, 56px)/1 var(--display); letter-spacing: -.03em; margin: 0; text-wrap: balance; }
+h1 em { font-style: italic; text-decoration: underline wavy var(--primary); text-decoration-thickness: 2px; text-underline-offset: .16em; }
+.summary { color: var(--muted); margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab { font: 900 14px/1 var(--label); letter-spacing: .06em; text-transform: uppercase; padding: 11px 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.tab[aria-selected="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.count { font: 600 12px/1 var(--body); letter-spacing: 0; padding: 3px 7px; border-radius: 999px; background: var(--surface-2); color: var(--ink); font-variant-numeric: tabular-nums; }
+.tab[aria-selected="true"] .count { background: var(--on-primary); color: var(--primary); }
+.list { display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.card-head { display: grid; gap: 6px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; color: var(--muted); font-size: 13px; }
+.pill { font: 700 11px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; padding: 6px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink); white-space: nowrap; }
+.pill.you { background: var(--warn-soft); color: var(--warn); }
+.pill.go { background: var(--primary-soft); color: var(--primary); }
+h2 { font: 700 clamp(24px, 4vw, 30px)/1.08 var(--display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+h3 { font: 700 12px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.section { display: grid; gap: 10px; min-width: 0; }
+ul.sowhat { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+details { border-top: 1px solid var(--line); padding-top: 10px; min-width: 0; }
+summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+.sources { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; overflow-wrap: anywhere; }
+a { color: var(--primary); }
+.angles { display: grid; gap: 10px; }
+.angle { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; cursor: pointer; background: var(--surface); }
+.angle:hover { border-color: var(--primary); }
+.angle input { position: absolute; opacity: 0; pointer-events: none; }
+.angle:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+.angle:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.letter { grid-row: span 4; width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font: 900 18px/1 var(--label); background: var(--surface-2); color: var(--ink); }
+.angle:has(input:checked) .letter { background: var(--primary); color: var(--on-primary); }
+.angle-name { font-weight: 700; }
+.hook { font: italic 700 18px/1.3 var(--display); letter-spacing: -.01em; margin: 2px 0; }
+.small { font-size: 13.5px; color: var(--muted); }
+.small b { color: var(--ink); font-weight: 600; }
+.draft { white-space: pre-wrap; background: var(--surface-2); border-radius: 14px; padding: 14px 16px; margin-top: 10px; font-size: 14.5px; overflow-wrap: anywhere; }
+label.field { display: grid; gap: 6px; font-weight: 600; font-size: 14px; }
+textarea, input[type="text"], input[type="date"], input[type="time"], select { font: 15px/1.4 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0; }
+textarea { min-height: 76px; resize: vertical; }
+textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.btn { font: 900 14px/1 var(--label); letter-spacing: .06em; text-transform: uppercase; padding: 13px 18px; border-radius: 999px; border: 1px solid var(--primary); background: var(--primary); color: var(--on-primary); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; text-decoration: none; }
+.btn.ghost { background: transparent; color: var(--primary); }
+.btn.quiet { background: transparent; border-color: transparent; color: var(--muted); padding-inline: 8px; }
+.btn.danger { background: var(--danger); border-color: var(--danger); color: var(--surface); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.checks label { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; }
+.next { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.next b { color: var(--ink); }
+.empty { border: 1px dashed var(--line); border-radius: 22px; padding: 28px 22px; text-align: left; color: var(--muted); display: grid; gap: 6px; }
+.empty strong { font: 700 22px/1.15 var(--display); color: var(--ink); }
+.notice { border-radius: 16px; padding: 14px 16px; background: var(--warn-soft); color: var(--warn); font-size: 14px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 999px; font-weight: 600; font-size: 14px; z-index: 20; }
+.confirm { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 14px; color: var(--danger); }
+@media (prefers-reduced-motion: no-preference) { .card { animation: rise .35s cubic-bezier(.2,0,0,1) both; } @keyframes rise { from { transform: translateY(8px); } to { transform: none; } } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Studio OVXS · Marketing</span>
+    <h1>Content <em>desk.</em></h1>
+    <p class="summary" id="summary">Loading the desk…</p>
+  </header>
+
+  <nav role="tablist" aria-label="Desk views">
+    <button class="tab" role="tab" id="tab-needs" data-view="needs" aria-selected="true">Needs you <span class="count" id="c-needs">0</span></button>
+    <button class="tab" role="tab" id="tab-progress" data-view="progress" aria-selected="false">In progress <span class="count" id="c-progress">0</span></button>
+    <button class="tab" role="tab" id="tab-posted" data-view="posted" aria-selected="false">Posted <span class="count" id="c-posted">0</span></button>
+    <button class="tab" role="tab" id="tab-new" data-view="new" aria-selected="false">New topic</button>
+  </nav>
+
+  <div id="notice" hidden></div>
+
+  <section class="list" id="view-needs" role="tabpanel" aria-labelledby="tab-needs">
+    <div class="empty"><strong>Nothing waiting on you.</strong><span>Angles to pick and drafts to approve show up here after each scheduled run.</span></div>
+  </section>
+  <section class="list" id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden></section>
+  <section class="list" id="view-posted" role="tabpanel" aria-labelledby="tab-posted" hidden></section>
+  <section class="list" id="view-new" role="tabpanel" aria-labelledby="tab-new" hidden>
+    <form class="card" id="new-form">
+      <div class="card-head">
+        <span class="eyebrow">Suggest a topic</span>
+        <h2>What should we write about?</h2>
+        <p class="small">The next weekly run researches it and brings back three angles for you to choose from.</p>
+      </div>
+      <label class="field" for="nt-title">Topic
+        <input type="text" id="nt-title" required maxlength="140" placeholder="e.g. Why most Shopify migrations lose SEO">
+      </label>
+      <label class="field" for="nt-notes">Your take, notes or links
+        <textarea id="nt-notes" maxlength="4000" placeholder="Anything you already believe, client stories, links to read"></textarea>
+      </label>
+      <div class="grid2">
+        <label class="field" for="nt-pillar">Pillar
+          <select id="nt-pillar">
+            <option value="">Let Claude pick</option>
+            <option>Honest advice</option><option>Proof</option><option>Shopify know-how</option><option>Behind the studio</option><option>Founder POV</option>
+          </select>
+        </label>
+        <label class="field" for="nt-audience">Audience
+          <select id="nt-audience">
+            <option>Everyone</option><option>New founders</option><option>Movers</option><option>Growing stores</option>
+          </select>
+        </label>
+      </div>
+      <div class="section">
+        <h3>Make</h3>
+        <div class="checks" id="nt-make">
+          <label><input type="checkbox" value="LinkedIn post" checked> LinkedIn post</label>
+          <label><input type="checkbox" value="Facebook post"> Facebook post</label>
+          <label><input type="checkbox" value="IG carousel"> IG carousel</label>
+          <label><input type="checkbox" value="Newsletter"> Newsletter</label>
+          <label><input type="checkbox" value="Article" checked> Article</label>
+          <label><input type="checkbox" value="LinkedIn video"> LinkedIn video</label>
+        </div>
+      </div>
+      <div class="row"><button class="btn" type="submit" id="nt-submit">Add to the queue →</button></div>
+    </form>
+    <div class="list" id="requests"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const ET = "America/New_York";
+  const VIEWS = ["needs", "progress", "posted", "new"];
+  const NEEDS = ["awaiting-decision", "review"];
+  const PROGRESS = ["researching", "decided", "drafting", "changes", "approved"];
+  const STATUS_LABEL = {
+    "researching": "Researching", "awaiting-decision": "Pick an angle", "decided": "Angle picked", "drafting": "Drafting",
+    "review": "Review drafts", "changes": "Changes asked", "approved": "Scheduled", "posted": "Posted", "dropped": "Dropped"
+  };
+  const NEXT_STEP = {
+    "researching": "Research is running. Angles land here when it's done.",
+    "decided": "Claude writes the drafts on the next daily run.",
+    "drafting": "Drafts are being written now.",
+    "changes": "Claude redrafts with your notes on the next daily run.",
+    "approved": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
+  };
+
+  let db = null, canEdit = false, briefs = [], requests = [];
+  let view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "needs";
+  const form = {};
+  const confirming = new Set();
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const safeUrl = (u) => /^https:\/\/[^\s"'<>]+$/i.test(String(u || "")) ? String(u) : "";
+  const fmtDate = (iso) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    return new Intl.DateTimeFormat("en-US", { timeZone: ET, month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(d) + " ET";
+  };
+  const fmtSlot = (slot) => {
+    if (!slot || !slot.date) return "";
+    const [y, m, d] = slot.date.split("-").map(Number);
+    const day = new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, d)));
+    if (!slot.time) return day;
+    const [hh, mm] = slot.time.split(":").map(Number);
+    const h12 = ((hh + 11) % 12) + 1;
+    return `${day}, ${h12}:${String(mm).padStart(2, "0")} ${hh < 12 ? "AM" : "PM"} ET`;
+  };
+  const f = (id) => (form[id] ||= { angle: "", notes: "", date: "", time: "10:00", channels: null });
+
+  let toastTimer;
+  function toast(msg) {
+    let t = $(".toast");
+    if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+    t.textContent = msg;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.remove(), 2600);
+  }
+  function notice(msg) {
+    const n = $("#notice");
+    if (!msg) { n.hidden = true; return; }
+    n.className = "notice"; n.textContent = msg; n.hidden = false;
+  }
+
+  function setView(v) {
+    view = v;
+    for (const name of VIEWS) {
+      $("#view-" + name).hidden = name !== v;
+      $("#tab-" + name).setAttribute("aria-selected", String(name === v));
+    }
+    try { history.replaceState(null, "", "#" + v); } catch (e) {}
+  }
+
+  function metaLine(b) {
+    const make = Array.isArray(b.make) ? b.make.join(" · ") : "";
+    return `<div class="meta">
+      <span class="pill ${NEEDS.includes(b.status) ? "you" : b.status === "approved" || b.status === "posted" ? "go" : ""}">${esc(STATUS_LABEL[b.status] || b.status)}</span>
+      ${b.pillar ? `<span>${esc(b.pillar)}</span>` : ""}${b.audience ? `<span>· ${esc(b.audience)}</span>` : ""}${make ? `<span>· ${esc(make)}</span>` : ""}
+    </div>`;
+  }
+
+  function research(b) {
+    const so = Array.isArray(b.so_what) ? b.so_what : [];
+    const src = Array.isArray(b.sources) ? b.sources : [];
+    if (!so.length && !src.length) return "";
+    return `<div class="section"><h3>What the research says</h3>
+      ${so.length ? `<ul class="sowhat">${so.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}
+      ${src.length ? `<details><summary>${src.length} source${src.length > 1 ? "s" : ""}</summary><ol class="sources">${src.map((s) => {
+        const u = safeUrl(s.url);
+        return `<li>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(s.label || u)}</a>` : esc(s.label)}</li>`;
+      }).join("")}</ol></details>` : ""}
+    </div>`;
+  }
+
+  function dropControl(b) {
+    if (confirming.has(b.id)) {
+      return `<span class="confirm">Drop this topic for good?
+        <button class="btn danger" type="button" data-act="drop-yes" data-id="${esc(b.id)}">Drop it</button>
+        <button class="btn quiet" type="button" data-act="drop-no" data-id="${esc(b.id)}">Keep</button></span>`;
+    }
+    return `<button class="btn quiet" type="button" data-act="drop" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Drop topic</button>`;
+  }
+
+  function decisionCard(b) {
+    const st = f(b.id);
+    const angles = Array.isArray(b.angles) ? b.angles : [];
+    return `<article class="card" data-id="${esc(b.id)}">
+      <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.raw_angle ? `<p class="small"><b>Your note:</b> ${esc(b.raw_angle)}</p>` : ""}</div>
+      ${research(b)}
+      <div class="section"><h3>Pick an angle</h3>
+        <div class="angles" role="radiogroup" aria-label="Angles for ${esc(b.title)}">
+        ${angles.map((a) => {
+          const aid = `a-${b.id}-${a.id}`;
+          return `<label class="angle" for="${esc(aid)}">
+            <input type="radio" id="${esc(aid)}" name="angle-${esc(b.id)}" value="${esc(a.id)}" data-field="angle" data-id="${esc(b.id)}" ${st.angle === a.id ? "checked" : ""} ${canEdit ? "" : "disabled"}>
+            <span class="letter" aria-hidden="true">${esc(a.id)}</span>
+            <span class="angle-name">${esc(a.name)}</span>
+            <span class="hook">“${esc(a.hook)}”</span>
+            <span class="small">${esc(a.argument)}</span>
+            <span class="small">${a.proof ? `<b>Proof:</b> ${esc(a.proof)}` : ""}${a.risk ? ` &nbsp;<b>Risk:</b> ${esc(a.risk)}` : ""}</span>
+          </label>`;
+        }).join("")}
+        </div>
+      </div>
+      <label class="field" for="n-${esc(b.id)}">Mix, add or cut (optional)
+        <textarea id="n-${esc(b.id)}" data-field="notes" data-id="${esc(b.id)}" placeholder="e.g. Angle B, but open with the Halm story. Don't mention pricing." ${canEdit ? "" : "disabled"}>${esc(st.notes)}</textarea>
+      </label>
+      <div class="row">
+        <button class="btn" type="button" data-act="decide" data-id="${esc(b.id)}" ${canEdit && st.angle ? "" : "disabled"}>Use angle ${esc(st.angle)} →</button>
+        ${dropControl(b)}
+      </div>
+    </article>`;
+  }
+
+  function draftsBlock(b) {
+    const d = b.drafts && typeof b.drafts === "object" ? b.drafts : {};
+    const order = ["LinkedIn post", "Facebook post", "IG carousel", "Newsletter", "Article", "LinkedIn video"];
+    const rank = (k) => { const i = order.indexOf(k); return i < 0 ? order.length : i; };
+    const keys = Object.keys(d).sort((a, z) => rank(a) - rank(z));
+    if (!keys.length) return "";
+    return `<div class="section"><h3>Drafts</h3>${keys.map((k, i) => `<details ${i === 0 ? "open" : ""}><summary>${esc(k)}</summary><div class="draft">${esc(d[k])}</div></details>`).join("")}</div>`;
+  }
+
+  function reviewCard(b) {
+    const st = f(b.id);
+    const make = Array.isArray(b.make) ? b.make : [];
+    if (!st.channels) st.channels = make.slice();
+    const pv = safeUrl(b.preview_url);
+    const ready = canEdit && st.date && st.time && st.channels.length;
+    return `<article class="card" data-id="${esc(b.id)}">
+      <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>
+        ${b.decision && b.decision.angle ? `<p class="small"><b>Angle ${esc(b.decision.angle)}</b>${b.decision.notes ? ` · ${esc(b.decision.notes)}` : ""}</p>` : ""}
+        ${b.review && b.review.verdict === "changes" && b.review.notes ? `<p class="small"><b>Last notes:</b> ${esc(b.review.notes)}</p>` : ""}
+      </div>
+      ${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
+      ${draftsBlock(b)}
+      <div class="section"><h3>Post on (US Eastern)</h3>
+        <div class="grid2">
+          <label class="field" for="d-${esc(b.id)}">Date<input type="date" id="d-${esc(b.id)}" data-field="date" data-id="${esc(b.id)}" value="${esc(st.date)}" ${canEdit ? "" : "disabled"}></label>
+          <label class="field" for="t-${esc(b.id)}">Time<input type="time" id="t-${esc(b.id)}" data-field="time" data-id="${esc(b.id)}" value="${esc(st.time)}" step="900" ${canEdit ? "" : "disabled"}></label>
+        </div>
+        ${make.length ? `<div class="checks">${make.map((m, i) => `<label for="ch-${esc(b.id)}-${i}"><input type="checkbox" id="ch-${esc(b.id)}-${i}" data-field="channel" data-id="${esc(b.id)}" value="${esc(m)}" ${st.channels.includes(m) ? "checked" : ""} ${canEdit ? "" : "disabled"}> ${esc(m)}</label>`).join("")}</div>` : ""}
+      </div>
+      <label class="field" for="n-${esc(b.id)}">Notes for changes
+        <textarea id="n-${esc(b.id)}" data-field="notes" data-id="${esc(b.id)}" placeholder="What to change before it goes out" ${canEdit ? "" : "disabled"}>${esc(st.notes)}</textarea>
+      </label>
+      <div class="row">
+        <button class="btn" type="button" data-act="approve" data-id="${esc(b.id)}" ${ready ? "" : "disabled"}>Approve and schedule →</button>
+        <button class="btn ghost" type="button" data-act="changes" data-id="${esc(b.id)}" ${canEdit && st.notes.trim() ? "" : "disabled"}>Ask for changes</button>
+        ${dropControl(b)}
+      </div>
+    </article>`;
+  }
+
+  function progressCard(b) {
+    const slot = b.review && b.review.slot ? fmtSlot(b.review.slot) : "";
+    const ch = b.review && Array.isArray(b.review.channels) ? b.review.channels.join(" · ") : "";
+    return `<article class="card" data-id="${esc(b.id)}">
+      <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2></div>
+      ${b.status === "approved" && slot ? `<p><b>${esc(slot)}</b>${ch ? ` · ${esc(ch)}` : ""}</p>` : ""}
+      <p class="next"><b>Next:</b> ${esc(NEXT_STEP[b.status] || "Waiting for the next run.")}</p>
+      ${b.status === "approved" ? `<div class="row"><button class="btn ghost" type="button" data-act="posted" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>I've posted it</button></div>` : ""}
+    </article>`;
+  }
+
+  function postedCard(b) {
+    const links = b.posted && typeof b.posted === "object" ? Object.entries(b.posted).filter(([k]) => k !== "at") : [];
+    return `<article class="card" data-id="${esc(b.id)}">
+      <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.posted && b.posted.at ? `<p class="small">Posted ${esc(fmtDate(b.posted.at))}</p>` : ""}</div>
+      ${links.length ? `<div class="row">${links.map(([k, v]) => { const u = safeUrl(v); return u ? `<a class="btn ghost" href="${esc(u)}" target="_blank" rel="noopener">${esc(k)} ↗</a>` : ""; }).join("")}</div>` : ""}
+    </article>`;
+  }
+
+  function empty(title, body) { return `<div class="empty"><strong>${esc(title)}</strong><span>${esc(body)}</span></div>`; }
+
+  function render() {
+    const keepFocus = document.activeElement && document.activeElement.id;
+    const caret = document.activeElement && "selectionStart" in document.activeElement ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
+
+    const needs = briefs.filter((b) => NEEDS.includes(b.status));
+    const progress = briefs.filter((b) => PROGRESS.includes(b.status));
+    const posted = briefs.filter((b) => b.status === "posted");
+    $("#c-needs").textContent = needs.length;
+    $("#c-progress").textContent = progress.length;
+    $("#c-posted").textContent = posted.length;
+    const scheduled = progress.filter((b) => b.status === "approved").length;
+    $("#summary").textContent = db
+      ? `${needs.length} waiting on you · ${progress.length} in progress${scheduled ? ` (${scheduled} scheduled)` : ""} · ${posted.length} posted`
+      : "The desk's data loads when this page is open in Claude.";
+
+    $("#view-needs").innerHTML = needs.length
+      ? needs.map((b) => b.status === "review" ? reviewCard(b) : decisionCard(b)).join("")
+      : empty("Nothing waiting on you.", "Angles to pick and drafts to approve show up here after each scheduled run.");
+    $("#view-progress").innerHTML = progress.length
+      ? progress.map(progressCard).join("")
+      : empty("Nothing in progress.", "Once you pick an angle, the piece moves here while it's drafted, then scheduled.");
+    $("#view-posted").innerHTML = posted.length
+      ? posted.map(postedCard).join("")
+      : empty("Nothing posted yet.", "Posts you've published are listed here with their links.");
+    $("#requests").innerHTML = requests.length
+      ? `<div class="section"><h3>Your suggestions</h3></div>` + requests.map((r) => `<article class="card"><div class="card-head"><div class="meta"><span class="pill ${r.status === "new" ? "you" : "go"}">${r.status === "new" ? "Queued" : "Picked up"}</span><span>${esc(fmtDate(r.created_at))}</span></div><h2>${esc(r.title)}</h2>${r.notes ? `<p class="small">${esc(r.notes)}</p>` : ""}</div></article>`).join("")
+      : "";
+
+    $("#nt-submit").disabled = !canEdit;
+    if (keepFocus) {
+      const el = document.getElementById(keepFocus);
+      if (el) { el.focus({ preventScroll: true }); if (caret && "setSelectionRange" in el) { try { el.setSelectionRange(caret[0], caret[1]); } catch (e) {} } }
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const tab = e.target.closest(".tab");
+    if (tab) { setView(tab.dataset.view); return; }
+    const btn = e.target.closest("button[data-act]");
+    if (!btn || btn.disabled) return;
+    act(btn.dataset.act, btn.dataset.id, btn);
+  });
+
+  document.addEventListener("input", (e) => {
+    const el = e.target;
+    const id = el.dataset && el.dataset.id;
+    if (!id) return;
+    const st = f(id);
+    const field = el.dataset.field;
+    if (field === "angle") st.angle = el.value;
+    if (field === "notes") st.notes = el.value;
+    if (field === "date") st.date = el.value;
+    if (field === "time") st.time = el.value;
+    if (field === "channel") {
+      const set = new Set(st.channels || []);
+      el.checked ? set.add(el.value) : set.delete(el.value);
+      st.channels = [...set];
+    }
+    const card = el.closest(".card");
+    if (!card) return;
+    const decide = card.querySelector('[data-act="decide"]');
+    if (decide) { decide.disabled = !(canEdit && st.angle); decide.textContent = `Use angle ${st.angle} →`; }
+    const approve = card.querySelector('[data-act="approve"]');
+    if (approve) approve.disabled = !(canEdit && st.date && st.time && st.channels && st.channels.length);
+    const changes = card.querySelector('[data-act="changes"]');
+    if (changes) changes.disabled = !(canEdit && st.notes.trim());
+  });
+
+  async function write(id, patch, done) {
+    try {
+      await db.doc("briefs/" + id).update({ ...patch, updated_at: new Date().toISOString() });
+      delete form[id];
+      toast(done);
+    } catch (err) {
+      toast(err && err.code === "invalid_argument" ? "You need edit access to change the desk." : "Couldn't save. Try again in a moment.");
+    }
+  }
+
+  async function act(kind, id, btn) {
+    if (!db || !canEdit) return;
+    const st = f(id);
+    const now = new Date().toISOString();
+    if (kind === "drop") { confirming.add(id); render(); return; }
+    if (kind === "drop-no") { confirming.delete(id); render(); return; }
+    btn.disabled = true;
+    if (kind === "drop-yes") { confirming.delete(id); await write(id, { status: "dropped", dropped_at: now }, "Topic dropped"); return; }
+    if (kind === "decide") {
+      await write(id, { status: "decided", decision: { angle: st.angle, notes: st.notes.trim(), decided_at: now } }, `Angle ${st.angle} saved. Drafts come on the next run.`);
+      return;
+    }
+    if (kind === "approve") {
+      await write(id, { status: "approved", review: { verdict: "approve", notes: st.notes.trim(), slot: { date: st.date, time: st.time, tz: ET }, channels: st.channels, decided_at: now } }, "Approved and scheduled");
+      return;
+    }
+    if (kind === "posted") {
+      await write(id, { status: "posted", posted: { at: now } }, "Marked as posted");
+      return;
+    }
+    if (kind === "changes") {
+      await write(id, { status: "changes", review: { verdict: "changes", notes: st.notes.trim(), decided_at: now } }, "Notes sent. Redraft comes on the next run.");
+    }
+  }
+
+  $("#new-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!db || !canEdit) return;
+    const title = $("#nt-title").value.trim();
+    if (!title) return;
+    const make = [...document.querySelectorAll("#nt-make input:checked")].map((i) => i.value);
+    $("#nt-submit").disabled = true;
+    try {
+      await db.collection("requests").add({
+        title, notes: $("#nt-notes").value.trim(), pillar: $("#nt-pillar").value, audience: $("#nt-audience").value,
+        make: make.length ? make : ["LinkedIn post", "Article"], status: "new", created_at: new Date().toISOString()
+      });
+      $("#new-form").reset();
+      toast("Added. It's researched on the next weekly run.");
+    } catch (err) {
+      toast(err && err.code === "quota_exceeded" ? "The desk is full. Clear out old topics first." : "Couldn't add the topic. Try again.");
+    } finally {
+      $("#nt-submit").disabled = !canEdit;
+    }
+  });
+
+  setView(view);
+  render();
+
+  (async () => {
+    const [dbNs, user] = await Promise.all([window.claude?.use?.("db"), window.claude?.use?.("user")]);
+    canEdit = !!(user && user.canEdit());
+    db = dbNs || null;
+    if (!db) { notice("Open this page in Claude to load the desk."); render(); return; }
+    if (!canEdit) notice("You can view the desk, but only editors can pick angles or approve posts.");
+    db.collection("briefs").orderBy("updated_at", "desc").limit(200).onSnapshot((snap) => {
+      briefs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      render();
+    }, () => notice("The desk stopped updating. Reload the page."));
+    db.collection("requests").orderBy("created_at", "desc").limit(30).onSnapshot((snap) => {
+      requests = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r) => r.status !== "archived");
+      render();
+    }, () => {});
+  })();
+})();
+</script>
