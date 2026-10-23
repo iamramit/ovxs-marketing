@@ -48,7 +48,7 @@ When the URL has `?export=<id>` (`li-graphic`, `slide-1` … `slide-8`):
 Headless Chrome screenshots it at `--window-size=1080,1350`.
 
 ## Photography
-Calm, daylight, real-work moments in muted naturals and greens, with headline space top-left. No glossy corporate stock. Stock people never pose as clients or team. Use Unsplash or Pexels only, with direct image URLs (`images.unsplash.com/...?w=1600`).
+Calm, daylight, real-work moments in muted naturals and greens, with headline space top-left. No glossy corporate stock. Stock people never pose as clients or team. Use Pexels or Unsplash only, downloaded with `scripts/stock.mjs` into `assets/`. Reference the local file (`assets/cover.jpg`), never a hotlinked URL, and publish `assets/*` with the Artifact.
 
 ## Quality bar before publishing
 - Every tab renders, no broken images, no console errors.

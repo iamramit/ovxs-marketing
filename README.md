@@ -20,6 +20,8 @@ Ideas can also go in the Desk's **New topic** tab. The next weekly run picks the
 - `topics/<date>-<slug>/` — `brief.md` (research, angles, decisions), `copy.md`, `page.html` (designed preview), `export/` (PNGs and post text).
 - `desk/index.html` — source of the Content Desk artifact.
 - `brand/` — fonts and logos for previews.
+- `scripts/stock.mjs` — searches Pexels and Unsplash and downloads photos with their credits. It needs a key in `.env`; copy `.env.example` to create it.
+- `docs/OVXS-Content-Playbook.pdf` — the team guide (source in `docs/guide.html`).
 - `.claude/skills/content/` — the `/content` skill.
 - `imports/` — earlier work brought in from Claude Design.
 

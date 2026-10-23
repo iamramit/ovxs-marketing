@@ -51,6 +51,10 @@ Pillar: · Audience: · Make: · CTA: · Status:
 - Make (final):
 - Decided on: <date>
 
+## Photos
+| File | Source | Photographer | Page |
+|---|---|---|---|
+
 ## SEO (articles only)
 - Target keyword:
 - Meta description:

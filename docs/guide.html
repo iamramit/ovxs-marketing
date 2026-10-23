@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OVXS Content Playbook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+@font-face { font-family: "IvyPresto Display"; src: url("../brand/ivy-presto-display.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Elza Condensed"; src: url("../brand/elza-condensed-black.woff2") format("woff2"); font-weight: 900; }
+:root { --ink: #142120; --muted: #4E5E5A; --line: #C9D5D1; --primary: #1B6A63; --soft: #E3F1ED; --wash: #F3F7F5; --dark: #0F2F2C; }
+@page { size: A4; margin: 18mm 17mm 18mm 17mm; }
+@page :first { margin: 0; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; color: var(--ink); font: 10.4pt/1.55 "Inter", system-ui, sans-serif; }
+h1, h2, h3 { font-family: "IvyPresto Display", Georgia, serif; font-weight: 700; letter-spacing: -.02em; margin: 0; line-height: 1.08; }
+h2 { font-size: 22pt; margin: 0 0 10pt; break-after: avoid; }
+h3 { font-size: 13.5pt; margin: 14pt 0 5pt; break-after: avoid; }
+h2 em, h1 em { font-style: italic; text-decoration: underline wavy var(--primary); text-decoration-thickness: 1.5pt; text-underline-offset: .16em; }
+p { margin: 0 0 7pt; }
+ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+li { margin: 0 0 3pt; }
+a { color: var(--primary); text-decoration: none; }
+code { font: 9.2pt/1.4 ui-monospace, "SF Mono", Menlo, monospace; background: var(--wash); padding: 1pt 4pt; border-radius: 3pt; }
+.eyebrow { font: 700 8pt/1 "Inter", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--primary); margin-bottom: 6pt; display: block; break-after: avoid; page-break-after: avoid; }
+.label { font: 900 9pt/1 "Elza Condensed", "Arial Narrow", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+section { break-before: page; }
+section.flow { break-before: auto; margin-top: 18pt; }
+.cover { height: 296mm; display: flex; flex-direction: column; justify-content: space-between; background: var(--dark); color: #E6F2EF; margin: 0; padding: 26mm 22mm; overflow: hidden; }
+.cover h1 { font-size: 52pt; color: #fff; line-height: .98; }
+.cover h1 em { text-decoration-color: #7CCFC2; }
+.cover .eyebrow { color: #7CCFC2; }
+.cover p { color: #BFD6D1; font-size: 12pt; max-width: 120mm; }
+.cover .meta { display: flex; gap: 18pt; font-size: 9pt; color: #9DB8B2; border-top: 1px solid #2E5550; padding-top: 10pt; }
+.cover img { width: 34mm; }
+table { width: 100%; border-collapse: collapse; margin: 4pt 0 10pt; font-size: 9.6pt; }
+tr { break-inside: avoid; }
+th { text-align: left; font: 700 7.6pt/1.2 "Inter", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); border-bottom: 1.2pt solid var(--ink); padding: 5pt 6pt 5pt 0; }
+td { border-bottom: .6pt solid var(--line); padding: 6pt 8pt 6pt 0; vertical-align: top; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.flowchart { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5pt; margin: 8pt 0 12pt; break-inside: avoid; }
+.step { border: .8pt solid var(--line); border-radius: 8pt; padding: 8pt 7pt; background: #fff; }
+.step.you { background: var(--soft); border-color: var(--primary); }
+.step b { display: block; font: 900 9pt/1.1 "Elza Condensed", sans-serif; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4pt; }
+.step span { font-size: 8.3pt; line-height: 1.35; color: var(--muted); display: block; }
+.step .who { font: 700 7pt/1 "Inter"; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 5pt; }
+.key { font-size: 8.4pt; color: var(--muted); margin-top: -4pt; }
+.note { background: var(--wash); border-radius: 8pt; padding: 9pt 11pt; margin: 6pt 0 10pt; break-inside: avoid; }
+.note b:first-child { color: var(--primary); }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps > li { counter-increment: s; position: relative; padding-left: 26pt; margin-bottom: 9pt; break-inside: avoid; }
+.steps > li::before { content: counter(s); position: absolute; left: 0; top: -1pt; width: 17pt; height: 17pt; border-radius: 6pt; background: var(--primary); color: #fff; font: 900 10pt/17pt "Elza Condensed", sans-serif; text-align: center; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+.do, .dont { border-radius: 8pt; padding: 9pt 11pt; break-inside: avoid; }
+.do { background: var(--soft); }
+.dont { background: #F7ECEA; }
+.do h4, .dont h4 { margin: 0 0 5pt; font: 900 9.5pt/1 "Elza Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.dont h4 { color: #8E2A20; }
+.do h4 { color: var(--primary); }
+.toc { list-style: none; padding: 0; columns: 2; column-gap: 18pt; }
+.toc li { padding: 5pt 0; border-bottom: .6pt solid var(--line); break-inside: avoid; }
+.toc span { color: var(--primary); font-weight: 700; margin-right: 6pt; }
+.roadmap td:nth-child(2) { white-space: nowrap; }
+footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top: .6pt solid var(--line); padding-top: 8pt; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div><img src="../brand/ovxs-logo-white.svg" alt="Studio OVXS"></div>
+  <div>
+    <span class="eyebrow">Marketing playbook · v1.0</span>
+    <h1>One topic in.<br><em>Posts out.</em></h1>
+    <p style="margin-top:14pt">How the OVXS team plans, researches, writes, approves and posts content with Claude — and how we keep it sounding like us.</p>
+  </div>
+  <div class="meta"><span>October 2026</span><span>For the OVXS team</span><span>Internal — do not share outside the studio</span></div>
+</div>
+
+<section>
+  <span class="eyebrow">Contents</span>
+  <h2>What's <em>inside.</em></h2>
+  <ul class="toc">
+    <li><span>01</span>How the system works</li>
+    <li><span>02</span>Who does what</li>
+    <li><span>03</span>Where everything lives</li>
+    <li><span>04</span>The weekly rhythm</li>
+    <li><span>05</span>Step by step: from topic to post</li>
+    <li><span>06</span>The Content Desk</li>
+    <li><span>07</span>Using voice.md</li>
+    <li><span>08</span>Using pillars.md</li>
+    <li><span>09</span>Using tracker.csv</li>
+    <li><span>10</span>Photos: Pexels and Unsplash</li>
+    <li><span>11</span>House rules</li>
+    <li><span>12</span>Getting better every month</li>
+    <li><span>13</span>Future versions</li>
+    <li><span>14</span>When something goes wrong</li>
+  </ul>
+
+  <section class="flow">
+    <span class="eyebrow">01 · Overview</span>
+    <h2>How the system <em>works.</em></h2>
+    <p>Claude does the slow parts — research, first drafts, designed previews, exporting images. We do the parts that need judgment: which angle is right, whether a draft sounds like us, and when it goes out. Nothing is posted without a person clicking Post.</p>
+    <div class="flowchart">
+      <div class="step"><div class="who">Claude · Mon</div><b>Research</b><span>Picks 3 topics, reads our evidence, forums and sources</span></div>
+      <div class="step"><div class="who">Claude</div><b>3 angles</b><span>Three different takes, each with a hook, proof and risk</span></div>
+      <div class="step you"><div class="who">You · Desk</div><b>Decide</b><span>Pick A, B or C, mix them, add notes — or drop it</span></div>
+      <div class="step"><div class="who">Claude · daily</div><b>Draft</b><span>Long piece first, posts cut from it, designed preview</span></div>
+      <div class="step you"><div class="who">You · Desk</div><b>Approve</b><span>Approve with a date, or ask for changes</span></div>
+      <div class="step you"><div class="who">You</div><b>Post</b><span>Files ready on the day; you post and tap "I've posted it"</span></div>
+    </div>
+    <p class="key">Shaded steps are human decisions. Two of them — the angle and the approval — are required for every piece.</p>
+  </section>
+</section>
+
+<section>
+    <span class="eyebrow">02 · Roles</span>
+    <h2>Who does <em>what.</em></h2>
+    <table>
+      <tr><th>Role</th><th>Does</th><th>Never does</th></tr>
+      <tr><td>Ramit (owner)</td><td>Final say on angles and approvals, edits voice.md and pillars.md, switches posting mode, posts from the company pages</td><td>—</td></tr>
+      <tr><td>Team</td><td>Suggests topics on the Desk, leaves notes on drafts, shares client stories and wins, posts on their own profiles once approved</td><td>Approves its own suggestions; posts anything not approved on the Desk</td></tr>
+      <tr><td>Claude</td><td>Researches, writes three angles, drafts, builds previews, exports images and text, keeps the tracker up to date</td><td>Posts, schedules inside LinkedIn/Facebook/Instagram, signs in, invents stats, clients or results</td></tr>
+    </table>
+
+  <section class="flow">
+  <span class="eyebrow">03 · Files</span>
+  <h2>Where everything <em>lives.</em></h2>
+  <p>Everything is in the private GitHub repo <code>iamramit/ovxs-marketing</code>. Nothing in it is published on the OVXS website.</p>
+  <table>
+    <tr><th>What</th><th>Where</th><th>Use it to</th></tr>
+    <tr><td>Content Desk</td><td>claude.ai artifact (link from Ramit)</td><td>Decide, review, approve, suggest topics. The only screen most people need.</td></tr>
+    <tr><td>voice.md</td><td>repo root</td><td>The rules every draft follows: tone, words, offer, proof, channel formats</td></tr>
+    <tr><td>pillars.md</td><td>repo root</td><td>The five themes we post about and the weekly mix</td></tr>
+    <tr><td>tracker.csv</td><td>repo root</td><td>One row per piece: status, angle, links. Our content calendar and history.</td></tr>
+    <tr><td>Topic folders</td><td><code>topics/YYYY-MM-DD-slug/</code></td><td><code>brief.md</code> (research, angles, decisions), <code>copy.md</code>, <code>page.html</code> preview, <code>assets/</code> photos + credits, <code>export/</code> PNGs and post text</td></tr>
+    <tr><td>The /content skill</td><td><code>.claude/skills/content/</code></td><td>The instructions Claude follows. Change it to change the process.</td></tr>
+    <tr><td>Brand files</td><td><code>brand/</code></td><td>Fonts and logos for previews and exports</td></tr>
+    <tr><td>Photo keys</td><td><code>.env</code> (never committed)</td><td>Pexels and Unsplash API keys</td></tr>
+  </table>
+  </section>
+</section>
+
+<section>
+    <span class="eyebrow">04 · Rhythm</span>
+    <h2>The weekly <em>rhythm.</em></h2>
+    <table>
+      <tr><th>When (IST)</th><th>What runs</th><th>What you do</th></tr>
+      <tr><td>Monday 10:00</td><td>Weekly run: picks up to 3 topics (Desk suggestions first, then Ovi questions and quiet pillars), researches each, writes 3 angles</td><td>Pick angles on the Desk by Tuesday</td></tr>
+      <tr><td>Every day 18:30</td><td>Daily run: drafts decided pieces, redrafts ones sent back, prepares anything scheduled for today (US Eastern)</td><td>Review drafts; on posting day, post and tap "I've posted it"</td></tr>
+      <tr><td>Any time</td><td>Live: type <code>/content &lt;topic&gt;</code> in Claude Code in the repo, or press "Run now" on a scheduled task</td><td>Use it when something is urgent</td></tr>
+    </table>
+    <div class="note"><b>Good to know.</b> Scheduled runs only fire while the Claude desktop app is open on Ramit's Mac. A missed run starts the next time the app opens. All post times are US Eastern — that's the time zone our audience and site use.</div>
+</section>
+
+<section>
+  <span class="eyebrow">05 · Step by step</span>
+  <h2>From topic <em>to post.</em></h2>
+  <ol class="steps">
+    <li><b>Suggest a topic.</b> Desk → <span class="label">New topic</span>. Write the topic in plain words, add your own take, client stories or links in Notes, pick a pillar and audience if you know them, tick what to make. Tick <i>Test run</i> to try the flow without it ever being posted.</li>
+    <li><b>Wait for research.</b> The next weekly run (or "Run now") researches it: our own proof, real customer questions from Ovi, forum language, what's already been written, and 2–5 sourced stats. Every stat carries a link and year.</li>
+    <li><b>Pick an angle.</b> Desk → <span class="label">Needs you</span>. Read "What the research says", open the sources if anything looks surprising, then pick A, B or C. Use the notes box to mix ("B, but open with the Halm story") or cut ("no pricing"). Press <span class="label">Use angle</span>. Nothing is written until you do this.</li>
+    <li><b>Review the drafts.</b> After the next daily run the piece is back under Needs you as <i>Review drafts</i>. Open the designed preview, read every channel. Then either:
+      <ul>
+        <li><b>Ask for changes</b> — write exactly what to change. The next run redrafts only that.</li>
+        <li><b>Go back to the angles</b> — if the angle itself was wrong. Drafts are kept until you pick.</li>
+        <li><b>Approve and schedule</b> — pick a date and time (US Eastern) and the channels.</li>
+      </ul></li>
+    <li><b>Posting day.</b> The daily run prepares it. In <i>Draft only</i> mode you get a notification and the PNGs and post text are in the topic's <code>export/</code> folder. In <i>Stage in Chrome</i> mode the composers are already open and filled in.</li>
+    <li><b>Post it yourself.</b> Paste, upload images in order, put the link in the first comment for LinkedIn, click Post. Then tap <span class="label">I've posted it</span> on the Desk. The next run records the post's link in the tracker.</li>
+  </ol>
+  <div class="note"><b>Rule of thumb.</b> A decision on the Desk takes two minutes. If a piece needs more than one round of changes, the angle was probably wrong — go back to the angles instead of patching the copy.</div>
+</section>
+
+<section>
+  <span class="eyebrow">06 · Content Desk</span>
+  <h2>The Content <em>Desk.</em></h2>
+  <p>A private page on claude.ai that works on phone and desktop. Ramit shares it from its Share menu; people need edit access to make decisions.</p>
+  <table>
+    <tr><th>Part</th><th>What it does</th></tr>
+    <tr><td>On posting day</td><td><b>Draft only</b> (default): images and text are exported and you're notified. <b>Stage in Chrome</b>: Claude also opens LinkedIn, Facebook and Instagram with everything filled in and stops before Post.</td></tr>
+    <tr><td>Needs you</td><td>Cards waiting on a person: <i>Pick an angle</i> and <i>Review drafts</i></td></tr>
+    <tr><td>In progress</td><td>What Claude is working on and what's scheduled, with the next step spelled out</td></tr>
+    <tr><td>Posted</td><td>Everything that went out, with links</td></tr>
+    <tr><td>New topic</td><td>Suggest a topic; your suggestions and their status are listed below the form</td></tr>
+  </table>
+  <h3>Buttons and what they do</h3>
+  <table>
+    <tr><th>Button</th><th>Result</th></tr>
+    <tr><td>Use angle</td><td>Saves your pick and notes. Drafts come on the next daily run. Same angle, no notes → existing drafts go straight back to review.</td></tr>
+    <tr><td>Drop topic</td><td>Asks once, then removes it from the flow for good</td></tr>
+    <tr><td>Ask for changes</td><td>Needs a note. Redraft on the next run.</td></tr>
+    <tr><td>Approve and schedule</td><td>Needs a date, time and at least one channel</td></tr>
+    <tr><td>Go back to the angles</td><td>Reopens the choice; drafts are kept</td></tr>
+    <tr><td>Research more angles</td><td>Shown when a piece has only one angle. Keeps yours as A and adds B and C.</td></tr>
+    <tr><td>I've posted it / Test done</td><td>Closes the piece</td></tr>
+  </table>
+</section>
+
+<section>
+  <span class="eyebrow">07 · Voice</span>
+  <h2>Using <em>voice.md.</em></h2>
+  <p>voice.md is the most important file in the system. Every draft is checked against it before anyone sees it, and it overrides everything else — including the skill's own instructions.</p>
+  <h3>What's in it</h3>
+  <ul>
+    <li><b>Who we are and who we write for</b> — the three audiences and the default reader.</li>
+    <li><b>How we sound</b> — honest, plain, we → you, sentence case, no hype, no exclamation marks, no emoji, spaced em dashes.</li>
+    <li><b>Words</b> — what we say, and the banned list (solutions, leverage, unlock, seamless…).</li>
+    <li><b>The offer and proof</b> — exact prices and exact client results. Never rounded, never invented.</li>
+    <li><b>Hard rules</b> — US Eastern only, every stat sourced, no mention of AI writing it.</li>
+    <li><b>Channel rules</b> — length, hook, hashtags and image size for each platform.</li>
+    <li><b>Learned rules</b> — corrections that now apply to everything.</li>
+  </ul>
+  <h3>How to change it</h3>
+  <ol>
+    <li>When you correct a draft, Claude asks whether the correction applies beyond that piece. Say yes and it's added under Learned rules.</li>
+    <li>To edit directly: open voice.md in the repo, change it, commit with a short reason ("ban 'game-changer'", "prices updated Nov 2026").</li>
+    <li>When a price or case-study result changes on the website, update the offer and proof sections the same day.</li>
+  </ol>
+  <div class="two">
+    <div class="do"><h4>Sounds like us</h4>"If an app or a quick fix will do the job, we'll tell you."<br><br>"Count the clicks from cart to paid. Then cut."</div>
+    <div class="dont"><h4>Doesn't</h4>"Unlock your store's full potential with our seamless solutions!"<br><br>"In today's fast-paced ecommerce world…"</div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">08 · Pillars</span>
+  <h2>Using <em>pillars.md.</em></h2>
+  <p>Every piece belongs to one of five pillars. They keep the feed balanced and stop us posting the same kind of thing four times in a row.</p>
+  <table>
+    <tr><th>Pillar</th><th>What it is</th><th>Best formats</th></tr>
+    <tr><td>Honest advice</td><td>The straight answer agencies don't give</td><td>LinkedIn post, carousel, article</td></tr>
+    <tr><td>Proof</td><td>Real client work, results quoted exactly</td><td>Carousel, case-study article</td></tr>
+    <tr><td>Shopify know-how</td><td>Specific how-tos that show depth</td><td>Article (SEO), checklist carousel, newsletter</td></tr>
+    <tr><td>Behind the studio</td><td>How we work: the audit, fixed prices, senior people</td><td>LinkedIn video, post, Facebook</td></tr>
+    <tr><td>Founder POV</td><td>Ramit's opinions and lessons, first person</td><td>Personal LinkedIn post, video</td></tr>
+  </table>
+  <p><b>Weekly mix:</b> two Honest advice, one Proof, one Shopify know-how; Behind the studio or Founder POV every other week. The weekly run checks the tracker and favours pillars that have been quiet.</p>
+  <p><b>Changing pillars:</b> review them once a quarter with the numbers (section 12). Rename, merge or retire a pillar in pillars.md; the next run uses the new list. Four of the five are still marked <i>draft</i> — confirm or change them first.</p>
+
+</section>
+
+<section>
+  <section>
+    <span class="eyebrow">09 · Tracker</span>
+    <h2>Using <em>tracker.csv.</em></h2>
+    <p>One row per piece, kept in step with the Desk by every run. Open it in Numbers, Excel or Google Sheets (import, don't edit the live file there).</p>
+    <table>
+      <tr><th>Column</th><th>Meaning</th></tr>
+      <tr><td>date, slug, title</td><td>When the brief started, its folder name, its title</td></tr>
+      <tr><td>pillar, audience</td><td>From pillars.md</td></tr>
+      <tr><td>channels</td><td>What was made, separated by |</td></tr>
+      <tr><td>angle</td><td>The angle that was chosen</td></tr>
+      <tr><td>status</td><td>researching → awaiting-decision → decided → drafting → review ⇄ changes → approved → posted · or dropped · or test</td></tr>
+      <tr><td>artifact_url</td><td>The designed preview</td></tr>
+      <tr><td>posted_url</td><td>The live post(s)</td></tr>
+      <tr><td>notes</td><td>Anything worth remembering</td></tr>
+    </table>
+    <p>Claude reads it before choosing topics so we don't repeat a topic or angle within six weeks. Test rows are ignored for that check.</p>
+  </section>
+</section>
+
+<section>
+  <span class="eyebrow">10 · Photos</span>
+  <h2>Photos: Pexels <em>and Unsplash.</em></h2>
+  <p>Posts use free stock from <b>Pexels</b> (default) or <b>Unsplash</b>. Both allow commercial use with no fee. Claude searches them with our API keys, picks photos that fit our look, downloads them into the topic's <code>assets/</code> folder and records who took each one in <code>assets/credits.json</code>.</p>
+  <h3>What makes a good OVXS photo</h3>
+  <ul>
+    <li>Calm, daylight, real work: hands on a laptop, packing parcels, a studio desk.</li>
+    <li>Muted naturals and greens that sit well with our teal.</li>
+    <li>Space top-left for a headline.</li>
+    <li>No glossy corporate stock, no forced smiles at a screen.</li>
+  </ul>
+  <h3>Rules</h3>
+  <ul>
+    <li><b>Never Pinterest, Google Images or Instagram.</b> Those photos belong to someone and aren't licensed for us.</li>
+    <li><b>Stock people are never presented as clients or team.</b></li>
+    <li>Credit isn't required by either licence, but we keep it in credits.json, and Unsplash asks that we credit when it's practical (e.g. in the article footer).</li>
+    <li>To suggest a photo yourself, paste a direct Pexels or Unsplash page link in the topic notes.</li>
+  </ul>
+  <h3>Setup (once)</h3>
+  <ol>
+    <li>Create a free key at <b>pexels.com/api</b> (and optionally <b>unsplash.com/developers</b> → New application).</li>
+    <li>Copy <code>.env.example</code> to <code>.env</code> in the repo and paste the key(s). Never commit .env or paste keys into a chat.</li>
+    <li>Test: <code>node scripts/stock.mjs search "packing parcels"</code></li>
+  </ol>
+
+  <section class="flow">
+    <span class="eyebrow">11 · Rules</span>
+    <h2>House <em>rules.</em></h2>
+    <ol>
+      <li>Two human decisions per piece, every time: the angle and the approval.</li>
+      <li>A person always clicks Post. Claude never posts, schedules inside a platform or signs in.</li>
+      <li>No stat without a source link and year. Sources older than three years need Ramit's OK.</li>
+      <li>Prices and client results are copied exactly from voice.md.</li>
+      <li>US Eastern is the only time zone or location we mention.</li>
+      <li>We don't say AI wrote it, and we don't reference other studios' sites.</li>
+      <li>Nothing from this repo goes on the website.</li>
+    </ol>
+  </section>
+</section>
+
+<section>
+  <span class="eyebrow">12 · Improving</span>
+  <h2>Getting better <em>every month.</em></h2>
+  <p>The system learns from three places: your corrections, the numbers, and real customer questions. Thirty minutes a month keeps it sharp.</p>
+  <h3>Every piece</h3>
+  <ul>
+    <li>Correct the draft with specific notes, not "make it better". Say yes when Claude asks whether a correction is a general rule.</li>
+    <li>If you rewrite a hook yourself, paste your version into the notes — it teaches the next one.</li>
+  </ul>
+  <h3>First Monday of the month (30 minutes)</h3>
+  <ol>
+    <li><b>Numbers.</b> Pull impressions, engagement, clicks and audit bookings for last month's posts from LinkedIn, Meta and Shopify. Note the top three and the bottom three.</li>
+    <li><b>Patterns.</b> Which pillar, angle type (checklist, contrarian, story) and hook style won? Write one line per finding under "Learned rules" in voice.md.</li>
+    <li><b>Questions.</b> Skim last month's Ovi chats for questions we haven't answered in content. Add the best two as Desk topics.</li>
+    <li><b>Pillars.</b> If a pillar has been bottom three for two months, rework or retire it.</li>
+    <li><b>Process.</b> Anything that annoyed you? Ask Claude to change the /content skill and commit it.</li>
+  </ol>
+  <h3>Every quarter</h3>
+  <ul>
+    <li>Re-read voice.md end to end and cut anything nobody follows.</li>
+    <li>Check prices and case-study results against the website.</li>
+    <li>Review this playbook and bump its version.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">13 · Roadmap</span>
+  <h2>Future <em>versions.</em></h2>
+  <p>Ideas in rough priority order. Each one is a self-contained change to the skill or the Desk.</p>
+  <table class="roadmap">
+    <tr><th>Idea</th><th>Effort</th><th>Why</th></tr>
+    <tr><td>Performance columns in the tracker</td><td>Small</td><td>Impressions, clicks and audit bookings per post, so the monthly review is one glance</td></tr>
+    <tr><td>Photo picks on the Desk</td><td>Small</td><td>Choose between 3 suggested photos per post instead of Claude choosing</td></tr>
+    <tr><td>Monthly report artifact</td><td>Small</td><td>Auto-generated on the 1st: what posted, what worked, which pillars are quiet</td></tr>
+    <tr><td>Team roles on the Desk</td><td>Medium</td><td>Team members suggest and comment; only Ramit approves</td></tr>
+    <tr><td>Weekly newsletter assembly</td><td>Medium</td><td>Bundle the week's best piece into one newsletter draft for Klaviyo or Mailchimp</td></tr>
+    <tr><td>Blog publishing to Shopify as a draft</td><td>Medium</td><td>Articles land as unpublished Shopify blog drafts for a final read in the admin</td></tr>
+    <tr><td>Scheduler hand-off</td><td>Medium</td><td>Approved posts go to Buffer or Metricool via Zapier — still approved by a person first</td></tr>
+    <tr><td>Short video kit</td><td>Medium</td><td>Script, shot list and captions file for Reels and LinkedIn video from any article</td></tr>
+    <tr><td>Repurpose old wins</td><td>Small</td><td>Every quarter, re-cut the top three posts into a new format</td></tr>
+    <tr><td>Client-ready version</td><td>Large</td><td>Package the system as a service for our own Shopify clients</td></tr>
+  </table>
+</section>
+
+<section>
+  <span class="eyebrow">14 · Troubleshooting</span>
+  <h2>When something <em>goes wrong.</em></h2>
+  <table>
+    <tr><th>Problem</th><th>Fix</th></tr>
+    <tr><td>Nothing new on the Desk</td><td>Was the Claude app open at run time? Check Scheduled → the task's Runs. Press "Run now".</td></tr>
+    <tr><td>Desk buttons are greyed out</td><td>You have view access only. Ask Ramit for edit access.</td></tr>
+    <tr><td>A piece has only one angle</td><td>Press "Research more angles" on its card.</td></tr>
+    <tr><td>The draft doesn't sound like us</td><td>Ask for changes with specifics, then add the rule to voice.md.</td></tr>
+    <tr><td>Chrome didn't open on posting day</td><td>Mode is Draft only, or Chrome wasn't connected. Files are in the topic's export/ folder.</td></tr>
+    <tr><td>Photo search fails</td><td>The .env key is missing or wrong. Run the test command in section 10.</td></tr>
+    <tr><td>A wrong stat went out</td><td>Edit or delete the post, fix the brief's Facts table, and add a Learned rule.</td></tr>
+  </table>
+  <footer class="end">Studio OVXS · Marketing playbook v1.0 · October 2026 · Maintained in <code>docs/</code> of the ovxs-marketing repo. Questions → Ramit.</footer>
+</section>
+
+</body>
+</html>
