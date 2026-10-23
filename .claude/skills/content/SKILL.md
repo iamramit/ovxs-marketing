@@ -141,17 +141,17 @@ Finish with **So what**: 3 bullets. Copy them to the Desk doc's `so_what`, and t
 
 1. Build `topics/<folder>/page.html` following `page-spec.md`.
    - Fonts and logos come from `brand/`.
-   - **Photos come only from Pexels or Unsplash**, via `scripts/stock.mjs`. Keys live in `.env`; never print them, never commit them.
+   - **Photos come only from Unsplash** (Pexels has paused new API keys; the script supports it if a key appears later), via `scripts/stock.mjs`. Keys live in `.env`; never print them, never commit them. The Unsplash key allows about 50 requests an hour, so search 2–3 times per brief at most.
      ```bash
-     node scripts/stock.mjs search "<calm, specific query>" --n 8 --orientation portrait   # Pexels if its key exists, else Unsplash; --source both to compare
-     node scripts/stock.mjs get pexels <id> --out topics/<folder>/assets --name cover
+     node scripts/stock.mjs search "<calm, specific query>" --n 8 --orientation portrait   # uses Unsplash unless a Pexels key exists
+     node scripts/stock.mjs get unsplash <id> --out topics/<folder>/assets --name cover
      ```
      - Search with concrete scenes that match the photography rules in `page-spec.md`, e.g. "packing parcels daylight" or "hands laptop desk plants". Look at `alt` and `preview` before picking.
      - Choose one photo for the cover or LinkedIn graphic, plus one per problem slide if there's a carousel. Never repeat a photo used in the last 6 weeks: check the `credits.json` files in `topics/`.
      - `get` downloads the photo and appends its credit to `assets/credits.json`. List the credits in the brief under **Photos**. In an article, add "Photo by <name> on <Pexels|Unsplash>" under the image.
      - If Ramit gave a Pexels or Unsplash page link, use that photo: take the id from the end of the URL.
      - Pinterest, Google Images or Instagram links are never used. Swap in a matching stock photo and say so in `so_what`.
-     - If there's no API key, stop the photo step and write "Photos: add PEXELS_API_KEY to .env" in the Desk doc's `so_what`. Build the preview with a plain brand-colour panel instead of a photo.
+     - If there's no API key, stop the photo step and write "Photos: add UNSPLASH_ACCESS_KEY to .env" in the Desk doc's `so_what`. Build the preview with a plain brand-colour panel instead of a photo.
 2. Check the page once in the browser pane: every tab, no broken images, no console errors.
 3. Publish it as a **private Artifact**.
    - First time: title "Brief — <title>", icon `pen`, `files` covering `assets/*` and `fonts/*`.

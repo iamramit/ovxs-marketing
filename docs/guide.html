@@ -262,7 +262,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
 <section>
   <span class="eyebrow">10 · Photos</span>
   <h2>Photos: Pexels <em>and Unsplash.</em></h2>
-  <p>Posts use free stock from <b>Pexels</b> (default) or <b>Unsplash</b>. Both allow commercial use with no fee. Claude searches them with our API keys, picks photos that fit our look, downloads them into the topic's <code>assets/</code> folder and records who took each one in <code>assets/credits.json</code>.</p>
+  <p>Posts use free stock from <b>Unsplash</b>. Its licence allows commercial use with no fee. (Pexels has paused new API keys; the script will use it too if we get one.) Claude searches with our API key, picks photos that fit our look, downloads them into the topic's <code>assets/</code> folder and records who took each one in <code>assets/credits.json</code>.</p>
   <h3>What makes a good OVXS photo</h3>
   <ul>
     <li>Calm, daylight, real work: hands on a laptop, packing parcels, a studio desk.</li>
@@ -279,7 +279,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
   </ul>
   <h3>Setup (once)</h3>
   <ol>
-    <li>Create a free key at <b>pexels.com/api</b> (and optionally <b>unsplash.com/developers</b> → New application).</li>
+    <li>Done for OVXS: an Unsplash app at <b>unsplash.com/developers</b>. Only the <i>Access key</i> is used; the secret key isn't needed.</li>
     <li>Copy <code>.env.example</code> to <code>.env</code> in the repo and paste the key(s). Never commit .env or paste keys into a chat.</li>
     <li>Test: <code>node scripts/stock.mjs search "packing parcels"</code></li>
   </ol>
@@ -353,7 +353,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>A piece has only one angle</td><td>Press "Research more angles" on its card.</td></tr>
     <tr><td>The draft doesn't sound like us</td><td>Ask for changes with specifics, then add the rule to voice.md.</td></tr>
     <tr><td>Chrome didn't open on posting day</td><td>Mode is Draft only, or Chrome wasn't connected. Files are in the topic's export/ folder.</td></tr>
-    <tr><td>Photo search fails</td><td>The .env key is missing or wrong. Run the test command in section 10.</td></tr>
+    <tr><td>Photo search fails</td><td>The .env key is missing or wrong, or we hit Unsplash's hourly limit (about 50 requests). Run the test command in section 10, or wait an hour.</td></tr>
     <tr><td>A wrong stat went out</td><td>Edit or delete the post, fix the brief's Facts table, and add a Learned rule.</td></tr>
   </table>
   <footer class="end">Studio OVXS · Marketing playbook v1.0 · October 2026 · Maintained in <code>docs/</code> of the ovxs-marketing repo. Questions → Ramit.</footer>
