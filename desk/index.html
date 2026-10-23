@@ -97,6 +97,14 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 .empty strong { font: 700 22px/1.15 var(--display); color: var(--ink); }
 .notice { border-radius: 16px; padding: 14px 16px; background: var(--warn-soft); color: var(--warn); font-size: 14px; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 999px; font-weight: 600; font-size: 14px; z-index: 20; }
+.mode { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+.mode-label { font: 700 12px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.seg-group { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg { font: 900 13px/1 var(--label); letter-spacing: .06em; text-transform: uppercase; padding: 9px 14px; border-radius: 999px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+.seg[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+.seg:disabled { cursor: not-allowed; opacity: .5; }
+.mode .small { flex: 1 1 220px; min-width: 0; }
+.pill.test { background: var(--surface-2); color: var(--muted); border: 1px dashed var(--muted); }
 .confirm { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 14px; color: var(--danger); }
 @media (prefers-reduced-motion: no-preference) { .card { animation: rise .35s cubic-bezier(.2,0,0,1) both; } @keyframes rise { from { transform: translateY(8px); } to { transform: none; } } }
 </style>
@@ -107,6 +115,15 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     <h1>Content <em>desk.</em></h1>
     <p class="summary" id="summary">Loading the desk…</p>
   </header>
+
+  <div class="mode" role="group" aria-labelledby="mode-label">
+    <span class="mode-label" id="mode-label">On posting day</span>
+    <span class="seg-group">
+      <button class="seg" type="button" data-mode="draft-only" aria-pressed="true">Draft only</button>
+      <button class="seg" type="button" data-mode="stage" aria-pressed="false">Stage in Chrome</button>
+    </span>
+    <span class="small" id="mode-help">Claude saves the images and post text to the export folder and tells you. Nothing opens.</span>
+  </div>
 
   <nav role="tablist" aria-label="Desk views">
     <button class="tab" role="tab" id="tab-needs" data-view="needs" aria-selected="true">Needs you <span class="count" id="c-needs">0</span></button>
@@ -159,6 +176,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
           <label><input type="checkbox" value="LinkedIn video"> LinkedIn video</label>
         </div>
       </div>
+      <div class="checks"><label for="nt-test"><input type="checkbox" id="nt-test"> Test run: go through every step, but it's never posted or added to the content calendar</label></div>
       <div class="row"><button class="btn" type="submit" id="nt-submit">Add to the queue →</button></div>
     </form>
     <div class="list" id="requests"></div>
@@ -180,10 +198,18 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "decided": "Claude writes the drafts on the next daily run.",
     "drafting": "Drafts are being written now.",
     "changes": "Claude redrafts with your notes on the next daily run.",
-    "approved": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
+    "approved": ""
+  };
+  const MODE_HELP = {
+    "draft-only": "Claude saves the images and post text to the export folder and tells you. Nothing opens.",
+    "stage": "Claude opens LinkedIn, Facebook and Instagram in Chrome with everything filled in. You click Post."
+  };
+  const APPROVED_NEXT = {
+    "draft-only": "On the day, Claude exports the images and post text and tells you they're ready to post.",
+    "stage": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
   };
 
-  let db = null, canEdit = false, briefs = [], requests = [];
+  let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only";
   let view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "needs";
   const form = {};
   const confirming = new Set();
@@ -234,7 +260,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   function metaLine(b) {
     const make = Array.isArray(b.make) ? b.make.join(" · ") : "";
     return `<div class="meta">
-      <span class="pill ${NEEDS.includes(b.status) ? "you" : b.status === "approved" || b.status === "posted" ? "go" : ""}">${esc(STATUS_LABEL[b.status] || b.status)}</span>
+      <span class="pill ${NEEDS.includes(b.status) ? "you" : b.status === "approved" || b.status === "posted" ? "go" : ""}">${esc(STATUS_LABEL[b.status] || b.status)}</span>${b.test ? `<span class="pill test">Test</span>` : ""}
       ${b.pillar ? `<span>${esc(b.pillar)}</span>` : ""}${b.audience ? `<span>· ${esc(b.audience)}</span>` : ""}${make ? `<span>· ${esc(make)}</span>` : ""}
     </div>`;
   }
@@ -338,8 +364,9 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2></div>
       ${b.status === "approved" && slot ? `<p><b>${esc(slot)}</b>${ch ? ` · ${esc(ch)}` : ""}</p>` : ""}
-      <p class="next"><b>Next:</b> ${esc(NEXT_STEP[b.status] || "Waiting for the next run.")}</p>
-      ${b.status === "approved" ? `<div class="row"><button class="btn ghost" type="button" data-act="posted" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>I've posted it</button></div>` : ""}
+      <p class="next"><b>Next:</b> ${esc(b.status === "approved" ? (b.test ? "On the day, Claude prepares everything as usual. It's a test, so don't post it — tap 'Test done' when you've checked it." : APPROVED_NEXT[mode]) : (NEXT_STEP[b.status] || "Waiting for the next run."))}</p>
+      ${b.post_prep && b.post_prep.at ? `<p class="small"><b>Ready since ${esc(fmtDate(b.post_prep.at))}</b>${b.post_prep.folder ? ` · ${esc(b.post_prep.folder)}` : ""}</p>` : ""}
+      ${b.status === "approved" ? `<div class="row"><button class="btn ghost" type="button" data-act="posted" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>${b.test ? "Test done" : "I've posted it"}</button></div>` : ""}
     </article>`;
   }
 
@@ -382,6 +409,11 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       : "";
 
     $("#nt-submit").disabled = !canEdit;
+    for (const s of document.querySelectorAll(".seg")) {
+      s.setAttribute("aria-pressed", String(s.dataset.mode === mode));
+      s.disabled = !canEdit;
+    }
+    $("#mode-help").textContent = MODE_HELP[mode];
     if (keepFocus) {
       const el = document.getElementById(keepFocus);
       if (el) { el.focus({ preventScroll: true }); if (caret && "setSelectionRange" in el) { try { el.setSelectionRange(caret[0], caret[1]); } catch (e) {} } }
@@ -391,6 +423,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   document.addEventListener("click", (e) => {
     const tab = e.target.closest(".tab");
     if (tab) { setView(tab.dataset.view); return; }
+    const seg = e.target.closest(".seg");
+    if (seg) { setMode(seg.dataset.mode); return; }
     const btn = e.target.closest("button[data-act]");
     if (!btn || btn.disabled) return;
     act(btn.dataset.act, btn.dataset.id, btn);
@@ -431,6 +465,21 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     }
   }
 
+  async function setMode(next) {
+    if (!db || !canEdit || next === mode || !MODE_HELP[next]) return;
+    const prev = mode;
+    mode = next;
+    render();
+    try {
+      await db.doc("settings/posting").set({ mode: next, updated_at: new Date().toISOString() });
+      toast(next === "stage" ? "Posts will open in Chrome on the day" : "Posts will be saved as drafts only");
+    } catch (err) {
+      mode = prev;
+      render();
+      toast("Couldn't save the setting. Try again.");
+    }
+  }
+
   async function act(kind, id, btn) {
     if (!db || !canEdit) return;
     const st = f(id);
@@ -448,7 +497,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       return;
     }
     if (kind === "posted") {
-      await write(id, { status: "posted", posted: { at: now } }, "Marked as posted");
+      const b = briefs.find((x) => x.id === id);
+      await write(id, { status: "posted", posted: { at: now } }, b && b.test ? "Test marked done" : "Marked as posted");
       return;
     }
     if (kind === "changes") {
@@ -466,10 +516,10 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     try {
       await db.collection("requests").add({
         title, notes: $("#nt-notes").value.trim(), pillar: $("#nt-pillar").value, audience: $("#nt-audience").value,
-        make: make.length ? make : ["LinkedIn post", "Article"], status: "new", created_at: new Date().toISOString()
+        make: make.length ? make : ["LinkedIn post", "Article"], test: $("#nt-test").checked, status: "new", created_at: new Date().toISOString()
       });
       $("#new-form").reset();
-      toast("Added. It's researched on the next weekly run.");
+      toast("Added. It's researched on the next run.");
     } catch (err) {
       toast(err && err.code === "quota_exceeded" ? "The desk is full. Clear out old topics first." : "Couldn't add the topic. Try again.");
     } finally {
@@ -490,6 +540,10 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       briefs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       render();
     }, () => notice("The desk stopped updating. Reload the page."));
+    db.doc("settings/posting").onSnapshot((snap) => {
+      const m = snap.exists && snap.data().mode;
+      if (MODE_HELP[m]) { mode = m; render(); }
+    }, () => {});
     db.collection("requests").orderBy("created_at", "desc").limit(30).onSnapshot((snap) => {
       requests = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r) => r.status !== "archived");
       render();

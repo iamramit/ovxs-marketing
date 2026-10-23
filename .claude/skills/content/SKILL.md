@@ -18,6 +18,8 @@ Everything lives in the `ovxs-marketing` repo (`/Users/ramitarora/WORK/Studio/ov
 | `weekly` | Scheduled, Mondays | Picks topics, runs stages 1–3 for each, posts angles to the Desk, stops |
 | `daily` | Scheduled, every evening | Drafts what Ramit decided, redrafts what he sent back, preps today's approved posts |
 
+Either scheduled run can also be started early with "Run now" in the app's Scheduled section. This is how a test goes through the flow in one sitting.
+
 Unattended runs (`weekly`, `daily`) never ask questions in chat and never wait: they leave work on the Desk, send one push notification summarising what needs Ramit, commit, push, and end.
 
 ## Stage 0 — Context (every run)
@@ -45,7 +47,16 @@ One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slu
 - `posted` — `{at, "LinkedIn": url, ...}`
 - `created_at`, `updated_at` (ISO). Every write sets `updated_at`, or the Desk won't sort it.
 
-Topic suggestions Ramit adds on the Desk arrive in `requests/<id>`: `{title, notes, pillar, audience, make, status: "new", created_at}`. When you pick one up, set its `status` to `picked` and add `brief_id`.
+Topic suggestions Ramit adds on the Desk arrive in `requests/<id>`: `{title, notes, pillar, audience, make, test, status: "new", created_at}`. When you pick one up, set its `status` to `picked` and add `brief_id`.
+
+**Posting mode** is stored in `settings/posting`: `{mode: "draft-only" | "stage"}`. Ramit switches it on the Desk. If the doc is missing or unreadable, use `draft-only`.
+
+**Test runs.** A request with `test: true` becomes a brief with `test: true` (the brief folder name ends in `-test`). A test brief goes through every stage exactly like a real one, but:
+- it is never posted
+- in `stage` mode the notification starts with "TEST, don't post:"
+- it goes into `tracker.csv` with status `test`
+- it's ignored by the "don't repeat a topic" check and by the posted-URL check
+- Ramit closes it with "Test done", which sets the status to `posted`. Treat that as finished, not as published.
 
 Write with `ArtifactData`. Use `set` for a new brief. Use `update` with `if_version` from your last read for existing ones. If a pinned write fails, re-read and redo it; never overwrite Ramit's change.
 
@@ -62,6 +73,7 @@ Write with `ArtifactData`. Use `set` for a new brief. Use `update` with `if_vers
    - Take every `requests` doc with `status: "new"` first.
    - Fill up to 3 topics total, in this order: questions visitors asked Ovi this week (stage 2 explains how to read them); a pillar not used in the last two weeks of `tracker.csv`; a Proof piece if none in the last 4 weeks.
    - Don't stage more than 5 topics in one week.
+   - If every `new` request is a test, stage only those and add no other topics. That keeps a test run short.
 
 ## Stage 2 — Research (always before any angle)
 
@@ -128,7 +140,9 @@ Finish with **So what**: 3 bullets. Copy them to the Desk doc's `so_what`, and t
 
 ## Stage 6 — Posting prep (`daily`: status `approved` and `review.slot.date` is today in US Eastern)
 
-Ramit always clicks Post himself. This stage only gets everything ready.
+Ramit always clicks Post himself. This stage only gets everything ready. First read `settings/posting`:
+- **`draft-only`** (the default): do step 1, then skip to step 3. Don't open Chrome at all. The notification says where the files are.
+- **`stage`**: do every step.
 
 1. **Export assets.** Render the 4:5 graphic and the carousel slides to PNG at 1080×1350:
    ```bash
@@ -142,8 +156,11 @@ Ramit always clicks Post himself. This stage only gets everything ready.
    - **Stop before the Post / Share / Publish button.** Never click it, never schedule inside the platform, never accept a dialog on Ramit's behalf.
    - Leave the tabs open.
    - If Chrome isn't connected, a browser picker appears, or a sign-in page shows: skip staging and point Ramit to the `export/` folder in the notification.
-3. Write `post_prep: {at, channels, files}` to the Desk doc. Keep `status: "approved"`.
-4. Notify him, e.g. "Ready to post: <title> — LinkedIn and Facebook are open in Chrome. Click Post, then tap 'I've posted it' on the Desk."
+3. Write `post_prep: {at, mode, channels, folder: "topics/<folder>/export", files}` to the Desk doc. Keep `status: "approved"`.
+4. Notify him:
+   - `draft-only`: "Ready to post: <title>. Images and text are in topics/<folder>/export. Tap 'I've posted it' on the Desk once it's live."
+   - `stage`: "Ready to post: <title>. LinkedIn and Facebook are open in Chrome. Click Post, then tap 'I've posted it' on the Desk."
+   - For a test brief, start with "TEST, don't post:" and end with "Tap 'Test done' on the Desk."
 
 ## Stage 7 — Track, commit, notify (end of every run)
 
