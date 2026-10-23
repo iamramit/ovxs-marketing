@@ -36,7 +36,9 @@ Then `git pull --rebase` so you work on the latest copy.
 
 One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slug>`. Fields:
 - `title`, `pillar`, `audience`, `make` (array), `cta`, `folder`, `raw_angle`
-- `status` — `researching → awaiting-decision → decided → drafting → review ⇄ changes → approved → posted`, or `dropped`
+- `status` — `researching → awaiting-decision → decided → drafting → review ⇄ changes → approved → posted`, or `dropped`. From `review` Ramit can also send a brief back:
+  - to `awaiting-decision`, to pick a different existing angle (the drafts are kept)
+  - to `needs-angles`, which means research and write new angles
 - `so_what` (3 strings), `sources` (`[{label, url}]`, https only)
 - `angles` — `[{id: "A", name, hook, argument, proof, risk}]`
 - `decision` — `{angle, notes, decided_at}`; written by the page when Ramit picks an angle
@@ -104,6 +106,15 @@ Finish with **So what**: 3 bullets. Copy them to the Desk doc's `so_what`, and t
 3. **Live mode:** show the angles briefly in chat and ask with AskUserQuestion (A / B / C / mix, with notes). Ramit may answer in chat or on the Desk. If he answers in chat, write his answer to the Desk doc's `decision` and set `status: "decided"`.
 4. **Never write copy before a decision exists** — on the Desk (`decision.angle`) or in chat.
 5. Copy the decision into the brief's **Decisions** section, in his words.
+
+## Stage 3b — New angles (`weekly` and `daily`: every doc with status `needs-angles`)
+
+1. Run stage 2 for the brief, if its Research section is empty or more than 4 weeks old.
+2. Rewrite `angles` with 3 options:
+   - Keep the current decided angle as **A**, written up properly with hook, argument, proof and risk.
+   - Add **B** and **C**: two genuinely different takes.
+3. Set `status: "awaiting-decision"` and keep `decision` and `drafts` as they are. If Ramit picks the same angle with no notes, the Desk puts his existing drafts back into review.
+4. Mention it in the run's notification.
 
 ## Stage 4 — Copy (`daily`: every doc with status `decided`, or `changes`)
 

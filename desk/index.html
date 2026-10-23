@@ -188,12 +188,13 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   const ET = "America/New_York";
   const VIEWS = ["needs", "progress", "posted", "new"];
   const NEEDS = ["awaiting-decision", "review"];
-  const PROGRESS = ["researching", "decided", "drafting", "changes", "approved"];
+  const PROGRESS = ["needs-angles", "researching", "decided", "drafting", "changes", "approved"];
   const STATUS_LABEL = {
-    "researching": "Researching", "awaiting-decision": "Pick an angle", "decided": "Angle picked", "drafting": "Drafting",
+    "needs-angles": "New angles asked", "researching": "Researching", "awaiting-decision": "Pick an angle", "decided": "Angle picked", "drafting": "Drafting",
     "review": "Review drafts", "changes": "Changes asked", "approved": "Scheduled", "posted": "Posted", "dropped": "Dropped"
   };
   const NEXT_STEP = {
+    "needs-angles": "Claude researches this and writes three angles on the next run. Your current angle stays as A.",
     "researching": "Research is running. Angles land here when it's done.",
     "decided": "Claude writes the drafts on the next daily run.",
     "drafting": "Drafts are being written now.",
@@ -289,6 +290,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 
   function decisionCard(b) {
     const st = f(b.id);
+    if (!st.angle && b.decision && b.decision.angle) st.angle = b.decision.angle;
     const angles = Array.isArray(b.angles) ? b.angles : [];
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.raw_angle ? `<p class="small"><b>Your note:</b> ${esc(b.raw_angle)}</p>` : ""}</div>
@@ -355,6 +357,9 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
         <button class="btn ghost" type="button" data-act="changes" data-id="${esc(b.id)}" ${canEdit && st.notes.trim() ? "" : "disabled"}>Ask for changes</button>
         ${dropControl(b)}
       </div>
+      <p class="next">${Array.isArray(b.angles) && b.angles.length > 1
+        ? `Want a different angle? <button class="btn quiet" type="button" data-act="reangle" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Go back to the angles</button>`
+        : `Only one angle so far. <button class="btn quiet" type="button" data-act="moreangles" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Research more angles</button>`}</p>
     </article>`;
   }
 
@@ -489,11 +494,25 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     btn.disabled = true;
     if (kind === "drop-yes") { confirming.delete(id); await write(id, { status: "dropped", dropped_at: now }, "Topic dropped"); return; }
     if (kind === "decide") {
-      await write(id, { status: "decided", decision: { angle: st.angle, notes: st.notes.trim(), decided_at: now } }, `Angle ${st.angle} saved. Drafts come on the next run.`);
+      const b = briefs.find((x) => x.id === id);
+      const same = b && b.decision && b.decision.angle === st.angle && !st.notes.trim() && b.drafts && Object.keys(b.drafts).length;
+      if (same) { await write(id, { status: "review" }, `Kept angle ${st.angle}. Your drafts are back in review.`); return; }
+      await write(id, { status: "decided", decision: { angle: st.angle, notes: st.notes.trim(), decided_at: now } }, `Angle ${st.angle} saved. New drafts come on the next run.`);
       return;
     }
     if (kind === "approve") {
       await write(id, { status: "approved", review: { verdict: "approve", notes: st.notes.trim(), slot: { date: st.date, time: st.time, tz: ET }, channels: st.channels, decided_at: now } }, "Approved and scheduled");
+      return;
+    }
+    if (kind === "reangle") {
+      const b = briefs.find((x) => x.id === id);
+      delete form[id];
+      if (b && b.decision && b.decision.angle) f(id).angle = b.decision.angle;
+      await write(id, { status: "awaiting-decision" }, "Back to the angles. Your drafts are kept until you pick.");
+      return;
+    }
+    if (kind === "moreangles") {
+      await write(id, { status: "needs-angles", angles_requested_at: now }, "Asked for new angles. They come on the next run.");
       return;
     }
     if (kind === "posted") {
