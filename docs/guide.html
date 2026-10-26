@@ -12,20 +12,20 @@
 @page :first { margin: 0; }
 * { box-sizing: border-box; }
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-body { margin: 0; color: var(--ink); font: 10.4pt/1.55 "Inter", system-ui, sans-serif; }
+body { margin: 0; color: var(--ink); font: 10.6pt/1.6 "Inter", system-ui, sans-serif; }
 h1, h2, h3 { font-family: "IvyPresto Display", Georgia, serif; font-weight: 700; letter-spacing: -.02em; margin: 0; line-height: 1.08; }
-h2 { font-size: 22pt; margin: 0 0 10pt; break-after: avoid; }
-h3 { font-size: 13.5pt; margin: 14pt 0 5pt; break-after: avoid; }
+h2 { font-size: 24pt; margin: 0 0 12pt; break-after: avoid; }
+h3 { font-size: 14pt; margin: 16pt 0 6pt; break-after: avoid; }
 h2 em, h1 em { font-style: italic; text-decoration: underline wavy var(--primary); text-decoration-thickness: 1.5pt; text-underline-offset: .16em; }
-p { margin: 0 0 7pt; }
+p { margin: 0 0 9pt; }
 ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
-li { margin: 0 0 3pt; }
+li { margin: 0 0 4pt; }
 a { color: var(--primary); text-decoration: none; }
 code { font: 9.2pt/1.4 ui-monospace, "SF Mono", Menlo, monospace; background: var(--wash); padding: 1pt 4pt; border-radius: 3pt; }
 .eyebrow { font: 700 8pt/1 "Inter", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--primary); margin-bottom: 6pt; display: block; break-after: avoid; page-break-after: avoid; }
 .label { font: 900 9pt/1 "Elza Condensed", "Arial Narrow", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
-section { break-before: page; }
-section.flow { break-before: auto; margin-top: 18pt; }
+section.page { break-before: page; }
+.block + .block { margin-top: 26pt; }
 .cover { height: 296mm; display: flex; flex-direction: column; justify-content: space-between; background: var(--dark); color: #E6F2EF; margin: 0; padding: 26mm 22mm; overflow: hidden; }
 .cover h1 { font-size: 52pt; color: #fff; line-height: .98; }
 .cover h1 em { text-decoration-color: #7CCFC2; }
@@ -36,7 +36,7 @@ section.flow { break-before: auto; margin-top: 18pt; }
 table { width: 100%; border-collapse: collapse; margin: 4pt 0 10pt; font-size: 9.6pt; }
 tr { break-inside: avoid; }
 th { text-align: left; font: 700 7.6pt/1.2 "Inter", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); border-bottom: 1.2pt solid var(--ink); padding: 5pt 6pt 5pt 0; }
-td { border-bottom: .6pt solid var(--line); padding: 6pt 8pt 6pt 0; vertical-align: top; }
+td { border-bottom: .6pt solid var(--line); padding: 6pt 10pt 6pt 0; vertical-align: top; }
 td:first-child { font-weight: 600; white-space: nowrap; }
 .flowchart { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5pt; margin: 8pt 0 12pt; break-inside: avoid; }
 .step { border: .8pt solid var(--line); border-radius: 8pt; padding: 8pt 7pt; background: #fff; }
@@ -45,13 +45,13 @@ td:first-child { font-weight: 600; white-space: nowrap; }
 .step span { font-size: 8.3pt; line-height: 1.35; color: var(--muted); display: block; }
 .step .who { font: 700 7pt/1 "Inter"; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 5pt; }
 .key { font-size: 8.4pt; color: var(--muted); margin-top: -4pt; }
-.note { background: var(--wash); border-radius: 8pt; padding: 9pt 11pt; margin: 6pt 0 10pt; break-inside: avoid; }
+.note { background: var(--wash); border-radius: 8pt; padding: 11pt 13pt; margin: 10pt 0 12pt; break-inside: avoid; }
 .note b:first-child { color: var(--primary); }
 .steps { counter-reset: s; list-style: none; padding: 0; }
-.steps > li { counter-increment: s; position: relative; padding-left: 26pt; margin-bottom: 9pt; break-inside: avoid; }
+.steps > li { counter-increment: s; position: relative; padding-left: 28pt; margin-bottom: 12pt; break-inside: avoid; }
 .steps > li::before { content: counter(s); position: absolute; left: 0; top: -1pt; width: 17pt; height: 17pt; border-radius: 6pt; background: var(--primary); color: #fff; font: 900 10pt/17pt "Elza Condensed", sans-serif; text-align: center; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
-.do, .dont { border-radius: 8pt; padding: 9pt 11pt; break-inside: avoid; }
+.do, .dont { border-radius: 8pt; padding: 11pt 13pt; break-inside: avoid; }
 .do { background: var(--soft); }
 .dont { background: #F7ECEA; }
 .do h4, .dont h4 { margin: 0 0 5pt; font: 900 9.5pt/1 "Elza Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
@@ -76,8 +76,9 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
   <div class="meta"><span>October 2026</span><span>For the OVXS team</span><span>Internal — do not share outside the studio</span></div>
 </div>
 
-<section>
-  <span class="eyebrow">Contents</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">Contents</span>
   <h2>What's <em>inside.</em></h2>
   <ul class="toc">
     <li><span>01</span>How the system works</li>
@@ -89,15 +90,15 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li><span>07</span>Using voice.md</li>
     <li><span>08</span>Using pillars.md</li>
     <li><span>09</span>Using tracker.csv</li>
-    <li><span>10</span>Photos: Pexels and Unsplash</li>
+    <li><span>10</span>Photos from Unsplash</li>
     <li><span>11</span>House rules</li>
     <li><span>12</span>Getting better every month</li>
     <li><span>13</span>Future versions</li>
     <li><span>14</span>When something goes wrong</li>
   </ul>
-
-  <section class="flow">
-    <span class="eyebrow">01 · Overview</span>
+</div>
+<div class="block">
+<span class="eyebrow">01 · Overview</span>
     <h2>How the system <em>works.</em></h2>
     <p>Claude does the slow parts — research, first drafts, designed previews, exporting images. We do the parts that need judgment: which angle is right, whether a draft sounds like us, and when it goes out. Nothing is posted without a person clicking Post.</p>
     <div class="flowchart">
@@ -109,11 +110,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
       <div class="step you"><div class="who">You</div><b>Post</b><span>Files ready on the day; you post and tap "I've posted it"</span></div>
     </div>
     <p class="key">Shaded steps are human decisions. Two of them — the angle and the approval — are required for every piece.</p>
-  </section>
+</div>
 </section>
 
-<section>
-    <span class="eyebrow">02 · Roles</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">02 · Roles</span>
     <h2>Who does <em>what.</em></h2>
     <table>
       <tr><th>Role</th><th>Does</th><th>Never does</th></tr>
@@ -121,9 +123,9 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
       <tr><td>Team</td><td>Suggests topics on the Desk, leaves notes on drafts, shares client stories and wins, posts on their own profiles once approved</td><td>Approves its own suggestions; posts anything not approved on the Desk</td></tr>
       <tr><td>Claude</td><td>Researches, writes three angles, drafts, builds previews, exports images and text, keeps the tracker up to date</td><td>Posts, schedules inside LinkedIn/Facebook/Instagram, signs in, invents stats, clients or results</td></tr>
     </table>
-
-  <section class="flow">
-  <span class="eyebrow">03 · Files</span>
+</div>
+<div class="block">
+<span class="eyebrow">03 · Files</span>
   <h2>Where everything <em>lives.</em></h2>
   <p>Everything is in the private GitHub repo <code>iamramit/ovxs-marketing</code>. Nothing in it is published on the OVXS website.</p>
   <table>
@@ -135,13 +137,14 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Topic folders</td><td><code>topics/YYYY-MM-DD-slug/</code></td><td><code>brief.md</code> (research, angles, decisions), <code>copy.md</code>, <code>page.html</code> preview, <code>assets/</code> photos + credits, <code>export/</code> PNGs and post text</td></tr>
     <tr><td>The /content skill</td><td><code>.claude/skills/content/</code></td><td>The instructions Claude follows. Change it to change the process.</td></tr>
     <tr><td>Brand files</td><td><code>brand/</code></td><td>Fonts and logos for previews and exports</td></tr>
-    <tr><td>Photo keys</td><td><code>.env</code> (never committed)</td><td>Pexels and Unsplash API keys</td></tr>
+    <tr><td>Photo keys</td><td><code>.env</code> (never committed)</td><td>Unsplash access key (never share it)</td></tr>
   </table>
-  </section>
+</div>
 </section>
 
-<section>
-    <span class="eyebrow">04 · Rhythm</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">04 · Rhythm</span>
     <h2>The weekly <em>rhythm.</em></h2>
     <table>
       <tr><th>When (IST)</th><th>What runs</th><th>What you do</th></tr>
@@ -150,10 +153,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
       <tr><td>Any time</td><td>Live: type <code>/content &lt;topic&gt;</code> in Claude Code in the repo, or press "Run now" on a scheduled task</td><td>Use it when something is urgent</td></tr>
     </table>
     <div class="note"><b>Good to know.</b> Scheduled runs only fire while the Claude desktop app is open on Ramit's Mac. A missed run starts the next time the app opens. All post times are US Eastern — that's the time zone our audience and site use.</div>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">05 · Step by step</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">05 · Step by step</span>
   <h2>From topic <em>to post.</em></h2>
   <ol class="steps">
     <li><b>Suggest a topic.</b> Desk → <span class="label">New topic</span>. Write the topic in plain words, add your own take, client stories or links in Notes, pick a pillar and audience if you know them, tick what to make. Tick <i>Test run</i> to try the flow without it ever being posted.</li>
@@ -169,10 +174,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li><b>Post it yourself.</b> Paste, upload images in order, put the link in the first comment for LinkedIn, click Post. Then tap <span class="label">I've posted it</span> on the Desk. The next run records the post's link in the tracker.</li>
   </ol>
   <div class="note"><b>Rule of thumb.</b> A decision on the Desk takes two minutes. If a piece needs more than one round of changes, the angle was probably wrong — go back to the angles instead of patching the copy.</div>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">06 · Content Desk</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">06 · Content Desk</span>
   <h2>The Content <em>Desk.</em></h2>
   <p>A private page on claude.ai that works on phone and desktop. Ramit shares it from its Share menu; people need edit access to make decisions.</p>
   <table>
@@ -194,10 +201,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Research more angles</td><td>Shown when a piece has only one angle. Keeps yours as A and adds B and C.</td></tr>
     <tr><td>I've posted it / Test done</td><td>Closes the piece</td></tr>
   </table>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">07 · Voice</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">07 · Voice</span>
   <h2>Using <em>voice.md.</em></h2>
   <p>voice.md is the most important file in the system. Every draft is checked against it before anyone sees it, and it overrides everything else — including the skill's own instructions.</p>
   <h3>What's in it</h3>
@@ -220,10 +229,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <div class="do"><h4>Sounds like us</h4>"If an app or a quick fix will do the job, we'll tell you."<br><br>"Count the clicks from cart to paid. Then cut."</div>
     <div class="dont"><h4>Doesn't</h4>"Unlock your store's full potential with our seamless solutions!"<br><br>"In today's fast-paced ecommerce world…"</div>
   </div>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">08 · Pillars</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">08 · Pillars</span>
   <h2>Using <em>pillars.md.</em></h2>
   <p>Every piece belongs to one of five pillars. They keep the feed balanced and stop us posting the same kind of thing four times in a row.</p>
   <table>
@@ -236,12 +247,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
   </table>
   <p><b>Weekly mix:</b> two Honest advice, one Proof, one Shopify know-how; Behind the studio or Founder POV every other week. The weekly run checks the tracker and favours pillars that have been quiet.</p>
   <p><b>Changing pillars:</b> review them once a quarter with the numbers (section 12). Rename, merge or retire a pillar in pillars.md; the next run uses the new list. Four of the five are still marked <i>draft</i> — confirm or change them first.</p>
-
+</div>
 </section>
 
-<section>
-  <section>
-    <span class="eyebrow">09 · Tracker</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">09 · Tracker</span>
     <h2>Using <em>tracker.csv.</em></h2>
     <p>One row per piece, kept in step with the Desk by every run. Open it in Numbers, Excel or Google Sheets (import, don't edit the live file there).</p>
     <table>
@@ -256,12 +267,13 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
       <tr><td>notes</td><td>Anything worth remembering</td></tr>
     </table>
     <p>Claude reads it before choosing topics so we don't repeat a topic or angle within six weeks. Test rows are ignored for that check.</p>
-  </section>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">10 · Photos</span>
-  <h2>Photos: Pexels <em>and Unsplash.</em></h2>
+<section class="page">
+<div class="block">
+<span class="eyebrow">10 · Photos</span>
+  <h2>Photos from <em>Unsplash.</em></h2>
   <p>Posts use free stock from <b>Unsplash</b>. Its licence allows commercial use with no fee. (Pexels has paused new API keys; the script will use it too if we get one.) Claude searches with our API key, picks photos that fit our look, downloads them into the topic's <code>assets/</code> folder and records who took each one in <code>assets/credits.json</code>.</p>
   <h3>What makes a good OVXS photo</h3>
   <ul>
@@ -275,17 +287,17 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li><b>Never Pinterest, Google Images or Instagram.</b> Those photos belong to someone and aren't licensed for us.</li>
     <li><b>Stock people are never presented as clients or team.</b></li>
     <li>Credit isn't required by either licence, but we keep it in credits.json, and Unsplash asks that we credit when it's practical (e.g. in the article footer).</li>
-    <li>To suggest a photo yourself, paste a direct Pexels or Unsplash page link in the topic notes.</li>
+    <li>To suggest a photo yourself, paste an Unsplash photo page link in the topic notes.</li>
   </ul>
   <h3>Setup (once)</h3>
   <ol>
     <li>Done for OVXS: an Unsplash app at <b>unsplash.com/developers</b>. Only the <i>Access key</i> is used; the secret key isn't needed.</li>
-    <li>Copy <code>.env.example</code> to <code>.env</code> in the repo and paste the key(s). Never commit .env or paste keys into a chat.</li>
+    <li>The key lives in <code>.env</code> in the repo (copy <code>.env.example</code> to create it). Never commit .env or paste keys into a chat.</li>
     <li>Test: <code>node scripts/stock.mjs search "packing parcels"</code></li>
   </ol>
-
-  <section class="flow">
-    <span class="eyebrow">11 · Rules</span>
+</div>
+<div class="block">
+<span class="eyebrow">11 · Rules</span>
     <h2>House <em>rules.</em></h2>
     <ol>
       <li>Two human decisions per piece, every time: the angle and the approval.</li>
@@ -296,11 +308,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
       <li>We don't say AI wrote it, and we don't reference other studios' sites.</li>
       <li>Nothing from this repo goes on the website.</li>
     </ol>
-  </section>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">12 · Improving</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">12 · Improving</span>
   <h2>Getting better <em>every month.</em></h2>
   <p>The system learns from three places: your corrections, the numbers, and real customer questions. Thirty minutes a month keeps it sharp.</p>
   <h3>Every piece</h3>
@@ -322,10 +335,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li>Check prices and case-study results against the website.</li>
     <li>Review this playbook and bump its version.</li>
   </ul>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">13 · Roadmap</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">13 · Roadmap</span>
   <h2>Future <em>versions.</em></h2>
   <p>Ideas in rough priority order. Each one is a self-contained change to the skill or the Desk.</p>
   <table class="roadmap">
@@ -341,10 +356,12 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Repurpose old wins</td><td>Small</td><td>Every quarter, re-cut the top three posts into a new format</td></tr>
     <tr><td>Client-ready version</td><td>Large</td><td>Package the system as a service for our own Shopify clients</td></tr>
   </table>
+</div>
 </section>
 
-<section>
-  <span class="eyebrow">14 · Troubleshooting</span>
+<section class="page">
+<div class="block">
+<span class="eyebrow">14 · Troubleshooting</span>
   <h2>When something <em>goes wrong.</em></h2>
   <table>
     <tr><th>Problem</th><th>Fix</th></tr>
@@ -357,6 +374,16 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>A wrong stat went out</td><td>Edit or delete the post, fix the brief's Facts table, and add a Learned rule.</td></tr>
   </table>
   <footer class="end">Studio OVXS · Marketing playbook v1.0 · October 2026 · Maintained in <code>docs/</code> of the ovxs-marketing repo. Questions → Ramit.</footer>
+</div>
+<div class="block">
+<span class="eyebrow">Quick reference</span>
+  <h2>The 30-second <em>version.</em></h2>
+  <div class="two">
+    <div class="do"><h4>Every week</h4><ul><li>Monday: angles appear on the Desk. Pick them by Tuesday.</li><li>Daily 18:30 IST: drafts appear. Approve or ask for changes.</li><li>Posting day: files are ready. Post, then tap "I've posted it".</li></ul></div>
+    <div class="do"><h4>Every month</h4><ul><li>Top 3 and bottom 3 posts → one line each in voice.md.</li><li>Two new topics from Ovi questions.</li><li>Retire a pillar that's been bottom 3 twice.</li></ul></div>
+  </div>
+  <div class="note"><b>Never.</b> Post without approval on the Desk · use photos from Pinterest or Google · quote a stat without a link · round a price or a client result.</div>
+</div>
 </section>
 
 </body>
