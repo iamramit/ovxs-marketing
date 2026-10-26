@@ -44,7 +44,8 @@ One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slu
 - `decision` — `{angle, notes, decided_at}`; written by the page when Ramit picks an angle
 - `drafts` — `{"LinkedIn post": text, "Facebook post": text, "IG carousel": slide lines, "Newsletter": text, "Article": "first 2 paragraphs + word count", "LinkedIn video": script}`
 - `preview_url` — the Artifact link of the designed preview page
-- `review` — `{verdict: "approve"|"changes", notes, slot: {date, time, tz: "America/New_York"}, channels, decided_at}`; written by the page
+- `review` — `{verdict: "approve"|"changes"|"photos", action, notes, slot: {date, time, tz: "America/New_York"}, channels, decided_at}`; written by the page. `verdict: "photos"` comes with `action` `swap`, `off` or `on` and means only the photos change (Stage 4b).
+- `photos` — `"auto"` (default when missing) or `"none"`; written by the page. `"none"` means brand-colour panels instead of photos for this piece.
 - `post_prep` — `{at, channels, files}`; written by Claude when the posts are staged
 - `posted` — `{at, "LinkedIn": url, ...}`
 - `created_at`, `updated_at` (ISO). Every write sets `updated_at`, or the Desk won't sort it.
@@ -118,6 +119,8 @@ Finish with **So what**: 3 bullets. Copy them to the Desk doc's `so_what`, and t
 
 ## Stage 4 — Copy (`daily`: every doc with status `decided`, or `changes`)
 
+If the doc is `changes` with `review.verdict: "photos"`, skip this stage and go to Stage 4b.
+
 1. Set `status: "drafting"`.
 2. Write the long piece first: the Article if listed, otherwise the longest item. Cut every other item from it.
 3. Save `topics/<folder>/copy.md`, one `##` section per Make item. It includes:
@@ -137,6 +140,15 @@ Finish with **So what**: 3 bullets. Copy them to the Desk doc's `so_what`, and t
    Fix whatever fails.
 6. When a correction from Ramit applies beyond this one piece, add it under "Learned rules" in `voice.md`.
 
+## Stage 4b — Photos only (`changes` with `review.verdict: "photos"`)
+
+The copy is not touched. Set `status: "drafting"`, then:
+- `swap`: pick new Unsplash photos for the same slots. Don't reuse any photo already in this topic's `assets/credits.json`. Treat `review.notes` as direction ("warmer", "no laptops"). Replace the old files and remove their credits.
+- `off`: remove the photos from `page.html` and use plain brand-colour panels in their place. Keep the files in `assets/` in case they come back.
+- `on`: put photos back, reusing the files in `assets/` if they still fit, otherwise pick new ones.
+
+Update the brief's **Photos** table and add a line under **Decisions**. Then republish the preview (Stage 5 steps 2–4) and set `status: "review"`.
+
 ## Stage 5 — Preview page
 
 1. Build `topics/<folder>/page.html` following `page-spec.md`.
@@ -151,6 +163,7 @@ Finish with **So what**: 3 bullets. Copy them to the Desk doc's `so_what`, and t
      - `get` downloads the photo and appends its credit to `assets/credits.json`. List the credits in the brief under **Photos**. In an article, add "Photo by <name> on <Pexels|Unsplash>" under the image.
      - If Ramit gave a Pexels or Unsplash page link, use that photo: take the id from the end of the URL.
      - Pinterest, Google Images or Instagram links are never used. Swap in a matching stock photo and say so in `so_what`.
+     - If the doc has `photos: "none"`, skip this step and use brand-colour panels.
      - If there's no API key, stop the photo step and write "Photos: add UNSPLASH_ACCESS_KEY to .env" in the Desk doc's `so_what`. Build the preview with a plain brand-colour panel instead of a photo.
 2. Check the page once in the browser pane: every tab, no broken images, no console errors.
 3. Publish it as a **private Artifact**.

@@ -198,7 +198,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "researching": "Research is running. Angles land here when it's done.",
     "decided": "Claude writes the drafts on the next daily run.",
     "drafting": "Drafts are being written now.",
-    "changes": "Claude redrafts with your notes on the next daily run.",
+    "changes": "Claude updates it with your notes on the next daily run.",
     "approved": ""
   };
   const MODE_HELP = {
@@ -348,6 +348,15 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
           <label class="field" for="t-${esc(b.id)}">Time<input type="time" id="t-${esc(b.id)}" data-field="time" data-id="${esc(b.id)}" value="${esc(st.time)}" step="900" ${canEdit ? "" : "disabled"}></label>
         </div>
         ${make.length ? `<div class="checks">${make.map((m, i) => `<label for="ch-${esc(b.id)}-${i}"><input type="checkbox" id="ch-${esc(b.id)}-${i}" data-field="channel" data-id="${esc(b.id)}" value="${esc(m)}" ${st.channels.includes(m) ? "checked" : ""} ${canEdit ? "" : "disabled"}> ${esc(m)}</label>`).join("")}</div>` : ""}
+      </div>
+      <div class="section"><h3>Photos</h3>
+        <p class="small">${b.photos === "none" ? "No photo: brand-colour panels only." : "Unsplash photos, picked by Claude."} Notes below are used as direction for a swap.</p>
+        <div class="row">
+          ${b.photos === "none"
+            ? `<button class="btn ghost" type="button" data-act="photos-on" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Use photos again</button>`
+            : `<button class="btn ghost" type="button" data-act="photos-swap" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Swap photos</button>
+               <button class="btn quiet" type="button" data-act="photos-off" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>No photo</button>`}
+        </div>
       </div>
       <label class="field" for="n-${esc(b.id)}">Notes for changes
         <textarea id="n-${esc(b.id)}" data-field="notes" data-id="${esc(b.id)}" placeholder="What to change before it goes out" ${canEdit ? "" : "disabled"}>${esc(st.notes)}</textarea>
@@ -518,6 +527,12 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     if (kind === "posted") {
       const b = briefs.find((x) => x.id === id);
       await write(id, { status: "posted", posted: { at: now } }, b && b.test ? "Test marked done" : "Marked as posted");
+      return;
+    }
+    if (kind === "photos-swap" || kind === "photos-off" || kind === "photos-on") {
+      const photos = kind === "photos-off" ? "none" : "auto";
+      const msg = { "photos-swap": "New photos come on the next run. The copy stays as it is.", "photos-off": "Switching to brand panels on the next run.", "photos-on": "Photos come back on the next run." }[kind];
+      await write(id, { status: "changes", photos, review: { verdict: "photos", action: kind.slice(7), notes: st.notes.trim(), decided_at: now } }, msg);
       return;
     }
     if (kind === "changes") {
