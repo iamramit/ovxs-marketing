@@ -451,6 +451,25 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     </article>`;
   }
 
+  function requestCard(r) {
+    const id = esc(r.id);
+    const brief = r.brief_id ? briefs.find((b) => b.id === r.brief_id) : null;
+    let todo;
+    if (r.status === "new") todo = r.rush ? "Nothing to do. You asked for it now, so the next daily run researches it and brings back angles." : "Nothing to do. The next weekly run (Monday) researches it and brings back angles. Want it sooner? Tap <b>Research now</b>.";
+    else todo = brief ? `Picked up. It's now “${esc(brief.title)}”: ${NEEDS.includes(brief.status) ? "it's waiting for you in <b>Needs you</b>." : brief.status === "posted" ? "it's posted." : "it's in <b>In progress</b>."}` : "Picked up. Look for it in Needs you.";
+    return `<article class="card" data-id="${id}">
+      <div class="card-head"><div class="meta"><span class="pill ${r.status === "new" ? "you" : "go"}">${r.status === "new" ? (r.rush ? "Asked for now" : "Queued") : "Picked up"}</span>${r.test ? `<span class="pill test">Test</span>` : ""}<span>${esc(fmtDate(r.created_at))}</span></div>
+        <h2>${esc(r.title)}</h2>${r.notes ? `<p class="small">${esc(r.notes)}</p>` : ""}</div>
+      <p class="todo"><b>What you do now:</b> ${todo}</p>
+      <div class="row">
+        ${r.status === "new" && !r.rush ? `<button class="btn ghost" type="button" data-req="rush" data-id="${id}" ${canEdit ? "" : "disabled"}>Research now</button>` : ""}
+        ${brief && NEEDS.includes(brief.status) ? `<button class="btn ghost" type="button" data-req="go-needs" data-id="${id}">Open in Needs you</button>` : ""}
+        ${brief && PROGRESS.includes(brief.status) ? `<button class="btn ghost" type="button" data-req="go-progress" data-id="${id}">Open in In progress</button>` : ""}
+        ${r.status === "new" ? `<button class="btn quiet" type="button" data-req="remove" data-id="${id}" ${canEdit ? "" : "disabled"}>Remove</button>` : `<button class="btn quiet" type="button" data-req="hide" data-id="${id}" ${canEdit ? "" : "disabled"}>Hide</button>`}
+      </div>
+    </article>`;
+  }
+
   function archivedCard(b) {
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head"><div class="meta"><span class="pill">Archived</span>${b.archived_at ? `<span>${esc(fmtDate(b.archived_at))}</span>` : ""}</div><h2>${esc(b.title)}</h2></div>
@@ -496,7 +515,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       : empty("Nothing posted yet.", "Posts you've published are listed here with their links."))
       + (archived.length ? `<div class="section"><h3>Archived</h3><p class="small">Set aside. Claude skips these. Restore one to pick it up where it left off.</p></div>` + archived.map(archivedCard).join("") : "");
     $("#requests").innerHTML = requests.length
-      ? `<div class="section"><h3>Your suggestions</h3></div>` + requests.map((r) => `<article class="card"><div class="card-head"><div class="meta"><span class="pill ${r.status === "new" ? "you" : "go"}">${r.status === "new" ? "Queued" : "Picked up"}</span><span>${esc(fmtDate(r.created_at))}</span></div><h2>${esc(r.title)}</h2>${r.notes ? `<p class="small">${esc(r.notes)}</p>` : ""}</div></article>`).join("")
+      ? `<div class="section"><h3>Your suggestions</h3></div>` + requests.map(requestCard).join("")
       : "";
 
     $("#nt-submit").disabled = !canEdit;
@@ -516,6 +535,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     if (tab) { setView(tab.dataset.view); return; }
     const seg = e.target.closest(".seg");
     if (seg) { setMode(seg.dataset.mode); return; }
+    const rq = e.target.closest("button[data-req]");
+    if (rq && !rq.disabled) { requestAct(rq.dataset.req, rq.dataset.id, rq); return; }
     const op = e.target.closest("button[data-open]");
     if (op) { const k = op.dataset.open; opened.has(k) ? opened.delete(k) : opened.add(k); render(); return; }
     const get = e.target.closest("button[data-get]");
@@ -626,6 +647,31 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       toast("Couldn't get that file. Try again in a moment.");
     } finally {
       btn.disabled = false;
+    }
+  }
+
+  async function requestAct(kind, id, btn) {
+    const r = requests.find((x) => x.id === id);
+    if (!r) return;
+    if (kind === "go-needs" || kind === "go-progress") {
+      if (kind === "go-progress") opened.add(r.brief_id);
+      setView(kind === "go-needs" ? "needs" : "progress");
+      render();
+      const card = document.querySelector(`.card[data-id="${CSS.escape(r.brief_id)}"]`);
+      if (card) card.scrollIntoView({ block: "start" });
+      return;
+    }
+    if (!db || !canEdit) return;
+    btn.disabled = true;
+    const now = new Date().toISOString();
+    const patch = kind === "rush" ? { rush: true, rush_at: now } : kind === "remove" ? { status: "removed", removed_at: now } : { status: "archived", archived_at: now };
+    const msg = { rush: "The next daily run researches this first.", remove: "Removed. Claude won't pick it up.", hide: "Hidden" }[kind];
+    try {
+      await db.doc("requests/" + id).update(patch);
+      toast(msg);
+    } catch (err) {
+      btn.disabled = false;
+      toast("Couldn't save. Try again in a moment.");
     }
   }
 
@@ -753,7 +799,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       if (MODE_HELP[m]) { mode = m; render(); }
     }, () => {});
     db.collection("requests").orderBy("created_at", "desc").limit(30).onSnapshot((snap) => {
-      requests = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r) => r.status !== "archived");
+      requests = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r) => r.status !== "archived" && r.status !== "removed");
       render();
     }, () => {});
   })();
