@@ -64,14 +64,14 @@ No request from Ramit. Picked by the weekly run on 2026-11-12: no new Desk reque
 - Make (final): LinkedIn post, IG carousel (8 slides), Article
 - Decided on: 2026-11-13
 - Drafted 2026-11-14 in an interactive session (the scheduled daily run was cancelled). Preview: https://claude.ai/artifact/Dbh5KEYGtPEojQiZRKnK64
-- Photos reused from the dropped Brief 1 because this Mac has no UNSPLASH_ACCESS_KEY in .env. Swap them on the Desk once the key is back.
+- 2026-11-14: Ramit asked for fresh photos. Brief 1 photos replaced with three new Unsplash picks (see Photos); only the four photo images were re-rendered and re-uploaded.
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
-| assets/laptop.jpg | Unsplash f2JMVDnarks (from Brief 1) | see Unsplash page | LinkedIn graphic, slide 1 |
-| assets/phone-desk.jpg | Unsplash (from Brief 1) | not recorded | slide 4 |
-| assets/phone-table.jpg | Unsplash (from Brief 1) | not recorded | slide 6 |
+| assets/cover.jpg | Unsplash ag5H7Nqbf9U | Filipp Romanovski | LinkedIn graphic, slide 1 |
+| assets/notes.jpg | Unsplash 1rm4_SojyNM | Jakub Żerdzicki | slide 4 |
+| assets/code.jpg | Unsplash _4HiCxdOBLU | Tracy Adams | slide 6 |
 
 ## SEO (articles only)
 - Target keyword: too many Shopify apps
