@@ -136,7 +136,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 
   <nav role="tablist" aria-label="Desk views">
     <button class="tab" role="tab" id="tab-needs" data-view="needs" aria-selected="true">Needs you <span class="count" id="c-needs">0</span></button>
-    <button class="tab" role="tab" id="tab-progress" data-view="progress" aria-selected="false">In progress <span class="count" id="c-progress">0</span></button>
+    <button class="tab" role="tab" id="tab-claude" data-view="claude" aria-selected="false">With Claude <span class="count" id="c-claude">0</span></button>
+    <button class="tab" role="tab" id="tab-scheduled" data-view="scheduled" aria-selected="false">Scheduled <span class="count" id="c-scheduled">0</span></button>
     <button class="tab" role="tab" id="tab-posted" data-view="posted" aria-selected="false">Posted <span class="count" id="c-posted">0</span></button>
     <button class="tab" role="tab" id="tab-new" data-view="new" aria-selected="false">New topic</button>
   </nav>
@@ -146,7 +147,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   <section class="list" id="view-needs" role="tabpanel" aria-labelledby="tab-needs">
     <div class="empty"><strong>Nothing waiting on you.</strong><span>Angles to pick and drafts to approve show up here after each scheduled run.</span></div>
   </section>
-  <section class="list" id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden></section>
+  <section class="list" id="view-claude" role="tabpanel" aria-labelledby="tab-claude" hidden></section>
+  <section class="list" id="view-scheduled" role="tabpanel" aria-labelledby="tab-scheduled" hidden></section>
   <section class="list" id="view-posted" role="tabpanel" aria-labelledby="tab-posted" hidden></section>
   <section class="list" id="view-new" role="tabpanel" aria-labelledby="tab-new" hidden>
     <form class="card" id="new-form">
@@ -196,12 +198,13 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 <script>
 (() => {
   const ET = "America/New_York";
-  const VIEWS = ["needs", "progress", "posted", "new"];
+  const VIEWS = ["needs", "claude", "scheduled", "posted", "new"];
   const NEEDS = ["awaiting-decision", "review"];
-  const PROGRESS = ["needs-angles", "researching", "decided", "drafting", "changes", "approved"];
+  const CLAUDE = ["needs-angles", "researching", "decided", "drafting", "changes"];
+  const PROGRESS = [...CLAUDE, "approved"];
   const STATUS_LABEL = {
     "needs-angles": "New angles asked", "researching": "Researching", "awaiting-decision": "Pick an angle", "decided": "Angle picked", "drafting": "Drafting",
-    "review": "Review drafts", "changes": "Changes asked", "approved": "Scheduled", "posted": "Posted", "dropped": "Dropped"
+    "review": "Review drafts", "changes": "Changes asked", "approved": "Scheduled", "posted": "Posted", "dropped": "Dropped", "archived": "Archived"
   };
   const NEXT_STEP = {
     "needs-angles": "Claude researches this and writes three angles on the next run. Your current angle stays as A.",
@@ -222,12 +225,22 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 
   let downloads = null, zipLib = null;
   let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only";
-  let view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "needs";
+  const hashView = location.hash.slice(1) === "progress" ? "claude" : location.hash.slice(1);
+  let view = VIEWS.includes(hashView) ? hashView : "needs";
   const form = {};
   const confirming = new Set();
   const opened = new Set();
   const editing = new Set();
   const confirmingReq = new Set();
+  const rescheduling = new Set();
+  const isDue = (b) => b.status === "approved" && b.review && b.review.slot && b.review.slot.date && b.review.slot.date <= etNow().date;
+  const viewOf = (b) => NEEDS.includes(b.status) || isDue(b) ? "needs" : CLAUDE.includes(b.status) ? "claude" : b.status === "approved" ? "scheduled" : "posted";
+  const VIEW_NAME = { needs: "Needs you", claude: "With Claude", scheduled: "Scheduled", posted: "Posted" };
+  const TAKE_BACK = {
+    "decided": ["awaiting-decision", "Change the angle", "Back to the angles. Pick again whenever you're ready."],
+    "changes": ["review", "Cancel my changes", "Changes cancelled. It's back in Needs you for review."],
+    "needs-angles": ["awaiting-decision", "Keep the current angles", "Kept your current angles. Pick one in Needs you."]
+  };
   const STALE_MS = 26 * 3600 * 1000;
   const etNow = () => {
     const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: ET, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date()).map((x) => [x.type, x.value]));
@@ -313,6 +326,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const angles = Array.isArray(b.angles) ? b.angles : [];
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.raw_angle ? `<p class="small"><b>Your note:</b> ${esc(b.raw_angle)}</p>` : ""}</div>
+      <p class="todo"><b>What you do now:</b> Read what the research says, pick A, B or C, and tap <b>Use angle</b>. Claude writes the drafts on the next daily run.</p>
       ${research(b)}
       <div class="section"><h3>Pick an angle</h3>
         <div class="angles" role="radiogroup" aria-label="Angles for ${esc(b.title)}">
@@ -381,13 +395,15 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
         ${b.decision && b.decision.angle ? `<p class="small"><b>Angle ${esc(b.decision.angle)}</b>${b.decision.notes ? ` · ${esc(b.decision.notes)}` : ""}</p>` : ""}
         ${b.review && b.review.verdict === "changes" && b.review.notes ? `<p class="small"><b>Last notes:</b> ${esc(b.review.notes)}</p>` : ""}
       </div>
+      <p class="todo"><b>What you do now:</b> Read the drafts and the preview. Happy? Pick a date and time and tap <b>Approve and schedule</b>. Not yet? Write what to change and tap <b>Ask for changes</b>.</p>
       ${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
       ${draftsBlock(b, true)}
       <div class="section"><h3>Post on (US Eastern)</h3>
         <div class="grid2">
-          <label class="field" for="d-${esc(b.id)}">Date<input type="date" id="d-${esc(b.id)}" data-field="date" data-id="${esc(b.id)}" value="${esc(st.date)}" ${canEdit ? "" : "disabled"}></label>
+          <label class="field" for="d-${esc(b.id)}">Date<input type="date" id="d-${esc(b.id)}" data-field="date" data-id="${esc(b.id)}" value="${esc(st.date)}" min="${etNow().date}" ${canEdit ? "" : "disabled"}></label>
           <label class="field" for="t-${esc(b.id)}">Time<input type="time" id="t-${esc(b.id)}" data-field="time" data-id="${esc(b.id)}" value="${esc(st.time)}" step="900" ${canEdit ? "" : "disabled"}></label>
         </div>
+        <div class="row"><button class="btn quiet sm" type="button" data-act="today" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Today</button><button class="btn quiet sm" type="button" data-act="tomorrow" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Tomorrow</button></div>
         ${make.length ? `<div class="checks">${make.map((m, i) => `<label for="ch-${esc(b.id)}-${i}"><input type="checkbox" id="ch-${esc(b.id)}-${i}" data-field="channel" data-id="${esc(b.id)}" value="${esc(m)}" ${st.channels.includes(m) ? "checked" : ""} ${canEdit ? "" : "disabled"}> ${esc(m)}</label>`).join("")}</div>` : ""}
       </div>
       <div class="section"><h3>Photos</h3>
@@ -413,44 +429,108 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     </article>`;
   }
 
-  function todoFor(b) {
-    const hasContent = draftKeys(b).length > 0;
-    if (b.status === "approved") {
-      if (b.test) return "It's a test: check the content below, don't post it, then tap <b>Test done</b>.";
-      return hasContent
-        ? "Tap <b>Open</b>, copy the text and save the images, post them yourself, then tap <b>I've posted it</b>. Want it out today? Tap <b>Publish now</b>."
-        : "Nothing yet. On the day, the text and images appear below for you to post.";
-    }
-    if (b.rush) return "Nothing to do. You asked for it now, so the next run does this one first.";
-    return "Nothing to do. " + esc(NEXT_STEP[b.status] || "Waiting for the next run.");
+  function cardHead(b) {
+    const chosen = b.decision && b.decision.angle && Array.isArray(b.angles) ? b.angles.find((a) => a.id === b.decision.angle) : null;
+    return `<div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>
+        ${chosen ? `<p class="small"><b>Angle ${esc(chosen.id)}: ${esc(chosen.name)}</b> · “${esc(chosen.hook)}”</p>` : ""}
+      </div>`;
   }
 
-  function progressCard(b) {
+  function openBlock(b, force) {
+    if (!force && !opened.has(b.id)) return "";
+    const pv = safeUrl(b.preview_url);
+    return `${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
+        ${draftsBlock(b, true) || `<p class="small">No drafts yet. They appear here after the daily run writes them.</p>`}
+        ${force ? "" : research(b)}`;
+  }
+
+  function openBtn(b) {
+    const isOpen = opened.has(b.id);
+    return `<button class="btn ghost" type="button" data-open="${esc(b.id)}" aria-expanded="${isOpen}">${isOpen ? "Close" : "Open"}</button>`;
+  }
+
+  function slotLine(b) {
     const slot = b.review && b.review.slot ? fmtSlot(b.review.slot) : "";
     const ch = b.review && Array.isArray(b.review.channels) ? b.review.channels.join(" · ") : "";
-    const pv = safeUrl(b.preview_url);
-    const isOpen = opened.has(b.id);
-    const waiting = b.status !== "approved" && Date.now() - new Date(b.updated_at || 0).getTime() > STALE_MS;
+    return slot ? `<p><b>${esc(slot)}</b>${ch ? ` · ${esc(ch)}` : ""}</p>` : "";
+  }
+
+  function reschedBlock(b) {
     const id = esc(b.id);
-    const chosen = b.decision && b.decision.angle && Array.isArray(b.angles) ? b.angles.find((a) => a.id === b.decision.angle) : null;
+    if (!rescheduling.has(b.id)) return "";
+    const st = f(b.id);
+    if (!st.date && b.review && b.review.slot) { st.date = b.review.slot.date || ""; st.time = b.review.slot.time || "10:00"; }
+    return `<div class="section"><h3>New date and time (US Eastern)</h3>
+        <div class="grid2">
+          <label class="field" for="rd-${id}">Date<input type="date" id="rd-${id}" data-field="date" data-id="${id}" value="${esc(st.date)}" min="${etNow().date}"></label>
+          <label class="field" for="rtm-${id}">Time<input type="time" id="rtm-${id}" data-field="time" data-id="${id}" value="${esc(st.time)}" step="900"></label>
+        </div>
+        <div class="row"><button class="btn" type="button" data-act="resched-save" data-id="${id}">Save new time</button><button class="btn quiet" type="button" data-act="resched-cancel" data-id="${id}">Cancel</button></div>
+      </div>`;
+  }
+
+  function claudeCard(b) {
+    const id = esc(b.id);
+    const dis = canEdit ? "" : "disabled";
+    const stalled = Date.now() - new Date(b.updated_at || 0).getTime() > STALE_MS;
+    const tb = TAKE_BACK[b.status];
+    const canTake = tb && !(b.status === "needs-angles" && !(Array.isArray(b.angles) && b.angles.length));
+    const busy = b.status === "drafting" || b.status === "researching";
     return `<article class="card" data-id="${id}">
-      <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>
-        ${chosen ? `<p class="small"><b>Angle ${esc(chosen.id)}: ${esc(chosen.name)}</b> · “${esc(chosen.hook)}”</p>` : ""}
-      </div>
-      ${b.status === "approved" && slot ? `<p><b>${esc(slot)}</b>${ch ? ` · ${esc(ch)}` : ""}</p>` : ""}
-      <p class="todo"><b>What you do now:</b> ${todoFor(b)}</p>
-      ${waiting ? `<p class="warn">This has been waiting since ${esc(fmtDate(b.updated_at))}. The daily run hasn't picked it up. In Claude, open Scheduled → “OVXS content — daily”, check it's turned on, and press Run now.</p>` : ""}
-      ${b.post_prep && b.post_prep.at ? `<p class="small"><b>Ready since ${esc(fmtDate(b.post_prep.at))}</b></p>` : ""}
+      ${cardHead(b)}
+      <p class="todo"><b>What happens next:</b> Nothing for you to do. ${esc(NEXT_STEP[b.status] || "Claude picks this up on the next run.")}${b.rush ? " You asked for it first, so the next run starts with this one." : ""} When it's done, it moves to <b>Needs you</b>.</p>
+      ${stalled ? `<p class="warn">Waiting since ${esc(fmtDate(b.updated_at))}, longer than a day, so a daily run was missed. In Claude, open Scheduled, check <b>OVXS daily</b> is on, and press Run now.</p>` : ""}
       <div class="row">
-        <button class="btn ghost" type="button" data-open="${id}" aria-expanded="${isOpen}">${isOpen ? "Close" : "Open"}</button>
-        ${b.status === "approved" && !b.test ? `<button class="btn" type="button" data-act="posted" data-id="${id}" ${canEdit ? "" : "disabled"}>I've posted it</button>` : ""}
-        ${b.status === "approved" && b.test ? `<button class="btn" type="button" data-act="posted" data-id="${id}" ${canEdit ? "" : "disabled"}>Test done</button>` : ""}
-        ${!b.test && !(b.status !== "approved" && b.rush) ? `<button class="btn ghost" type="button" data-act="now" data-id="${id}" ${canEdit ? "" : "disabled"}>Publish now</button>` : ""}
-        <button class="btn quiet" type="button" data-act="archive" data-id="${id}" ${canEdit ? "" : "disabled"}>Archive</button>
+        ${openBtn(b)}
+        ${!b.rush && !b.test && !busy ? `<button class="btn ghost" type="button" data-act="now" data-id="${id}" ${dis}>Do this one first</button>` : ""}
+        ${canTake && (!busy || stalled) ? `<button class="btn ghost" type="button" data-act="takeback" data-id="${id}" ${dis}>${esc(tb[1])}</button>` : ""}
+        <button class="btn quiet" type="button" data-act="archive" data-id="${id}" ${dis}>Archive</button>
       </div>
-      ${isOpen ? `${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
-        ${draftsBlock(b, true) || `<p class="small">No drafts yet. They appear here after the daily run writes them.</p>`}
-        ${research(b)}` : ""}
+      ${openBlock(b)}
+    </article>`;
+  }
+
+  function scheduledCard(b) {
+    const id = esc(b.id);
+    const dis = canEdit ? "" : "disabled";
+    return `<article class="card" data-id="${id}">
+      ${cardHead(b)}
+      ${slotLine(b)}
+      <p class="todo"><b>What happens next:</b> Nothing until the day. Then it moves to <b>Needs you</b> with the text and images ready to post${mode === "stage" ? ", and Claude opens the composers in Chrome" : ""}.${b.test ? " It's a test, so you only check it, then tap <b>Test done</b>." : ""}</p>
+      <div class="row">
+        ${openBtn(b)}
+        <button class="btn ghost" type="button" data-act="resched" data-id="${id}" ${dis}>Reschedule</button>
+        ${!b.test ? `<button class="btn ghost" type="button" data-act="now" data-id="${id}" ${dis}>Post today instead</button>` : ""}
+        <button class="btn ghost" type="button" data-act="unapprove" data-id="${id}" ${dis}>Back to review</button>
+        <button class="btn quiet" type="button" data-act="archive" data-id="${id}" ${dis}>Archive</button>
+      </div>
+      ${reschedBlock(b)}
+      ${openBlock(b)}
+    </article>`;
+  }
+
+  function dueCard(b) {
+    const id = esc(b.id);
+    const dis = canEdit ? "" : "disabled";
+    const today = b.review.slot.date === etNow().date;
+    const hasContent = draftKeys(b).length > 0;
+    const todo = b.test
+      ? "It's a test. Check the text and images below, don't post them, then tap <b>Test done</b>."
+      : hasContent
+        ? "Copy the text and save the images below, post them on each channel, then tap <b>I've posted it</b>."
+        : "The content isn't ready yet. The next daily run prepares it. Or move it to another day.";
+    return `<article class="card" data-id="${id}">
+      <div class="card-head"><div class="meta"><span class="pill you">${today ? "Post today" : "Overdue"}</span>${b.test ? `<span class="pill test">Test</span>` : ""}${b.pillar ? `<span>${esc(b.pillar)}</span>` : ""}</div><h2>${esc(b.title)}</h2></div>
+      ${slotLine(b)}
+      ${!today ? `<p class="warn">This was due ${esc(fmtSlot(b.review.slot))}. Post it now, or pick a new time.</p>` : ""}
+      <p class="todo"><b>What you do now:</b> ${todo}</p>
+      <div class="row">
+        <button class="btn" type="button" data-act="posted" data-id="${id}" ${dis}>${b.test ? "Test done" : "I've posted it"}</button>
+        <button class="btn ghost" type="button" data-act="resched" data-id="${id}" ${dis}>Reschedule</button>
+        <button class="btn ghost" type="button" data-act="unapprove" data-id="${id}" ${dis}>Back to review</button>
+      </div>
+      ${reschedBlock(b)}
+      ${openBlock(b, true)}
     </article>`;
   }
 
@@ -461,7 +541,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const runNow = "To start straight away, open Scheduled in Claude, pick <b>OVXS daily</b> and press <b>Run now</b>.";
     let todo;
     if (r.status !== "new") {
-      todo = brief ? `Picked up. It's now “${esc(brief.title)}”, ${NEEDS.includes(brief.status) ? "waiting for you in <b>Needs you</b>." : brief.status === "posted" ? "and it's posted." : "in <b>In progress</b>."}` : "Picked up. Look for it in Needs you.";
+      todo = brief ? `Picked up. It's now “${esc(brief.title)}”, in <b>${VIEW_NAME[viewOf(brief)] || "Posted"}</b>.` : "Picked up. Look for it in Needs you.";
     } else {
       const what = r.as_is ? "writes the drafts straight from your notes, with no research or angles," : "researches it and brings back three angles for you to pick from,";
       todo = r.rush
@@ -493,8 +573,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
           <button class="btn ghost" type="button" data-req="edit" data-id="${id}" ${dis}>Edit</button>
           <button class="btn ghost" type="button" data-req="remove" data-id="${id}" ${dis}>Remove</button>
         </div>`) : `<div class="row">
-          ${brief && NEEDS.includes(brief.status) ? `<button class="btn" type="button" data-req="go-needs" data-id="${id}">Open in Needs you</button>` : ""}
-          ${brief && PROGRESS.includes(brief.status) ? `<button class="btn" type="button" data-req="go-progress" data-id="${id}">Open in In progress</button>` : ""}
+          ${brief && viewOf(brief) !== "posted" ? `<button class="btn" type="button" data-req="go" data-id="${id}">Open in ${VIEW_NAME[viewOf(brief)]}</button>` : ""}
           <button class="btn quiet" type="button" data-req="hide" data-id="${id}" ${dis}>Hide</button>
         </div>`}
     </article>`;
@@ -502,7 +581,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 
   function archivedCard(b) {
     return `<article class="card" data-id="${esc(b.id)}">
-      <div class="card-head"><div class="meta"><span class="pill">Archived</span>${b.archived_at ? `<span>${esc(fmtDate(b.archived_at))}</span>` : ""}</div><h2>${esc(b.title)}</h2></div>
+      <div class="card-head"><div class="meta"><span class="pill">${b.status === "dropped" ? "Dropped" : "Archived"}</span>${b.archived_at || b.dropped_at ? `<span>${esc(fmtDate(b.archived_at || b.dropped_at))}</span>` : ""}</div><h2>${esc(b.title)}</h2></div>
       <div class="row"><button class="btn ghost" type="button" data-act="restore" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Restore</button></div>
     </article>`;
   }
@@ -513,6 +592,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.posted && b.posted.at ? `<p class="small">Posted ${esc(fmtDate(b.posted.at))}</p>` : ""}</div>
       ${links.length ? `<div class="row">${links.map(([k, v]) => { const u = safeUrl(v); return u ? `<a class="btn ghost" href="${esc(u)}" target="_blank" rel="noopener">${esc(k)} ↗</a>` : ""; }).join("")}</div>` : ""}
       ${draftsBlock(b, false)}
+      <div class="row"><button class="btn quiet" type="button" data-act="unpost" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Not posted yet? Undo</button></div>
     </article>`;
   }
 
@@ -522,28 +602,32 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const keepFocus = document.activeElement && document.activeElement.id;
     const caret = document.activeElement && "selectionStart" in document.activeElement ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
 
-    const needs = briefs.filter((b) => NEEDS.includes(b.status));
-    const progress = briefs.filter((b) => PROGRESS.includes(b.status));
+    const needs = briefs.filter((b) => viewOf(b) === "needs").sort((a, z) => (isDue(z) ? 1 : 0) - (isDue(a) ? 1 : 0));
+    const withClaude = briefs.filter((b) => CLAUDE.includes(b.status));
+    const scheduled = briefs.filter((b) => b.status === "approved" && !isDue(b)).sort((a, z) => (a.review.slot.date + a.review.slot.time).localeCompare(z.review.slot.date + z.review.slot.time));
     const posted = briefs.filter((b) => b.status === "posted");
-    const archived = briefs.filter((b) => b.status === "archived");
+    const archived = briefs.filter((b) => b.status === "archived" || b.status === "dropped");
     $("#c-needs").textContent = needs.length;
-    $("#c-progress").textContent = progress.length;
+    $("#c-claude").textContent = withClaude.length;
+    $("#c-scheduled").textContent = scheduled.length;
     $("#c-posted").textContent = posted.length;
-    const scheduled = progress.filter((b) => b.status === "approved").length;
     $("#summary").textContent = db
-      ? `${needs.length} waiting on you · ${progress.length} in progress${scheduled ? ` (${scheduled} scheduled)` : ""} · ${posted.length} posted`
+      ? `${needs.length} waiting on you · ${withClaude.length} with Claude · ${scheduled.length} scheduled · ${posted.length} posted`
       : "The desk's data loads when this page is open in Claude.";
 
     $("#view-needs").innerHTML = needs.length
-      ? needs.map((b) => b.status === "review" ? reviewCard(b) : decisionCard(b)).join("")
-      : empty("Nothing waiting on you.", "Angles to pick and drafts to approve show up here after each scheduled run.");
-    $("#view-progress").innerHTML = progress.length
-      ? progress.map(progressCard).join("")
-      : empty("Nothing in progress.", "Once you pick an angle, the piece moves here while Claude writes it, then sits here scheduled until you post it.");
+      ? needs.map((b) => isDue(b) ? dueCard(b) : b.status === "review" ? reviewCard(b) : decisionCard(b)).join("")
+      : empty("Nothing waiting on you.", "Angles to pick, drafts to approve and posts due today show up here.");
+    $("#view-claude").innerHTML = withClaude.length
+      ? withClaude.map(claudeCard).join("")
+      : empty("Claude has nothing in hand.", "When you pick an angle or ask for changes, the piece waits here until the daily run finishes it, then moves to Needs you.");
+    $("#view-scheduled").innerHTML = scheduled.length
+      ? scheduled.map(scheduledCard).join("")
+      : empty("Nothing scheduled.", "Approved posts wait here until their day, then move to Needs you with everything ready to post.");
     $("#view-posted").innerHTML = (posted.length
       ? posted.map(postedCard).join("")
-      : empty("Nothing posted yet.", "Posts you've published are listed here with their links."))
-      + (archived.length ? `<div class="section"><h3>Archived</h3><p class="small">Set aside. Claude skips these. Restore one to pick it up where it left off.</p></div>` + archived.map(archivedCard).join("") : "");
+      : empty("Nothing posted yet.", "Posts you've published are listed here with their content."))
+      + (archived.length ? `<div class="section"><h3>Archived and dropped</h3><p class="small">Set aside. Claude skips these. Restore one to pick it up where it left off.</p></div>` + archived.map(archivedCard).join("") : "");
     $("#requests").innerHTML = requests.length
       ? `<div class="section"><h3>Your suggestions</h3></div>` + requests.map(requestCard).join("")
       : "";
@@ -683,9 +767,11 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   async function requestAct(kind, id, btn) {
     const r = requests.find((x) => x.id === id);
     if (!r) return;
-    if (kind === "go-needs" || kind === "go-progress") {
-      if (kind === "go-progress") opened.add(r.brief_id);
-      setView(kind === "go-needs" ? "needs" : "progress");
+    if (kind === "go") {
+      const b = briefs.find((x) => x.id === r.brief_id);
+      if (!b) return;
+      opened.add(b.id);
+      setView(viewOf(b));
       render();
       const card = document.querySelector(`.card[data-id="${CSS.escape(r.brief_id)}"]`);
       if (card) card.scrollIntoView({ block: "start" });
@@ -741,8 +827,41 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const st = f(id);
     const now = new Date().toISOString();
     if (kind === "drop") { confirming.add(id); render(); return; }
+    if (kind === "today" || kind === "tomorrow") {
+      const d = new Date(etNow().date + "T12:00:00Z");
+      if (kind === "tomorrow") d.setUTCDate(d.getUTCDate() + 1);
+      st.date = d.toISOString().slice(0, 10);
+      if (kind === "today") { const n = etNow().time.split(":").map(Number); const m = Math.ceil((n[0] * 60 + n[1] + 15) / 15) * 15; if (m < 24 * 60) st.time = `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`; }
+      render();
+      return;
+    }
+    if (kind === "resched") { rescheduling.add(id); delete form[id]; render(); return; }
+    if (kind === "resched-cancel") { rescheduling.delete(id); delete form[id]; render(); return; }
     if (kind === "drop-no") { confirming.delete(id); render(); return; }
     btn.disabled = true;
+    if (kind === "resched-save") {
+      const b = briefs.find((x) => x.id === id);
+      if (!st.date || !st.time) { btn.disabled = false; toast("Pick a date and a time."); return; }
+      rescheduling.delete(id);
+      await write(id, { review: { ...(b.review || {}), slot: { date: st.date, time: st.time, tz: ET } }, post_prep: null }, `Moved to ${fmtSlot({ date: st.date, time: st.time })}`);
+      return;
+    }
+    if (kind === "unapprove") {
+      rescheduling.delete(id);
+      await write(id, { status: "review", post_prep: null }, "Back in Needs you for review. Your drafts are kept.");
+      return;
+    }
+    if (kind === "unpost") {
+      await write(id, { status: "approved", posted: null }, "Moved back. It's waiting to be posted.");
+      return;
+    }
+    if (kind === "takeback") {
+      const b = briefs.find((x) => x.id === id);
+      const tb = b && TAKE_BACK[b.status];
+      if (!tb) return;
+      await write(id, { status: tb[0], rush: false }, tb[2]);
+      return;
+    }
     if (kind === "drop-yes") { confirming.delete(id); await write(id, { status: "dropped", dropped_at: now }, "Topic dropped"); return; }
     if (kind === "decide") {
       const b = briefs.find((x) => x.id === id);
@@ -773,7 +892,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     }
     if (kind === "restore") {
       const b = briefs.find((x) => x.id === id);
-      const back = b && b.archived_from && b.archived_from !== "archived" ? b.archived_from : "awaiting-decision";
+      const back = b && b.archived_from && b.archived_from !== "archived" ? b.archived_from : b && b.drafts && Object.keys(b.drafts).length ? "review" : "awaiting-decision";
       await write(id, { status: back, archived_from: null }, "Restored");
       return;
     }
@@ -781,8 +900,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       const b = briefs.find((x) => x.id === id);
       if (b && b.status === "approved") {
         const slot = etNow();
-        await write(id, { review: { ...(b.review || {}), slot: { ...slot, tz: ET } }, rush: true }, draftKeys(b).length ? "Set for now. Copy and save the content below, post it, then tap I've posted it." : "Set for now. The next run gets it ready first.");
-        opened.add(id);
+        await write(id, { review: { ...(b.review || {}), slot: { ...slot, tz: ET } }, rush: true }, draftKeys(b).length ? "Moved to today. It's in Needs you, ready to post." : "Moved to today. The next run gets it ready first.");
+        setView("needs");
         render();
         return;
       }

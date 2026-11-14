@@ -36,7 +36,7 @@ Then `git pull --rebase` so you work on the latest copy.
 
 One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slug>`. Fields:
 - `title`, `pillar`, `audience`, `make` (array), `cta`, `folder`, `raw_angle`
-- `status` — `researching → awaiting-decision → decided → drafting → review ⇄ changes → approved → posted`, or `dropped`. From `review` Ramit can also send a brief back:
+- `status` — `researching → awaiting-decision → decided → drafting → review ⇄ changes → approved → posted`, or `dropped` / `archived`. The Desk groups them by whose move it is: **Needs you** (`awaiting-decision`, `review`, and `approved` once its slot date arrives), **With Claude** (`needs-angles`, `researching`, `decided`, `drafting`, `changes`), **Scheduled** (`approved` before its day), **Posted**. Ramit can move a piece back at any step: `decided → awaiting-decision`, `changes → review`, `needs-angles → awaiting-decision`, `approved → review` (unschedule), `posted → approved` (undo), and change `review.slot` (reschedule). Always act on the status you read, never on what it was last run. From `review` Ramit can also send a brief back:
   - to `awaiting-decision`, to pick a different existing angle (the drafts are kept)
   - to `needs-angles`, which means research and write new angles
 - `so_what` (3 strings), `sources` (`[{label, url}]`, https only)
@@ -47,7 +47,7 @@ One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slu
 - `exports` — `[{id, file, label}]`: the exported PNGs uploaded to the Desk's asset store (`id` is the 32-hex asset id, `file` like `slide-1.png`, `label` like "IG slide 1" or "LinkedIn graphic"). The Desk shows them under "Get the content" with Save and "Download everything (.zip)" buttons.
 - `review` — `{verdict: "approve"|"changes"|"photos", action, notes, slot: {date, time, tz: "America/New_York"}, channels, decided_at}`; written by the page. `verdict: "photos"` comes with `action` `swap`, `off` or `on` and means only the photos change (Stage 4b).
 - `photos` — `"auto"` (default when missing) or `"none"`; written by the page. `"none"` means brand-colour panels instead of photos for this piece.
-- `post_prep` — `{at, channels, files}`; written by Claude when the posts are staged
+- `post_prep` — `{at, channels, files}`; written by Claude when the posts are staged. The page sets it to `null` when Ramit reschedules or sends a piece back to review, so Stage 6 runs again on the new day.
 - `posted` — `{at, "LinkedIn": url, ...}`
 - `rush` — `true` when Ramit taps **Publish now**. Handle these docs first in the run. For an `approved` doc the page has already set `review.slot` to now (US Eastern), so Stage 6 runs on it today. Set `rush: false` once the doc reaches its next status.
 - `archived` status, with `archived_from` (the status it had) and `archived_at` — Ramit set it aside. Skip archived docs in every stage, and don't count them in the weekly topic mix. Restoring it on the Desk puts back `archived_from`.
@@ -178,7 +178,7 @@ Update the brief's **Photos** table and add a line under **Decisions**. Then rep
    - If the doc already has `exports`, delete those old assets afterwards (Artifact `delete` with the Desk `url` and each old `id` as `path`), so the Desk doesn't fill up.
 5. Update the Desk doc: `drafts` (full text for every channel; for the article, the full text if it's under 1,500 words, otherwise an excerpt plus word count), `exports`, `preview_url`, `status: "review"`.
 
-## Stage 6 — Posting prep (`daily`: status `approved` and `review.slot.date` is today in US Eastern)
+## Stage 6 — Posting prep (`daily`: status `approved`, `review.slot.date` is today or earlier in US Eastern, and no `post_prep` yet)
 
 Ramit always clicks Post himself. This stage only gets everything ready. First read `settings/posting`:
 - **`draft-only`** (the default): do step 1, then skip to step 3. Don't open Chrome at all. The notification says where the files are.
