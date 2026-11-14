@@ -5,8 +5,8 @@
 <title>OVXS Content Playbook</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-@font-face { font-family: "IvyPresto Display"; src: url("../brand/ivy-presto-display.woff2") format("woff2"); font-weight: 700; }
-@font-face { font-family: "Elza Condensed"; src: url("../brand/elza-condensed-black.woff2") format("woff2"); font-weight: 900; }
+@font-face { font-family: "IvyPresto Display"; src: url("brand/ivy-presto-display.woff2") format("woff2"), url("../brand/ivy-presto-display.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Elza Condensed"; src: url("brand/elza-condensed-black.woff2") format("woff2"), url("../brand/elza-condensed-black.woff2") format("woff2"); font-weight: 900; }
 :root { --ink: #142120; --muted: #4E5E5A; --line: #C9D5D1; --primary: #1B6A63; --soft: #E3F1ED; --wash: #F3F7F5; --dark: #0F2F2C; }
 @page { size: A4; margin: 18mm 17mm 18mm 17mm; }
 @page :first { margin: 0; }
@@ -62,12 +62,51 @@ td:first-child { font-weight: 600; white-space: nowrap; }
 .toc span { color: var(--primary); font-weight: 700; margin-right: 6pt; }
 .roadmap td:nth-child(2) { white-space: nowrap; }
 footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top: .6pt solid var(--line); padding-top: 8pt; }
+.dl { display: none; }
+@media screen {
+  body { background: #E6ECEA; padding: 16px; }
+  .cover, section.page { max-width: 210mm; margin: 0 auto 16px; border-radius: 10px; }
+  section.page { background: #fff; padding: 16mm 15mm; }
+  .cover { height: auto; min-height: 240mm; }
+  .dl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; max-width: 210mm; margin: 0 auto 16px; padding: 12px 16px; background: #fff; border-radius: 10px; font-size: 10pt; }
+  .dl a { background: var(--primary); color: #fff; padding: 9px 16px; border-radius: 999px; font: 900 10pt/1 "Elza Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    section.page { padding: 18px 16px; }
+    .cover { padding: 28px 20px; min-height: 0; gap: 40px; }
+    .cover h1 { font-size: 34pt; }
+    .flowchart { grid-template-columns: repeat(2, 1fr); }
+    .two { grid-template-columns: 1fr; }
+    table { display: block; overflow-x: auto; }
+    td:first-child { white-space: normal; }
+    .toc { columns: 1; }
+  }
+}
 </style>
 </head>
 <body>
+<div class="dl"><span>Studio OVXS marketing playbook · the latest version from the ovxs-marketing repo</span><a href="OVXS-Content-Playbook.pdf" download id="dl-pdf">Download PDF</a></div>
+<script>
+(() => {
+  const a = document.getElementById("dl-pdf");
+  const use = window.claude && window.claude.use;
+  if (!use) return;
+  a.addEventListener("click", async (e) => {
+    e.preventDefault();
+    try {
+      const d = await use("downloads");
+      if (!d) throw new Error("unavailable");
+      const res = await fetch(a.getAttribute("href"));
+      await d.save({ filename: "OVXS-Content-Playbook.pdf", data: await res.blob() });
+    } catch (err) {
+      if (!err || err.code !== "declined") a.textContent = "Download not available here";
+    }
+  });
+})();
+</script>
 
 <div class="cover">
-  <div><img src="../brand/ovxs-logo-white.svg" alt="Studio OVXS"></div>
+  <div><img src="../brand/ovxs-logo-white.svg" onerror="this.onerror=null;this.src='brand/ovxs-logo-white.svg'" alt="Studio OVXS"></div>
   <div>
     <span class="eyebrow">Marketing playbook · v1.1</span>
     <h1>One topic in.<br><em>Posts out.</em></h1>
