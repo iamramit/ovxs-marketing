@@ -120,6 +120,14 @@ We bring together strategy, UX, design and technology. That sounds like a list o
 
 Senior people do this work. You talk to the people building your store, not to a sales team relaying messages.
 
+### What working with us looks like
+
+Every project starts the same way: we look before we quote. That might be a $99 video audit of your current store, or a free 30-minute call about what you want to build. Either way, you get a straight answer about what’s worth doing, and what isn’t.
+
+Then you get a fixed price and a plan, so you know the cost and the timeline before anything starts. We publish our starting prices for the same reason. You talk to the people doing the work throughout, not to an account manager in between.
+
+When the store is live, we don’t disappear. We can stay on as a long-term partner: new sections, new campaigns, speed and SEO work, and an honest second opinion when someone tries to sell you an app you don’t need.
+
 ### How we think: business first, technology second
 
 If there’s one line that explains how we work, it’s this one. Business first, technology second.
@@ -141,7 +149,7 @@ Welcome to Studio OVXS.
 **Meta description:** Studio OVXS is a senior Shopify studio. We help businesses launch, fix and scale their stores, from strategy to store. Here’s what we do and how.
 **Target keyword:** Shopify studio
 **Slug:** /blogs/journal/what-studio-ovxs-does
-**Length:** about 820 words
+**Length:** about 800 words
 
 ## LinkedIn video
 
