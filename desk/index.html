@@ -105,6 +105,12 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 .seg:disabled { cursor: not-allowed; opacity: .5; }
 .mode .small { flex: 1 1 220px; min-width: 0; }
 .pill.test { background: var(--surface-2); color: var(--muted); border: 1px dashed var(--muted); }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.shot { display: grid; gap: 6px; min-width: 0; }
+.shot img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); display: block; }
+.shot span { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.draft-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.btn.sm { font-size: 12.5px; padding: 9px 13px; }
 .confirm { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 14px; color: var(--danger); }
 @media (prefers-reduced-motion: no-preference) { .card { animation: rise .35s cubic-bezier(.2,0,0,1) both; } @keyframes rise { from { transform: translateY(8px); } to { transform: none; } } }
 </style>
@@ -122,7 +128,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       <button class="seg" type="button" data-mode="draft-only" aria-pressed="true">Draft only</button>
       <button class="seg" type="button" data-mode="stage" aria-pressed="false">Stage in Chrome</button>
     </span>
-    <span class="small" id="mode-help">Claude saves the images and post text to the export folder and tells you. Nothing opens.</span>
+    <span class="small" id="mode-help">Claude exports the images and post text and tells you. Get them from the card here. Nothing opens.</span>
   </div>
 
   <nav role="tablist" aria-label="Desk views">
@@ -202,14 +208,15 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "approved": ""
   };
   const MODE_HELP = {
-    "draft-only": "Claude saves the images and post text to the export folder and tells you. Nothing opens.",
+    "draft-only": "Claude exports the images and post text and tells you. Get them from the card here. Nothing opens.",
     "stage": "Claude opens LinkedIn, Facebook and Instagram in Chrome with everything filled in. You click Post."
   };
   const APPROVED_NEXT = {
-    "draft-only": "On the day, Claude exports the images and post text and tells you they're ready to post.",
+    "draft-only": "On the day, Claude tells you it's ready. Copy the text and save the images below, then post.",
     "stage": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
   };
 
+  let downloads = null, zipLib = null;
   let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only";
   let view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "needs";
   const form = {};
@@ -320,13 +327,35 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     </article>`;
   }
 
-  function draftsBlock(b) {
+  const DRAFT_ORDER = ["LinkedIn post", "Facebook post", "IG carousel", "Newsletter", "Article", "LinkedIn video"];
+  const draftKeys = (b) => {
     const d = b.drafts && typeof b.drafts === "object" ? b.drafts : {};
-    const order = ["LinkedIn post", "Facebook post", "IG carousel", "Newsletter", "Article", "LinkedIn video"];
-    const rank = (k) => { const i = order.indexOf(k); return i < 0 ? order.length : i; };
-    const keys = Object.keys(d).sort((a, z) => rank(a) - rank(z));
-    if (!keys.length) return "";
-    return `<div class="section"><h3>Drafts</h3>${keys.map((k, i) => `<details ${i === 0 ? "open" : ""}><summary>${esc(k)}</summary><div class="draft">${esc(d[k])}</div></details>`).join("")}</div>`;
+    const rank = (k) => { const i = DRAFT_ORDER.indexOf(k); return i < 0 ? DRAFT_ORDER.length : i; };
+    return Object.keys(d).filter((k) => typeof d[k] === "string" && d[k].trim()).sort((a, z) => rank(a) - rank(z));
+  };
+  const shots = (b) => (Array.isArray(b.exports) ? b.exports : []).filter((x) => x && /^[0-9a-f]{32}$/.test(String(x.id || "")));
+  const blobUrl = (x) => "/_blob/" + x.id;
+  const slug = (s) => String(s || "file").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "file";
+  const shotName = (x, i) => /^[\w.-]+\.(png|jpe?g|webp)$/i.test(String(x.file || "")) ? x.file : `image-${i + 1}.png`;
+
+  function draftsBlock(b, open) {
+    const keys = draftKeys(b);
+    const imgs = shots(b);
+    if (!keys.length && !imgs.length) return "";
+    const id = esc(b.id);
+    return `<div class="section"><h3>Get the content</h3>
+      ${keys.map((k, i) => `<details ${open && i === 0 ? "open" : ""}><summary>${esc(k)}</summary>
+        <div class="draft-actions">
+          <button class="btn ghost sm" type="button" data-get="copy" data-id="${id}" data-key="${esc(k)}">Copy text</button>
+          ${downloads ? `<button class="btn quiet sm" type="button" data-get="txt" data-id="${id}" data-key="${esc(k)}">Save .txt</button>` : ""}
+        </div>
+        <div class="draft">${esc(b.drafts[k])}</div></details>`).join("")}
+      ${imgs.length ? `<div class="shots">${imgs.map((x, i) => `<div class="shot"><img src="${esc(blobUrl(x))}" alt="${esc(x.label || shotName(x, i))}" loading="lazy">
+          <span>${esc(x.label || shotName(x, i))}</span>
+          ${downloads ? `<button class="btn ghost sm" type="button" data-get="img" data-id="${id}" data-key="${i}">Save</button>` : `<a class="btn ghost sm" href="${esc(blobUrl(x))}" target="_blank" rel="noopener">Open ↗</a>`}
+        </div>`).join("")}</div>` : `<p class="small">Images appear here once Claude exports them${b.status === "approved" ? " on posting day" : " with the drafts"}.</p>`}
+      ${downloads ? `<div class="row"><button class="btn sm" type="button" data-get="zip" data-id="${id}">Download everything (.zip)</button></div>` : ""}
+    </div>`;
   }
 
   function reviewCard(b) {
@@ -341,7 +370,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
         ${b.review && b.review.verdict === "changes" && b.review.notes ? `<p class="small"><b>Last notes:</b> ${esc(b.review.notes)}</p>` : ""}
       </div>
       ${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
-      ${draftsBlock(b)}
+      ${draftsBlock(b, true)}
       <div class="section"><h3>Post on (US Eastern)</h3>
         <div class="grid2">
           <label class="field" for="d-${esc(b.id)}">Date<input type="date" id="d-${esc(b.id)}" data-field="date" data-id="${esc(b.id)}" value="${esc(st.date)}" ${canEdit ? "" : "disabled"}></label>
@@ -380,6 +409,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       ${b.status === "approved" && slot ? `<p><b>${esc(slot)}</b>${ch ? ` · ${esc(ch)}` : ""}</p>` : ""}
       <p class="next"><b>Next:</b> ${esc(b.status === "approved" ? (b.test ? "On the day, Claude prepares everything as usual. It's a test, so don't post it — tap 'Test done' when you've checked it." : APPROVED_NEXT[mode]) : (NEXT_STEP[b.status] || "Waiting for the next run."))}</p>
       ${b.post_prep && b.post_prep.at ? `<p class="small"><b>Ready since ${esc(fmtDate(b.post_prep.at))}</b>${b.post_prep.folder ? ` · ${esc(b.post_prep.folder)}` : ""}</p>` : ""}
+      ${b.preview_url && safeUrl(b.preview_url) ? `<div class="row"><a class="btn ghost" href="${esc(safeUrl(b.preview_url))}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
+      ${draftsBlock(b, false)}
       ${b.status === "approved" ? `<div class="row"><button class="btn ghost" type="button" data-act="posted" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>${b.test ? "Test done" : "I've posted it"}</button></div>` : ""}
     </article>`;
   }
@@ -389,6 +420,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.posted && b.posted.at ? `<p class="small">Posted ${esc(fmtDate(b.posted.at))}</p>` : ""}</div>
       ${links.length ? `<div class="row">${links.map(([k, v]) => { const u = safeUrl(v); return u ? `<a class="btn ghost" href="${esc(u)}" target="_blank" rel="noopener">${esc(k)} ↗</a>` : ""; }).join("")}</div>` : ""}
+      ${draftsBlock(b, false)}
     </article>`;
   }
 
@@ -439,6 +471,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     if (tab) { setView(tab.dataset.view); return; }
     const seg = e.target.closest(".seg");
     if (seg) { setMode(seg.dataset.mode); return; }
+    const get = e.target.closest("button[data-get]");
+    if (get && !get.disabled) { getContent(get.dataset.get, get.dataset.id, get.dataset.key, get); return; }
     const btn = e.target.closest("button[data-act]");
     if (!btn || btn.disabled) return;
     act(btn.dataset.act, btn.dataset.id, btn);
@@ -476,6 +510,75 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       toast(done);
     } catch (err) {
       toast(err && err.code === "invalid_argument" ? "You need edit access to change the desk." : "Couldn't save. Try again in a moment.");
+    }
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (err) {}
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (err) {}
+    ta.remove();
+    return ok;
+  }
+
+  async function save(filename, data) {
+    try { await downloads.save({ filename, data }); return true; } catch (err) {
+      const code = err && err.code;
+      if (code === "declined") return false;
+      toast(code === "rate_limited" ? "A save is already open. Finish that one first." : "Couldn't save the file here.");
+      return false;
+    }
+  }
+
+  async function loadZip() {
+    if (zipLib) return zipLib;
+    await new Promise((ok, no) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+      s.onload = ok; s.onerror = no; document.head.appendChild(s);
+    });
+    zipLib = window.JSZip;
+    return zipLib;
+  }
+
+  async function getContent(kind, id, key, btn) {
+    const b = briefs.find((x) => x.id === id);
+    if (!b) return;
+    if (kind === "copy") {
+      toast(await copyText(b.drafts[key]) ? `${key} copied` : "Couldn't copy here. Select the text and copy it.");
+      return;
+    }
+    if (!downloads) return;
+    btn.disabled = true;
+    try {
+      if (kind === "txt") {
+        if (await save(`${slug(b.title)}-${slug(key)}.txt`, b.drafts[key])) toast("Saved");
+      } else if (kind === "img") {
+        const x = shots(b)[Number(key)];
+        const res = await fetch(blobUrl(x));
+        if (!res.ok) throw new Error("fetch");
+        if (await save(shotName(x, Number(key)), await res.blob())) toast("Saved");
+      } else if (kind === "zip") {
+        toast("Packing the files…");
+        const JSZip = await loadZip();
+        const zip = new JSZip();
+        const keys = draftKeys(b);
+        keys.forEach((k) => zip.file(`text/${slug(k)}.txt`, b.drafts[k]));
+        if (keys.length) zip.file("all-posts.md", keys.map((k) => `## ${k}\n\n${b.drafts[k]}`).join("\n\n---\n\n"));
+        const imgs = shots(b);
+        for (let i = 0; i < imgs.length; i++) {
+          const res = await fetch(blobUrl(imgs[i]));
+          if (res.ok) zip.file(`images/${shotName(imgs[i], i)}`, await res.blob());
+        }
+        if (await save(`${slug(b.title)}.zip`, await zip.generateAsync({ type: "blob" }))) toast("Saved");
+      }
+    } catch (err) {
+      toast("Couldn't get that file. Try again in a moment.");
+    } finally {
+      btn.disabled = false;
     }
   }
 
@@ -565,8 +668,9 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   render();
 
   (async () => {
-    const [dbNs, user] = await Promise.all([window.claude?.use?.("db"), window.claude?.use?.("user")]);
+    const [dbNs, user, dl] = await Promise.all([window.claude?.use?.("db"), window.claude?.use?.("user"), window.claude?.use?.("downloads")]);
     canEdit = !!(user && user.canEdit());
+    downloads = dl || null;
     db = dbNs || null;
     if (!db) { notice("Open this page in Claude to load the desk."); render(); return; }
     if (!canEdit) notice("You can view the desk, but only editors can pick angles or approve posts.");

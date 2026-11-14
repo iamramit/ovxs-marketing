@@ -44,6 +44,7 @@ One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slu
 - `decision` — `{angle, notes, decided_at}`; written by the page when Ramit picks an angle
 - `drafts` — `{"LinkedIn post": text, "Facebook post": text, "IG carousel": slide lines, "Newsletter": text, "Article": "first 2 paragraphs + word count", "LinkedIn video": script}`
 - `preview_url` — the Artifact link of the designed preview page
+- `exports` — `[{id, file, label}]`: the exported PNGs uploaded to the Desk's asset store (`id` is the 32-hex asset id, `file` like `slide-1.png`, `label` like "IG slide 1" or "LinkedIn graphic"). The Desk shows them under "Get the content" with Save and "Download everything (.zip)" buttons.
 - `review` — `{verdict: "approve"|"changes"|"photos", action, notes, slot: {date, time, tz: "America/New_York"}, channels, decided_at}`; written by the page. `verdict: "photos"` comes with `action` `swap`, `off` or `on` and means only the photos change (Stage 4b).
 - `photos` — `"auto"` (default when missing) or `"none"`; written by the page. `"none"` means brand-colour panels instead of photos for this piece.
 - `post_prep` — `{at, channels, files}`; written by Claude when the posts are staged
@@ -147,7 +148,7 @@ The copy is not touched. Set `status: "drafting"`, then:
 - `off`: remove the photos from `page.html` and use plain brand-colour panels in their place. Keep the files in `assets/` in case they come back.
 - `on`: put photos back, reusing the files in `assets/` if they still fit, otherwise pick new ones.
 
-Update the brief's **Photos** table and add a line under **Decisions**. Then republish the preview (Stage 5 steps 2–4) and set `status: "review"`.
+Update the brief's **Photos** table and add a line under **Decisions**. Then republish the preview and re-export and re-upload the images (Stage 5 steps 2–5), which also sets `status: "review"`.
 
 ## Stage 5 — Preview page
 
@@ -169,7 +170,11 @@ Update the brief's **Photos** table and add a line under **Decisions**. Then rep
 3. Publish it as a **private Artifact**.
    - First time: title "Brief — <title>", icon `pen`, `files` covering `assets/*` and `fonts/*`.
    - After that: republish the same `file_path` so the link stays the same.
-4. Update the Desk doc: `drafts` (full text for posts and newsletter, an excerpt for the article), `preview_url`, `status: "review"`.
+4. **Export and upload the images**, so Ramit can save them from the Desk on any device:
+   - Render every graphic in the preview (`li-graphic`, `slide-1` … `slide-8`) to `topics/<folder>/export/<id>.png` with the Stage 6 command.
+   - Upload them to the Desk in one call: Artifact `publish` with `url` = the Desk URL, `asset: true`, `file_paths` = the PNGs.
+   - If the doc already has `exports`, delete those old assets afterwards (Artifact `delete` with the Desk `url` and each old `id` as `path`), so the Desk doesn't fill up.
+5. Update the Desk doc: `drafts` (full text for every channel; for the article, the full text if it's under 1,500 words, otherwise an excerpt plus word count), `exports`, `preview_url`, `status: "review"`.
 
 ## Stage 6 — Posting prep (`daily`: status `approved` and `review.slot.date` is today in US Eastern)
 
@@ -177,7 +182,7 @@ Ramit always clicks Post himself. This stage only gets everything ready. First r
 - **`draft-only`** (the default): do step 1, then skip to step 3. Don't open Chrome at all. The notification says where the files are.
 - **`stage`**: do every step.
 
-1. **Export assets.** Render the 4:5 graphic and the carousel slides to PNG at 1080×1350:
+1. **Export assets.** The PNGs from Stage 5 are normally still current. Re-render them only if `page.html` changed since, and then re-upload them to the Desk the same way (Stage 5 step 4). The command, at 1080×1350:
    ```bash
    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --force-device-scale-factor=1 --window-size=1080,1350 --screenshot="topics/<folder>/export/<id>.png" "file://$PWD/topics/<folder>/page.html?export=<id>"
    ```
@@ -191,7 +196,7 @@ Ramit always clicks Post himself. This stage only gets everything ready. First r
    - If Chrome isn't connected, a browser picker appears, or a sign-in page shows: skip staging and point Ramit to the `export/` folder in the notification.
 3. Write `post_prep: {at, mode, channels, folder: "topics/<folder>/export", files}` to the Desk doc. Keep `status: "approved"`.
 4. Notify him:
-   - `draft-only`: "Ready to post: <title>. Images and text are in topics/<folder>/export. Tap 'I've posted it' on the Desk once it's live."
+   - `draft-only`: "Ready to post: <title>. Get the text and images from the card on the Desk (In progress → Get the content), or from topics/<folder>/export. Tap 'I've posted it' once it's live."
    - `stage`: "Ready to post: <title>. LinkedIn and Facebook are open in Chrome. Click Post, then tap 'I've posted it' on the Desk."
    - For a test brief, start with "TEST, don't post:" and end with "Tap 'Test done' on the Desk."
 
