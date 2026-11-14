@@ -206,11 +206,12 @@ Ramit always clicks Post himself. This stage only gets everything ready. First r
 
 1. Update `tracker.csv` (`date,slug,title,pillar,audience,channels,angle,status,artifact_url,posted_url,notes`) to match the Desk statuses.
 2. When a Desk doc is `posted`, fill `posted_url` if Ramit added links. On `daily` runs, check the company LinkedIn and Facebook pages in Chrome for posts that went out and copy their URLs into `posted`. Only read the pages; don't change anything.
-3. Commit and push:
+3. Commit only the paths this run changed (don't push; Ramit pushes):
    ```bash
-   git add -A && git commit -m "content: <what changed>" && git push
+   git add topics/<folder> tracker.csv && git commit -m "content: <what changed>"
    ```
-   Never commit `.DS_Store` or anything under `export/` that's over 5 MB.
+   Never commit `.DS_Store`, `.env` or anything under `export/` that's over 5 MB.
+   If this run changed how the system works (the Desk, this skill, the scheduled tasks), also update the playbook in the same commit, as `CLAUDE.md` describes.
 4. Unattended runs end with one PushNotification. It says what needs Ramit — e.g. "3 angles to pick", "2 drafts to review", "1 post open in Chrome" — and includes the Desk link. If nothing needs him, skip the notification.
 
 ## Rules

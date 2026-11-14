@@ -4,7 +4,7 @@ Content for Studio OVXS: LinkedIn, Facebook, Instagram, newsletter and blog. Cla
 
 ## How it runs
 
-| When (IST) | What | Ramit's part |
+| When (IST) | Scheduled task | Ramit's part |
 |---|---|---|
 | Monday 10:00 | `/content weekly` picks 3 topics, researches them, writes 3 angles each | Pick an angle on the [Content Desk](https://claude.ai/artifact/Qzfxro2BcEUF9hM8oQw5wu) |
 | Daily 18:30 | `/content daily` drafts decided pieces, redrafts ones sent back, and stages today's approved posts in Chrome | Review drafts, approve with a date and time, click Post in Chrome, tap "I've posted it" |
@@ -21,7 +21,7 @@ Ideas can also go in the Desk's **New topic** tab. The next weekly run picks the
 - `desk/index.html` — source of the Content Desk artifact.
 - `brand/` — fonts and logos for previews.
 - `scripts/stock.mjs` — searches Pexels and Unsplash and downloads photos with their credits. It needs a key in `.env`; copy `.env.example` to create it.
-- `docs/OVXS-Content-Playbook.pdf` — the team guide (source in `docs/guide.html`).
+- `docs/OVXS-Content-Playbook.pdf` — the team guide, built from `docs/guide.html` with `./scripts/build-playbook.sh`. Shared link: https://claude.ai/artifact/2vgZgg9gkBvvpiutTr6i91. `CLAUDE.md` makes Claude update it whenever the system changes.
 - `.claude/skills/content/` — the `/content` skill.
 - `imports/` — earlier work brought in from Claude Design.
 
