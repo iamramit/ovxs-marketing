@@ -69,11 +69,11 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
 <div class="cover">
   <div><img src="../brand/ovxs-logo-white.svg" alt="Studio OVXS"></div>
   <div>
-    <span class="eyebrow">Marketing playbook · v1.0</span>
+    <span class="eyebrow">Marketing playbook · v1.1</span>
     <h1>One topic in.<br><em>Posts out.</em></h1>
     <p style="margin-top:14pt">How the OVXS team plans, researches, writes, approves and posts content with Claude — and how we keep it sounding like us.</p>
   </div>
-  <div class="meta"><span>October 2026</span><span>For the OVXS team</span><span>Internal — do not share outside the studio</span></div>
+  <div class="meta"><span>November 2026</span><span>For the OVXS team</span><span>Internal — do not share outside the studio</span></div>
 </div>
 
 <section class="page">
@@ -84,7 +84,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li><span>01</span>How the system works</li>
     <li><span>02</span>Who does what</li>
     <li><span>03</span>Where everything lives</li>
-    <li><span>04</span>The weekly rhythm</li>
+    <li><span>04</span>The rhythm and the scheduled runs</li>
     <li><span>05</span>Step by step: from topic to post</li>
     <li><span>06</span>The Content Desk</li>
     <li><span>07</span>Using voice.md</li>
@@ -134,7 +134,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>voice.md</td><td>repo root</td><td>The rules every draft follows: tone, words, offer, proof, channel formats</td></tr>
     <tr><td>pillars.md</td><td>repo root</td><td>The five themes we post about and the weekly mix</td></tr>
     <tr><td>tracker.csv</td><td>repo root</td><td>One row per piece: status, angle, links. Our content calendar and history.</td></tr>
-    <tr><td>Topic folders</td><td><code>topics/YYYY-MM-DD-slug/</code></td><td><code>brief.md</code> (research, angles, decisions), <code>copy.md</code>, <code>page.html</code> preview, <code>assets/</code> photos + credits, <code>export/</code> PNGs and post text</td></tr>
+    <tr><td>Topic folders</td><td><code>topics/YYYY-MM-DD-slug/</code></td><td><code>brief.md</code> (research, angles, decisions), <code>copy.md</code>, <code>page.html</code> preview, <code>assets/</code> photos + credits, <code>export/</code> PNGs (also uploaded to the Desk card)</td></tr>
     <tr><td>The /content skill</td><td><code>.claude/skills/content/</code></td><td>The instructions Claude follows. Change it to change the process.</td></tr>
     <tr><td>Brand files</td><td><code>brand/</code></td><td>Fonts and logos for previews and exports</td></tr>
     <tr><td>Photo keys</td><td><code>.env</code> (never committed)</td><td>Unsplash access key (never share it)</td></tr>
@@ -145,14 +145,42 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
 <section class="page">
 <div class="block">
 <span class="eyebrow">04 · Rhythm</span>
-    <h2>The weekly <em>rhythm.</em></h2>
+    <h2>The rhythm and the <em>scheduled runs.</em></h2>
+    <p>Two scheduled tasks in the Claude desktop app do Claude's share of the work while you get on with yours. You don't start them; they run on their own. You only act on what they leave in <span class="label">Needs you</span>.</p>
     <table>
-      <tr><th>When (IST)</th><th>What runs</th><th>What you do</th></tr>
-      <tr><td>Monday 10:00</td><td>Weekly run: picks up to 3 topics (Desk suggestions first, then Ovi questions and quiet pillars), researches each, writes 3 angles</td><td>Pick angles on the Desk by Tuesday</td></tr>
-      <tr><td>Every day 18:30</td><td>Daily run: drafts decided pieces, redrafts ones sent back, prepares anything scheduled for today (US Eastern)</td><td>Review drafts; on posting day, post and tap "I've posted it"</td></tr>
-      <tr><td>Any time</td><td>Live: type <code>/content &lt;topic&gt;</code> in Claude Code in the repo, or press "Run now" on a scheduled task</td><td>Use it when something is urgent</td></tr>
+      <tr><th>When (IST)</th><th>Task in Claude's Scheduled list</th><th>What you do</th></tr>
+      <tr><td>Monday 10:00</td><td><b>OVXS weekly — topics and angles.</b> Picks up to 3 topics (Desk suggestions first, then Ovi questions and quiet pillars), researches each, writes 3 angles</td><td>Pick angles on the Desk by Tuesday</td></tr>
+      <tr><td>Every day 18:30</td><td><b>OVXS daily — drafts and post prep.</b> Everything else, in the order below</td><td>Review drafts; on the day, post and tap "I've posted it"</td></tr>
+      <tr><td>Any time</td><td>Live: <code>/content &lt;topic&gt;</code> in Claude Code in the repo, or <b>Run now</b> on either task</td><td>Use it when something is urgent</td></tr>
     </table>
-    <div class="note"><b>Good to know.</b> Scheduled runs only fire while the Claude desktop app is open on Ramit's Mac. A missed run starts the next time the app opens. All post times are US Eastern — that's the time zone our audience and site use.</div>
+    <h3>What the daily run does, in order</h3>
+    <ol>
+      <li><b>Reads the Desk</b>, the posting mode, voice.md and pillars.md.</li>
+      <li><b>Rushed pieces first</b>: anything you marked <i>Do this one first</i>, <i>Research now</i> or <i>Post today instead</i>.</li>
+      <li><b>Suggestions marked Research now</b>: researches and writes angles. <i>Use my copy as is</i>: skips angles and drafts straight from your notes.</li>
+      <li><b>New angles asked</b>: keeps yours as A, researches and adds B and C.</li>
+      <li><b>Angle picked</b>: writes every format, picks Unsplash photos, builds the preview, renders the images and uploads them to the Desk. The card moves to Needs you as <i>Review drafts</i>.</li>
+      <li><b>Changes asked</b>: changes only what your notes say. Photo swaps change only the photos.</li>
+      <li><b>Due today or overdue</b>: gets the post ready. In <i>Stage in Chrome</i> mode it also fills in the composers and stops before Post.</li>
+      <li><b>Wraps up</b>: updates tracker.csv, commits to the repo and sends a notification.</li>
+    </ol>
+</div>
+</section>
+
+<section class="page">
+<div class="block">
+<span class="eyebrow">04 · Rhythm, continued</span>
+    <h2>Working with <em>the scheduler.</em></h2>
+    <p>Everything you'll need to do with the two tasks, all from the Claude desktop app.</p>
+    <table>
+      <tr><th>To</th><th>Do this</th></tr>
+      <tr><td>See the tasks</td><td>Claude desktop app → sidebar → <b>Scheduled</b>. Both OVXS tasks are listed with their next run.</td></tr>
+      <tr><td>Run one now</td><td>Open the task → <b>Run now</b>. Let it finish; stopping it mid-way leaves the piece half done.</td></tr>
+      <tr><td>See what a run did</td><td>Open the task → <b>Runs</b> → the latest one. Or read the notification, or the Desk.</td></tr>
+      <tr><td>Pause or resume</td><td>Turn the task off or on in Scheduled. Pieces wait on the Desk; nothing is lost.</td></tr>
+      <tr><td>Know a run was missed</td><td>Cards in <span class="label">With Claude</span> show a warning after a day of waiting.</td></tr>
+    </table>
+    <div class="note"><b>Good to know.</b> Runs only happen while the Claude app is open and the Mac is awake. A missed run starts the next time the app opens. The tasks run in Auto mode, so they don't stop to ask; a safety check still blocks anything risky, and nothing is ever posted. All post times are US Eastern, the time zone our audience and site use.</div>
 </div>
 </section>
 
@@ -161,8 +189,8 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
 <span class="eyebrow">05 · Step by step</span>
   <h2>From topic <em>to post.</em></h2>
   <ol class="steps">
-    <li><b>Suggest a topic.</b> Desk → <span class="label">New topic</span>. Write the topic in plain words, add your own take, client stories or links in Notes, pick a pillar and audience if you know them, tick what to make. Tick <i>Test run</i> to try the flow without it ever being posted.</li>
-    <li><b>Wait for research.</b> The next weekly run (or "Run now") researches it: our own proof, real customer questions from Ovi, forum language, what's already been written, and 2–5 sourced stats. Every stat carries a link and year.</li>
+    <li><b>Suggest a topic.</b> Desk → <span class="label">New topic</span>. Write the topic in plain words, add your own take, client stories or links in Notes, pick a pillar and audience if you know them, tick what to make. Already written the copy? Tick <i>I've written the copy</i> and Claude drafts straight from it. Tick <i>Test run</i> to try the flow without it ever being posted. Your suggestion is listed below the form with <i>Research now</i>, <i>Edit</i> and <i>Remove</i>.</li>
+    <li><b>Wait for research.</b> The next weekly run, or the next daily run if you tapped <i>Research now</i>, researches it: our own proof, real customer questions from Ovi, forum language, what's already been written, and 2–5 sourced stats. Every stat carries a link and year.</li>
     <li><b>Pick an angle.</b> Desk → <span class="label">Needs you</span>. Read "What the research says", open the sources if anything looks surprising, then pick A, B or C. Use the notes box to mix ("B, but open with the Halm story") or cut ("no pricing"). Press <span class="label">Use angle</span>. Nothing is written until you do this.</li>
     <li><b>Review the drafts.</b> After the next daily run the piece is back under Needs you as <i>Review drafts</i>. Open the designed preview, read every channel. Then either:
       <ul>
@@ -190,6 +218,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Scheduled</td><td>Approved, waiting for its day</td></tr>
     <tr><td>Posted</td><td>What went out, plus archived and dropped pieces you can restore</td></tr>
     <tr><td>New topic</td><td>Suggest a topic; your suggestions and their status are listed below the form</td></tr>
+    <tr><td>Get the content</td><td>On every card with drafts: <i>Copy text</i>, <i>Save</i> each image, or <i>Download everything (.zip)</i></td></tr>
   </table>
   <h3>Buttons and what they do</h3>
   <table>
@@ -295,10 +324,13 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
   <h3>Setup (once)</h3>
   <ol>
     <li>Done for OVXS: an Unsplash app at <b>unsplash.com/developers</b>. Only the <i>Access key</i> is used; the secret key isn't needed.</li>
-    <li>The key lives in <code>.env</code> in the repo (copy <code>.env.example</code> to create it). Never commit .env or paste keys into a chat.</li>
+    <li>The key lives in <code>.env</code> in the repo (copy <code>.env.example</code> to create it, then paste the key in an editor). Never commit .env or paste keys into a chat. It doesn't travel with the repo: on a new Mac, create it again.</li>
     <li>Test: <code>node scripts/stock.mjs search "packing parcels"</code></li>
   </ol>
 </div>
+</section>
+
+<section class="page">
 <div class="block">
 <span class="eyebrow">11 · Rules</span>
     <h2>House <em>rules.</em></h2>
@@ -312,9 +344,6 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
       <li>Nothing from this repo goes on the website.</li>
     </ol>
 </div>
-</section>
-
-<section class="page">
 <div class="block">
 <span class="eyebrow">12 · Improving</span>
   <h2>Getting better <em>every month.</em></h2>
@@ -368,7 +397,8 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
   <h2>When something <em>goes wrong.</em></h2>
   <table>
     <tr><th>Problem</th><th>Fix</th></tr>
-    <tr><td>Nothing new on the Desk</td><td>Was the Claude app open at run time? Check Scheduled → the task's Runs. Press "Run now".</td></tr>
+    <tr><td>Nothing new on the Desk, or a card stuck in With Claude</td><td>Was the Claude app open at run time? Check Scheduled → the task is on → Runs. Press "Run now".</td></tr>
+    <tr><td>New Mac: tasks or photos don't work</td><td>Scheduled tasks and .env stay on the old Mac. Ask Claude in the repo to recreate the OVXS daily and weekly tasks, and create .env again (section 10).</td></tr>
     <tr><td>Desk buttons are greyed out</td><td>You have view access only. Ask Ramit for edit access.</td></tr>
     <tr><td>A piece has only one angle</td><td>Press "Research more angles" on its card.</td></tr>
     <tr><td>The draft doesn't sound like us</td><td>Ask for changes with specifics, then add the rule to voice.md.</td></tr>
@@ -376,13 +406,13 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Photo search fails</td><td>The .env key is missing or wrong, or we hit Unsplash's hourly limit (about 50 requests). Run the test command in section 10, or wait an hour.</td></tr>
     <tr><td>A wrong stat went out</td><td>Edit or delete the post, fix the brief's Facts table, and add a Learned rule.</td></tr>
   </table>
-  <footer class="end">Studio OVXS · Marketing playbook v1.0 · October 2026 · Maintained in <code>docs/</code> of the ovxs-marketing repo. Questions → Ramit.</footer>
+  <footer class="end">Studio OVXS · Marketing playbook v1.1 · November 2026 · Maintained in <code>docs/</code> of the ovxs-marketing repo. Questions → Ramit.</footer>
 </div>
 <div class="block">
 <span class="eyebrow">Quick reference</span>
   <h2>The 30-second <em>version.</em></h2>
   <div class="two">
-    <div class="do"><h4>Every week</h4><ul><li>Monday: angles appear on the Desk. Pick them by Tuesday.</li><li>Daily 18:30 IST: drafts appear. Approve or ask for changes.</li><li>Posting day: files are ready. Post, then tap "I've posted it".</li></ul></div>
+    <div class="do"><h4>Every week</h4><ul><li>Monday: angles appear on the Desk. Pick them by Tuesday.</li><li>Daily 18:30 IST: drafts appear in Needs you. Approve or ask for changes.</li><li>Posting day: it moves to Needs you. Copy, save, post, tap "I've posted it".</li></ul></div>
     <div class="do"><h4>Every month</h4><ul><li>Top 3 and bottom 3 posts → one line each in voice.md.</li><li>Two new topics from Ovi questions.</li><li>Retire a pillar that's been bottom 3 twice.</li></ul></div>
   </div>
   <div class="note"><b>Never.</b> Post without approval on the Desk · use photos from Pinterest or Google · quote a stat without a link · round a price or a client result.</div>
