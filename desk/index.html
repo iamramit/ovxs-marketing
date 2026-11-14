@@ -185,6 +185,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
           <label><input type="checkbox" value="LinkedIn video"> LinkedIn video</label>
         </div>
       </div>
+      <div class="checks"><label for="nt-asis"><input type="checkbox" id="nt-asis"> I've written the copy: skip research and angles, draft straight from my notes</label></div>
       <div class="checks"><label for="nt-test"><input type="checkbox" id="nt-test"> Test run: go through every step, but it's never posted or added to the content calendar</label></div>
       <div class="row"><button class="btn" type="submit" id="nt-submit">Add to the queue →</button></div>
     </form>
@@ -225,6 +226,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   const form = {};
   const confirming = new Set();
   const opened = new Set();
+  const editing = new Set();
+  const confirmingReq = new Set();
   const STALE_MS = 26 * 3600 * 1000;
   const etNow = () => {
     const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: ET, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date()).map((x) => [x.type, x.value]));
@@ -454,19 +457,46 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   function requestCard(r) {
     const id = esc(r.id);
     const brief = r.brief_id ? briefs.find((b) => b.id === r.brief_id) : null;
+    const hasNotes = !!(r.notes && r.notes.trim());
+    const runNow = "To start straight away, open Scheduled in Claude, pick <b>OVXS daily</b> and press <b>Run now</b>.";
     let todo;
-    if (r.status === "new") todo = r.rush ? "Nothing to do. You asked for it now, so the next daily run researches it and brings back angles." : "Nothing to do. The next weekly run (Monday) researches it and brings back angles. Want it sooner? Tap <b>Research now</b>.";
-    else todo = brief ? `Picked up. It's now “${esc(brief.title)}”: ${NEEDS.includes(brief.status) ? "it's waiting for you in <b>Needs you</b>." : brief.status === "posted" ? "it's posted." : "it's in <b>In progress</b>."}` : "Picked up. Look for it in Needs you.";
+    if (r.status !== "new") {
+      todo = brief ? `Picked up. It's now “${esc(brief.title)}”, ${NEEDS.includes(brief.status) ? "waiting for you in <b>Needs you</b>." : brief.status === "posted" ? "and it's posted." : "in <b>In progress</b>."}` : "Picked up. Look for it in Needs you.";
+    } else {
+      const what = r.as_is ? "writes the drafts straight from your notes, with no research or angles," : "researches it and brings back three angles for you to pick from,";
+      todo = r.rush
+        ? `Nothing for now. The next daily run (every evening) ${what} first thing. ${runNow}`
+        : `Nothing for now. The weekly run on Monday ${what} and it lands in Needs you. Want it sooner? Tap <b>Research now</b>.`;
+    }
+    if (editing.has(r.id)) {
+      return `<article class="card" data-id="${id}">
+        <label class="field" for="rt-${id}">Topic<input type="text" id="rt-${id}" maxlength="140" value="${esc(r.title)}"></label>
+        <label class="field" for="rn-${id}">Your take, notes or links<textarea id="rn-${id}" maxlength="4000" style="min-height:160px">${esc(r.notes)}</textarea></label>
+        <div class="row"><button class="btn" type="button" data-req="save" data-id="${id}">Save</button><button class="btn quiet" type="button" data-req="cancel" data-id="${id}">Cancel</button></div>
+      </article>`;
+    }
+    const dis = canEdit ? "" : "disabled";
     return `<article class="card" data-id="${id}">
-      <div class="card-head"><div class="meta"><span class="pill ${r.status === "new" ? "you" : "go"}">${r.status === "new" ? (r.rush ? "Asked for now" : "Queued") : "Picked up"}</span>${r.test ? `<span class="pill test">Test</span>` : ""}<span>${esc(fmtDate(r.created_at))}</span></div>
-        <h2>${esc(r.title)}</h2>${r.notes ? `<p class="small">${esc(r.notes)}</p>` : ""}</div>
-      <p class="todo"><b>What you do now:</b> ${todo}</p>
-      <div class="row">
-        ${r.status === "new" && !r.rush ? `<button class="btn ghost" type="button" data-req="rush" data-id="${id}" ${canEdit ? "" : "disabled"}>Research now</button>` : ""}
-        ${brief && NEEDS.includes(brief.status) ? `<button class="btn ghost" type="button" data-req="go-needs" data-id="${id}">Open in Needs you</button>` : ""}
-        ${brief && PROGRESS.includes(brief.status) ? `<button class="btn ghost" type="button" data-req="go-progress" data-id="${id}">Open in In progress</button>` : ""}
-        ${r.status === "new" ? `<button class="btn quiet" type="button" data-req="remove" data-id="${id}" ${canEdit ? "" : "disabled"}>Remove</button>` : `<button class="btn quiet" type="button" data-req="hide" data-id="${id}" ${canEdit ? "" : "disabled"}>Hide</button>`}
-      </div>
+      <div class="card-head"><div class="meta"><span class="pill ${r.status === "new" ? "you" : "go"}">${r.status === "new" ? (r.rush ? "Asked for now" : "Queued") : "Picked up"}</span>${r.as_is ? `<span class="pill go">Your copy</span>` : ""}${r.test ? `<span class="pill test">Test</span>` : ""}<span>${esc(fmtDate(r.created_at))}</span></div>
+        <h2>${esc(r.title)}</h2></div>
+      ${hasNotes ? `<details><summary>Your notes</summary><div class="draft">${esc(r.notes)}</div></details>` : ""}
+      <p class="todo"><b>What happens next:</b> ${todo}</p>
+      ${r.status === "new" ? (confirmingReq.has(r.id)
+        ? `<span class="confirm">Remove this suggestion?
+            <button class="btn danger" type="button" data-req="remove-yes" data-id="${id}">Remove</button>
+            <button class="btn quiet" type="button" data-req="remove-no" data-id="${id}">Keep</button></span>`
+        : `<div class="row">
+          ${r.rush ? `<button class="btn ghost" type="button" data-req="unrush" data-id="${id}" ${dis}>Not urgent</button>` : `<button class="btn" type="button" data-req="rush" data-id="${id}" ${dis}>Research now</button>`}
+          ${hasNotes ? (r.as_is
+            ? `<button class="btn ghost" type="button" data-req="angles" data-id="${id}" ${dis}>Research angles instead</button>`
+            : `<button class="btn ghost" type="button" data-req="asis" data-id="${id}" ${dis}>Use my copy as is</button>`) : ""}
+          <button class="btn ghost" type="button" data-req="edit" data-id="${id}" ${dis}>Edit</button>
+          <button class="btn ghost" type="button" data-req="remove" data-id="${id}" ${dis}>Remove</button>
+        </div>`) : `<div class="row">
+          ${brief && NEEDS.includes(brief.status) ? `<button class="btn" type="button" data-req="go-needs" data-id="${id}">Open in Needs you</button>` : ""}
+          ${brief && PROGRESS.includes(brief.status) ? `<button class="btn" type="button" data-req="go-progress" data-id="${id}">Open in In progress</button>` : ""}
+          <button class="btn quiet" type="button" data-req="hide" data-id="${id}" ${dis}>Hide</button>
+        </div>`}
     </article>`;
   }
 
@@ -661,13 +691,29 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       if (card) card.scrollIntoView({ block: "start" });
       return;
     }
+    if (kind === "edit") { editing.add(id); render(); return; }
+    if (kind === "cancel") { editing.delete(id); render(); return; }
+    if (kind === "remove") { confirmingReq.add(id); render(); return; }
+    if (kind === "remove-no") { confirmingReq.delete(id); render(); return; }
     if (!db || !canEdit) return;
-    btn.disabled = true;
     const now = new Date().toISOString();
-    const patch = kind === "rush" ? { rush: true, rush_at: now } : kind === "remove" ? { status: "removed", removed_at: now } : { status: "archived", archived_at: now };
-    const msg = { rush: "The next daily run researches this first.", remove: "Removed. Claude won't pick it up.", hide: "Hidden" }[kind];
+    let patch, msg;
+    if (kind === "save") {
+      const title = $("#rt-" + CSS.escape(id)).value.trim();
+      if (!title) { toast("The topic needs a title."); return; }
+      patch = { title, notes: $("#rn-" + CSS.escape(id)).value.trim(), edited_at: now }; msg = "Saved";
+    }
+    else if (kind === "rush") { patch = { rush: true, rush_at: now }; msg = "The next daily run does this first."; }
+    else if (kind === "unrush") { patch = { rush: false }; msg = "Back in the queue for Monday."; }
+    else if (kind === "asis") { patch = { as_is: true }; msg = "Claude will draft straight from your notes."; }
+    else if (kind === "angles") { patch = { as_is: false }; msg = "Claude will research it and bring back angles."; }
+    else if (kind === "remove-yes") { patch = { status: "removed", removed_at: now }; msg = "Removed. Claude won't pick it up."; }
+    else if (kind === "hide") { patch = { status: "archived", archived_at: now }; msg = "Hidden"; }
+    else return;
+    btn.disabled = true;
     try {
       await db.doc("requests/" + id).update(patch);
+      editing.delete(id); confirmingReq.delete(id);
       toast(msg);
     } catch (err) {
       btn.disabled = false;
@@ -769,7 +815,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     try {
       await db.collection("requests").add({
         title, notes: $("#nt-notes").value.trim(), pillar: $("#nt-pillar").value, audience: $("#nt-audience").value,
-        make: make.length ? make : ["LinkedIn post", "Article"], test: $("#nt-test").checked, status: "new", created_at: new Date().toISOString()
+        make: make.length ? make : ["LinkedIn post", "Article"], test: $("#nt-test").checked, as_is: $("#nt-asis").checked, status: "new", created_at: new Date().toISOString()
       });
       $("#new-form").reset();
       toast("Added. It's researched on the next run.");
