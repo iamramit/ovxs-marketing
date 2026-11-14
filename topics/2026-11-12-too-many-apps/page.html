@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brief — Your store doesn’t need another app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"IvyPresto Display";font-weight:700;font-display:swap;src:url(fonts/ivy-presto-display.woff2) format("woff2"),url(../../brand/ivy-presto-display.woff2) format("woff2")}
+@font-face{font-family:"Elza Condensed";font-weight:900;font-display:swap;src:url(fonts/elza-condensed-black.woff2) format("woff2"),url(../../brand/elza-condensed-black.woff2) format("woff2")}
+:root{
+  --primary:#1B6A63;--on-primary:#FFFFFF;--container:#CDEBE5;--surface:#F6FAF8;--on-surface:#161D1C;
+  --muted:#4A5754;--dark:#0F2F2C;--outline:#BFC9C6;--card:#FFFFFF;--accent:#7FC8BC;
+  --serif:"IvyPresto Display",Georgia,serif;--label:"Elza Condensed","Arial Narrow",sans-serif;--sans:Inter,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--surface:#0E1514;--on-surface:#E3EAE8;--muted:#A9B6B3;--card:#16201E;--outline:#3A4744}}
+:root[data-theme="dark"]{--surface:#0E1514;--on-surface:#E3EAE8;--muted:#A9B6B3;--card:#16201E;--outline:#3A4744}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--surface);color:var(--on-surface);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+.eyebrow{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .eyebrow{color:var(--accent)}}
+h1.title{font:700 clamp(40px,7vw,76px)/1 var(--serif);letter-spacing:-.02em;margin:14px 0 26px}
+em.p{font-style:italic;text-decoration:underline wavy var(--primary);text-decoration-thickness:2px;text-underline-offset:.18em}
+.lede{color:var(--muted);max-width:640px;margin:0 0 28px}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 32px}
+.tabs a{font:900 15px/1 var(--label);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:12px 20px;border-radius:999px;border:1.5px solid var(--primary);color:var(--primary)}
+.tabs a[aria-selected="true"]{background:var(--primary);color:var(--on-primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs a:not([aria-selected="true"]){color:var(--accent);border-color:var(--accent)}}
+.panel{display:none}.panel.on{display:block}
+.h3{font:700 13px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--outline);border-radius:28px;padding:24px}
+.two{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:1fr}.wrap{padding:28px 16px 64px}}
+.li-head{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.av{width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font:900 18px var(--label);letter-spacing:.04em}
+.li-head b{display:block;font-weight:600}.li-head span{font-size:13px;color:var(--muted)}
+.post{white-space:pre-wrap;font-size:15px;line-height:1.55}
+.tag{color:var(--primary);font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag{color:var(--accent)}}
+.small{border-radius:16px;padding:16px 18px;font-size:14px;margin-top:20px;background:var(--card);border:1px solid var(--outline)}
+.small a{color:inherit;word-break:break-all}
+.frame{width:100%;aspect-ratio:4/5;position:relative;overflow:hidden;border-radius:16px;box-shadow:0 1px 0 var(--outline)}
+.frame>.board{position:absolute;top:0;left:0;transform-origin:0 0}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cap{white-space:pre-wrap;margin-top:28px}
+.email{max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--outline);border-radius:28px;overflow:hidden}
+.email .meta{padding:18px 28px;border-bottom:1px solid var(--outline);font-size:14px}
+.email .meta div+div{color:var(--muted)}
+.email .body{padding:28px}
+.email ol{padding-left:20px}.email li{margin:6px 0}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--primary);color:#fff;text-decoration:none;font:900 16px/1 var(--label);letter-spacing:.06em;text-transform:uppercase;padding:16px 26px;border-radius:999px}
+.article{max-width:680px;margin:0 auto}
+.article h2.t{font:700 clamp(32px,5vw,48px)/1.04 var(--serif);letter-spacing:-.02em;margin:0 0 14px}
+.article .dek{font-style:italic;font-size:19px;color:var(--muted);margin:0 0 28px}
+.article p,.article li{font-size:17px;line-height:1.6}
+.article h3{font:700 28px/1.1 var(--serif);letter-spacing:-.02em;margin:36px 0 10px}
+.article a{color:var(--primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .article a{color:var(--accent)}}
+.seo{margin-top:36px;border-radius:16px;padding:18px 20px;background:var(--card);border:1px solid var(--outline);font-size:14px}
+.seo div{margin:4px 0}
+
+.board{width:1080px;height:1350px;position:relative;overflow:hidden;font-family:var(--sans);display:flex;flex-direction:column}
+.board .ph{flex:0 0 46%;background-size:cover;background-position:center}
+#li-graphic .ph{flex-basis:54%}
+.board .pn{flex:1;padding:60px 80px 0;display:flex;flex-direction:column;position:relative}
+.board.full .pn{padding:0 80px 140px;justify-content:center}
+.board.ph-on .hd{font-size:84px;max-width:740px}
+.board .ey{font:700 26px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin-bottom:28px}
+.board .hd{font:700 96px/1 var(--serif);letter-spacing:-.02em;margin:0;max-width:800px}
+.board.full .hd{font-size:118px}
+.board .hd em{font-style:italic;text-decoration:underline wavy;text-decoration-thickness:4px;text-underline-offset:.16em}
+.board .sb{font:500 34px/1.38 var(--sans);margin-top:34px;max-width:880px}
+.board .src{font:500 22px/1 var(--sans);margin-top:18px;opacity:.8}
+.board .badge{position:absolute;top:56px;right:80px;width:112px;height:112px;border-radius:50%;display:grid;place-items:center;font:900 46px/1 var(--label);letter-spacing:.02em}
+.board.ph-on .badge{top:calc(46% + 48px)}
+#li-graphic.ph-on .hd{font-size:96px}
+.board .ft{position:absolute;left:80px;right:80px;bottom:56px;display:flex;justify-content:space-between;align-items:center;font:600 22px/1 var(--sans);letter-spacing:.04em}
+.board .ft img{height:46px}
+.board .cta{display:inline-flex;align-self:flex-start;gap:14px;margin-top:44px;padding:28px 44px;border-radius:999px;font:900 34px/1 var(--label);letter-spacing:.06em;text-transform:uppercase}
+.bg-primary{background:var(--primary);color:#fff}.bg-primary .hd em{text-decoration-color:var(--accent)}.bg-primary .ey{color:var(--container)}.bg-primary .badge{background:#fff;color:var(--primary)}.bg-primary .cta{background:#fff;color:var(--primary)}
+.bg-dark{background:#0F2F2C;color:#fff}.bg-dark .hd em{text-decoration-color:var(--accent)}.bg-dark .ey{color:var(--accent)}.bg-dark .badge{background:var(--accent);color:#0F2F2C}.bg-dark .cta{background:var(--container);color:#0F2F2C}
+.bg-surface{background:#F6FAF8;color:#161D1C}.bg-surface .hd em{text-decoration-color:var(--primary)}.bg-surface .ey{color:var(--primary)}.bg-surface .badge{background:var(--primary);color:#fff}
+.bg-container{background:#CDEBE5;color:#161D1C}.bg-container .hd em{text-decoration-color:var(--primary)}.bg-container .ey{color:#14534D}.bg-container .badge{background:#0F2F2C;color:#fff}
+
+body.export{background:#fff;overflow:hidden}
+body.export .board{transform:none!important}
+</style>
+</head>
+<body>
+<main class="wrap" id="app">
+  <div class="eyebrow">Honest advice · Growing stores · Angle A</div>
+  <h1 class="title">Another app? <em class="p">Ask what it earns.</em></h1>
+  <p class="lede">Your store doesn’t need another app: every app has to earn its place. LinkedIn post, IG carousel and article for review.</p>
+  <nav class="tabs" role="tablist">
+    <a href="#linkedin" role="tab" data-t="linkedin">LinkedIn post</a>
+    <a href="#carousel" role="tab" data-t="carousel">IG carousel</a>
+    <a href="#article" role="tab" data-t="article">Article</a>
+  </nav>
+
+  <section class="panel" id="p-linkedin">
+    <div class="two">
+      <div class="card">
+        <div class="li-head"><div class="av">OV</div><div><b>Studio OVXS</b><span>@ovxs.studio · 1d</span></div></div>
+        <div class="post">Every app you install is a small promise to load something on every page.
+
+Most stores we look at are keeping more of those promises than they need to.
+
+The pattern is familiar. A reviews app. Then a second one, because the first didn’t do photos. A pop-up from a launch two years ago. A currency switcher nobody remembers turning on.
+
+Each one made sense on the day it went in. None of them is the problem on its own. Together, they’re a slower store and a bigger monthly bill.
+
+Even an app Shopify certifies as “Built for Shopify” is allowed to cost up to 10 points on your storefront speed score.
+
+So here’s the test we use:
+
+→ List every app you pay for.
+→ Next to each, write the sale it helped make last month.
+→ Where two apps do one job, keep one.
+→ Cut the ones that can’t answer.
+
+This isn’t “no apps”. Some apps earn their place many times over. It’s one job per app, and every app earning its keep.
+
+Not sure which ones are pulling their weight? Our $99 video audit walks through your public store and gives you three ranked fixes. No call, no logins.
+
+Link in comments.
+
+<span class="tag">#Shopify #Ecommerce #ShopifyTips</span></div>
+      </div>
+      <div>
+        <div class="h3">Graphic · 4:5</div>
+        <div class="frame"><div class="board bg-primary ph-on" id="li-graphic">
+          <div class="ph" style="background-image:url(assets/laptop.jpg)"></div>
+          <div class="pn">
+            <div class="ey">Honest advice · Apps</div>
+            <h2 class="hd">Another app? <em>Ask what it earns.</em></h2>
+            <div class="sb" style="margin-top:26px">Every app loads something on every page. Make each one earn it.</div>
+            <div class="cta" style="margin-top:36px">Book a $99 video audit →</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="small"><b>First comment:</b> The $99 video audit: <a href="https://ovxs.studio/pages/request-audit">https://ovxs.studio/pages/request-audit</a> · Built for Shopify performance criterion (2.2.1): <a href="https://shopify.dev/docs/apps/launch/built-for-shopify/achievement-criteria">https://shopify.dev/docs/apps/launch/built-for-shopify/achievement-criteria</a></div>
+  </section>
+
+  <section class="panel" id="p-carousel">
+    <div class="grid" id="slides"></div>
+    <div class="card cap"><div class="h3">Caption</div>Every app you install loads something on every page.
+
+Most stores don’t need fewer apps for the sake of it.
+They need every app to earn its place.
+One job per app, and no leftovers from old launches.
+
+Save this and run the test: list every app you pay for, write the sale each one helped make last month, keep one where two do the same job, and cut what can’t answer.
+
+Not sure what to cut? We’ll record a 10–15 minute walkthrough of your store with three ranked fixes. $99, no call. Link in bio.
+
+<span class="tag">#shopify #ecommerce #shopifystore #smallbusiness #shopifytips</span></div>
+  </section>
+
+  <section class="panel" id="p-article">
+    <article class="article">
+      <h2 class="t">Too many Shopify apps? <em class="p">Make every app earn its place</em></h2>
+      <p class="dek">No magic number, no “uninstall everything”. One test for every app you pay for, and what to do with the ones that fail it.</p>
+      <p>A store owner opens the apps page for the first time in a year and scrolls. Reviews. A second reviews app, added because the first one didn’t show photos. A pop-up from a launch that ended two summers ago. A currency switcher. A size chart. Something called “Smart Bundles” that nobody on the team can explain.</p>
+      <p>None of these went in by mistake. Each one solved a real problem on the day it was installed. That’s exactly why too many Shopify apps is such a common problem: it never feels like a decision. It’s twenty small decisions, made one at a time, that nobody ever adds up.</p>
+      <p>We see it in most of the stores we look at. Here’s the test we use, and why we don’t believe in a magic number.</p>
+      <h3>Why every app has a cost</h3>
+      <p>Every app that touches your storefront is a small promise to load something. A script, a stylesheet, a widget, a call to someone else’s server. Shoppers pay for it in loading time, and you pay for it every month on your bill.</p>
+      <p>Shopify takes this seriously. To earn the “Built for Shopify” badge, an app must not reduce your storefront’s Lighthouse performance score by more than <a href="https://shopify.dev/docs/apps/launch/built-for-shopify/achievement-criteria">10 points</a>. Shopify <a href="https://shopify.dev/docs/apps/build/performance/storefront">measures it</a> by comparing the score before and after the app is installed, across your home, product and collection pages.</p>
+      <p>Read that the other way round. Even the apps Shopify holds up as well built are allowed to cost you up to ten points each. Most apps don’t carry the badge at all.</p>
+      <p>A speed score isn’t a sales figure, and we won’t pretend one point equals one sale. But a slower store is never an advantage, and paying monthly for something that doesn’t earn is never good business.</p>
+      <h3>There’s no magic number</h3>
+      <p>Search for this topic and you’ll find lists that say “keep it under five apps” or “never more than ten”. We don’t think a number helps.</p>
+      <p>A store with twelve apps that each do a clear job can be in better shape than one with four that overlap. One informal scrape of more than 10,000 Shopify stores found <a href="https://community.shopify.com/t/i-scraped-10-000-shopify-stores-here-are-the-most-used-themes-apps-and-average-speed-scores/591484">roughly five detectable apps</a> on an average storefront. That tells you what’s normal, not what’s right for you.</p>
+      <p>The better question isn’t “how many?” It’s “what is each one doing for sales?”</p>
+      <h3>The test: every app has to earn its place</h3>
+      <p>Set aside an hour. Open your apps page and your Shopify bill side by side.</p>
+      <p><b>1. List every app you pay for.</b> Include the free ones that add something to the storefront. Check the bill too, because the two lists don’t always match.</p>
+      <p><b>2. Write the sale it helped make last month.</b> Not what the app promised when you installed it. What it did. A reviews app that shows on every product page is easy to justify. A pop-up that nobody has looked at since launch is not.</p>
+      <p><b>3. Where two apps do one job, keep one.</b> Overlaps hide in reviews, pop-ups, upsells and “trust badges”. Pick the one that does the job best and remove the other.</p>
+      <p><b>4. Cut the ones that can’t answer.</b> If you can’t say what an app did for sales, it probably didn’t do much. Remove it, and watch for a week. If nobody notices, you have your answer.</p>
+      <h3>Uninstalled isn’t always removed</h3>
+      <p>Here’s the part that catches people out. Removing an app doesn’t always remove its code.</p>
+      <p>Some apps add snippets to your theme when you install them, and those snippets can <a href="https://community.shopify.com/t/672753">keep loading after you uninstall</a>. Store owners regularly find old app code still running months later, for apps they cancelled long ago.</p>
+      <p>If you’re comfortable with your theme files, duplicate your theme first and look there, never on the live one. If you’re not, this is a good moment to ask for help. It’s a common clean-up job and it usually doesn’t take long.</p>
+      <h3>When an app is the right answer</h3>
+      <p>This isn’t an argument against apps. We recommend them all the time. A good subscription app, a solid reviews app or a proper search app can earn its cost many times over, and building those yourself rarely makes sense.</p>
+      <p>Where apps go wrong is small jobs. A size chart, a badge or a simple banner doesn’t need a monthly subscription and a script on every page. A custom section from $250 is paid once, sits inside your theme and loads nothing extra.</p>
+      <p>One job per app. A custom section when the job is small. And nothing that can’t say what it earned.</p>
+      <h3>Business first</h3>
+      <p>The pattern is the same as most of what we see. Stores rarely need more things added. They need what’s already there to work harder.</p>
+      <p>Before you install the next app, or pay for a redesign to fix a slow store, give your current apps an hour with this test. You may find the store you need is already there, minus a few apps.</p>
+      <p>If you’d like someone else to look, our $99 video audit is a 10–15 minute recorded walkthrough of your public store: what’s working, what’s costing you, and three ranked fixes. No logins, no call, delivered within 3 working days, and credited in full if you start a project with us within 60 days. If speed is the main issue, our <a href="https://ovxs.studio/pages/service/speed-seo-conversion">Speed, SEO &amp; Conversion service</a> picks up from there.</p>
+      <p style="margin-top:24px"><a class="btn" href="https://ovxs.studio/pages/request-audit" style="color:#fff">Book a $99 video audit →</a></p>
+      <div class="seo">
+        <div><b>Meta description:</b> Too many Shopify apps slowing your store? Use one simple test to decide which apps earn their place, which to cut, and when a custom section is better.</div>
+        <div><b>Target keyword:</b> too many Shopify apps</div>
+        <div><b>Slug:</b> /blogs/journal/too-many-shopify-apps</div>
+        <div><b>Length:</b> about 1,050 words</div>
+      </div>
+    </article>
+  </section>
+</main>
+<script>
+const slides=[
+  {bg:"primary",ph:"laptop",ey:"Honest advice · Apps",hd:"Another app? <em>Ask what it earns.</em>",sb:"Every app loads something on every page. Swipe for the test."},
+  {bg:"dark",ey:"The ceiling",hd:"Built for Shopify still costs <em>up to 10 points.</em>",sb:"That’s what Shopify allows an app to take off your storefront speed score.",src:"Shopify, Built for Shopify criteria 2.2.1"},
+  {bg:"surface",n:"01",ey:"List",hd:"List every app <em>you pay for.</em>",sb:"Check the apps page, then your bill. They don’t always match."},
+  {bg:"container",ph:"phone-desk",n:"02",ey:"Earn",hd:"Write the sale <em>it helped make.</em>",sb:"Last month, in plain numbers. Not what it promised."},
+  {bg:"dark",n:"03",ey:"Overlaps",hd:"Two apps, one job? <em>Keep one.</em>",sb:"Reviews, pop-ups and upsells are where overlaps hide."},
+  {bg:"primary",ph:"phone-table",n:"04",ey:"Leftovers",hd:"Uninstalled isn’t <em>always removed.</em>",sb:"Old app code can keep loading. Check on a duplicate theme, never the live one."},
+  {bg:"container",n:"05",ey:"Small jobs",hd:"Small job? <em>Maybe not an app.</em>",sb:"A custom section from $250 is paid once, not every month."},
+  {bg:"dark",ey:"Video audit · $99",hd:"Not sure what to cut? <em>We’ll look for you.</em>",sb:"10–15 minutes, three ranked fixes, no call.",cta:"Book a $99 video audit →"}
+];
+const light=b=>b==="surface"||b==="container";
+document.getElementById("slides").innerHTML=slides.map((s,i)=>`
+<div class="frame"><div class="board bg-${s.bg}${s.ph?" ph-on":" full"}" id="slide-${i+1}">
+  ${s.ph?`<div class="ph" style="background-image:url(assets/${s.ph}.jpg)"></div>`:""}
+  ${s.n?`<div class="badge">${s.n}</div>`:""}
+  <div class="pn">
+    <div class="ey">${s.ey}</div>
+    <h2 class="hd">${s.hd}</h2>
+    <div class="sb">${s.sb}</div>
+    ${s.src?`<div class="src">${s.src}</div>`:""}
+    ${s.cta?`<div class="cta">${s.cta}</div>`:""}
+  </div>
+  <div class="ft"><img src="assets/${light(s.bg)?"ovxs-logo":"ovxs-logo-white"}.svg" alt="Studio OVXS"><span>ovxs.studio · ${i+1}/8</span></div>
+</div></div>`).join("");
+
+const q=new URLSearchParams(location.search).get("export");
+if(q){
+  const el=document.getElementById(q);
+  document.body.className="export";
+  document.body.replaceChildren(el);
+}else{
+  const fit=()=>document.querySelectorAll(".frame").forEach(f=>{const b=f.firstElementChild;b.style.transform=`scale(${f.clientWidth/1080})`});
+  new ResizeObserver(fit).observe(document.body);fit();
+  const show=()=>{const t=(location.hash.slice(1)||"linkedin");const ok=document.getElementById("p-"+t)?t:"linkedin";
+    document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+ok));
+    document.querySelectorAll(".tabs a").forEach(a=>a.setAttribute("aria-selected",a.dataset.t===ok));fit();};
+  addEventListener("hashchange",show);show();
+}
+document.fonts.ready.then(()=>document.documentElement.dataset.ready="1");
+</script>
+</body>
+</html>

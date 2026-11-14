@@ -1,5 +1,5 @@
 # Your store doesn’t need another app
-Pillar: Honest advice · Audience: Growing stores · Make: LinkedIn post, IG carousel, Article · CTA: Book a $99 video audit · Status: awaiting-decision
+Pillar: Honest advice · Audience: Growing stores · Make: LinkedIn post, IG carousel, Article · CTA: Book a $99 video audit · Status: review
 
 ## Raw input
 No request from Ramit. Picked by the weekly run on 2026-11-12: no new Desk requests and no real Ovi chats since 2026-11-02, so topics came from pillars. Honest advice was last used on 2026-10-14 (more than two weeks ago). “Too many apps” is listed as an example topic in pillars.md. Make taken from the pillar’s best formats.
@@ -57,18 +57,23 @@ No request from Ramit. Picked by the weekly run on 2026-11-12: no new Desk reque
 - Risk: The nuanced message is harder to hook than “cut your apps”.
 
 ## Decisions
-- Angle:
-- Must include:
-- Must avoid:
-- CTA:
-- Make (final):
-- Decided on:
+- Angle: A — Every app has to earn its place (picked on the Desk 2026-11-13, no notes; Publish now tapped 2026-11-14)
+- Must include: the four-step test; Built for Shopify 10-point ceiling as the only hard stat on social
+- Must avoid: claiming speed points equal sales; editing the live theme (copy says duplicate first)
+- CTA: Book a $99 video audit
+- Make (final): LinkedIn post, IG carousel (8 slides), Article
+- Decided on: 2026-11-13
+- Drafted 2026-11-14 in an interactive session (the scheduled daily run was cancelled). Preview: https://claude.ai/artifact/Dbh5KEYGtPEojQiZRKnK64
+- Photos reused from the dropped Brief 1 because this Mac has no UNSPLASH_ACCESS_KEY in .env. Swap them on the Desk once the key is back.
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
+| assets/laptop.jpg | Unsplash f2JMVDnarks (from Brief 1) | see Unsplash page | LinkedIn graphic, slide 1 |
+| assets/phone-desk.jpg | Unsplash (from Brief 1) | not recorded | slide 4 |
+| assets/phone-table.jpg | Unsplash (from Brief 1) | not recorded | slide 6 |
 
 ## SEO (articles only)
-- Target keyword:
-- Meta description:
-- Slug:
+- Target keyword: too many Shopify apps
+- Meta description: Too many Shopify apps slowing your store? Use one simple test to decide which apps earn their place, which to cut, and when a custom section is better.
+- Slug: /blogs/journal/too-many-shopify-apps
