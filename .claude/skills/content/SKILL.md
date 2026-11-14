@@ -49,6 +49,8 @@ One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slu
 - `photos` — `"auto"` (default when missing) or `"none"`; written by the page. `"none"` means brand-colour panels instead of photos for this piece.
 - `post_prep` — `{at, channels, files}`; written by Claude when the posts are staged
 - `posted` — `{at, "LinkedIn": url, ...}`
+- `rush` — `true` when Ramit taps **Publish now**. Handle these docs first in the run. For an `approved` doc the page has already set `review.slot` to now (US Eastern), so Stage 6 runs on it today. Set `rush: false` once the doc reaches its next status.
+- `archived` status, with `archived_from` (the status it had) and `archived_at` — Ramit set it aside. Skip archived docs in every stage, and don't count them in the weekly topic mix. Restoring it on the Desk puts back `archived_from`.
 - `created_at`, `updated_at` (ISO). Every write sets `updated_at`, or the Desk won't sort it.
 
 Topic suggestions Ramit adds on the Desk arrive in `requests/<id>`: `{title, notes, pillar, audience, make, test, status: "new", created_at}`. When you pick one up, set its `status` to `picked` and add `brief_id`.

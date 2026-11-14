@@ -111,6 +111,9 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 .shot span { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
 .draft-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .btn.sm { font-size: 12.5px; padding: 9px 13px; }
+.warn { border-radius: 14px; padding: 12px 14px; background: var(--warn-soft); color: var(--warn); font-size: 14px; }
+.todo { border-radius: 14px; padding: 12px 14px; background: var(--primary-soft); color: var(--ink); font-size: 14.5px; }
+.todo b { color: var(--primary); }
 .confirm { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 14px; color: var(--danger); }
 @media (prefers-reduced-motion: no-preference) { .card { animation: rise .35s cubic-bezier(.2,0,0,1) both; } @keyframes rise { from { transform: translateY(8px); } to { transform: none; } } }
 </style>
@@ -221,6 +224,12 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   let view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "needs";
   const form = {};
   const confirming = new Set();
+  const opened = new Set();
+  const STALE_MS = 26 * 3600 * 1000;
+  const etNow = () => {
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: ET, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+    return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
+  };
 
   const $ = (s, r = document) => r.querySelector(s);
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -401,17 +410,51 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     </article>`;
   }
 
+  function todoFor(b) {
+    const hasContent = draftKeys(b).length > 0;
+    if (b.status === "approved") {
+      if (b.test) return "It's a test: check the content below, don't post it, then tap <b>Test done</b>.";
+      return hasContent
+        ? "Tap <b>Open</b>, copy the text and save the images, post them yourself, then tap <b>I've posted it</b>. Want it out today? Tap <b>Publish now</b>."
+        : "Nothing yet. On the day, the text and images appear below for you to post.";
+    }
+    if (b.rush) return "Nothing to do. You asked for it now, so the next run does this one first.";
+    return "Nothing to do. " + esc(NEXT_STEP[b.status] || "Waiting for the next run.");
+  }
+
   function progressCard(b) {
     const slot = b.review && b.review.slot ? fmtSlot(b.review.slot) : "";
     const ch = b.review && Array.isArray(b.review.channels) ? b.review.channels.join(" · ") : "";
-    return `<article class="card" data-id="${esc(b.id)}">
-      <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2></div>
+    const pv = safeUrl(b.preview_url);
+    const isOpen = opened.has(b.id);
+    const waiting = b.status !== "approved" && Date.now() - new Date(b.updated_at || 0).getTime() > STALE_MS;
+    const id = esc(b.id);
+    const chosen = b.decision && b.decision.angle && Array.isArray(b.angles) ? b.angles.find((a) => a.id === b.decision.angle) : null;
+    return `<article class="card" data-id="${id}">
+      <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>
+        ${chosen ? `<p class="small"><b>Angle ${esc(chosen.id)}: ${esc(chosen.name)}</b> · “${esc(chosen.hook)}”</p>` : ""}
+      </div>
       ${b.status === "approved" && slot ? `<p><b>${esc(slot)}</b>${ch ? ` · ${esc(ch)}` : ""}</p>` : ""}
-      <p class="next"><b>Next:</b> ${esc(b.status === "approved" ? (b.test ? "On the day, Claude prepares everything as usual. It's a test, so don't post it — tap 'Test done' when you've checked it." : APPROVED_NEXT[mode]) : (NEXT_STEP[b.status] || "Waiting for the next run."))}</p>
-      ${b.post_prep && b.post_prep.at ? `<p class="small"><b>Ready since ${esc(fmtDate(b.post_prep.at))}</b>${b.post_prep.folder ? ` · ${esc(b.post_prep.folder)}` : ""}</p>` : ""}
-      ${b.preview_url && safeUrl(b.preview_url) ? `<div class="row"><a class="btn ghost" href="${esc(safeUrl(b.preview_url))}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
-      ${draftsBlock(b, false)}
-      ${b.status === "approved" ? `<div class="row"><button class="btn ghost" type="button" data-act="posted" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>${b.test ? "Test done" : "I've posted it"}</button></div>` : ""}
+      <p class="todo"><b>What you do now:</b> ${todoFor(b)}</p>
+      ${waiting ? `<p class="warn">This has been waiting since ${esc(fmtDate(b.updated_at))}. The daily run hasn't picked it up. In Claude, open Scheduled → “OVXS content — daily”, check it's turned on, and press Run now.</p>` : ""}
+      ${b.post_prep && b.post_prep.at ? `<p class="small"><b>Ready since ${esc(fmtDate(b.post_prep.at))}</b></p>` : ""}
+      <div class="row">
+        <button class="btn ghost" type="button" data-open="${id}" aria-expanded="${isOpen}">${isOpen ? "Close" : "Open"}</button>
+        ${b.status === "approved" && !b.test ? `<button class="btn" type="button" data-act="posted" data-id="${id}" ${canEdit ? "" : "disabled"}>I've posted it</button>` : ""}
+        ${b.status === "approved" && b.test ? `<button class="btn" type="button" data-act="posted" data-id="${id}" ${canEdit ? "" : "disabled"}>Test done</button>` : ""}
+        ${!b.test && !(b.status !== "approved" && b.rush) ? `<button class="btn ghost" type="button" data-act="now" data-id="${id}" ${canEdit ? "" : "disabled"}>Publish now</button>` : ""}
+        <button class="btn quiet" type="button" data-act="archive" data-id="${id}" ${canEdit ? "" : "disabled"}>Archive</button>
+      </div>
+      ${isOpen ? `${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
+        ${draftsBlock(b, true) || `<p class="small">No drafts yet. They appear here after the daily run writes them.</p>`}
+        ${research(b)}` : ""}
+    </article>`;
+  }
+
+  function archivedCard(b) {
+    return `<article class="card" data-id="${esc(b.id)}">
+      <div class="card-head"><div class="meta"><span class="pill">Archived</span>${b.archived_at ? `<span>${esc(fmtDate(b.archived_at))}</span>` : ""}</div><h2>${esc(b.title)}</h2></div>
+      <div class="row"><button class="btn ghost" type="button" data-act="restore" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Restore</button></div>
     </article>`;
   }
 
@@ -433,6 +476,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const needs = briefs.filter((b) => NEEDS.includes(b.status));
     const progress = briefs.filter((b) => PROGRESS.includes(b.status));
     const posted = briefs.filter((b) => b.status === "posted");
+    const archived = briefs.filter((b) => b.status === "archived");
     $("#c-needs").textContent = needs.length;
     $("#c-progress").textContent = progress.length;
     $("#c-posted").textContent = posted.length;
@@ -446,10 +490,11 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       : empty("Nothing waiting on you.", "Angles to pick and drafts to approve show up here after each scheduled run.");
     $("#view-progress").innerHTML = progress.length
       ? progress.map(progressCard).join("")
-      : empty("Nothing in progress.", "Once you pick an angle, the piece moves here while it's drafted, then scheduled.");
-    $("#view-posted").innerHTML = posted.length
+      : empty("Nothing in progress.", "Once you pick an angle, the piece moves here while Claude writes it, then sits here scheduled until you post it.");
+    $("#view-posted").innerHTML = (posted.length
       ? posted.map(postedCard).join("")
-      : empty("Nothing posted yet.", "Posts you've published are listed here with their links.");
+      : empty("Nothing posted yet.", "Posts you've published are listed here with their links."))
+      + (archived.length ? `<div class="section"><h3>Archived</h3><p class="small">Set aside. Claude skips these. Restore one to pick it up where it left off.</p></div>` + archived.map(archivedCard).join("") : "");
     $("#requests").innerHTML = requests.length
       ? `<div class="section"><h3>Your suggestions</h3></div>` + requests.map((r) => `<article class="card"><div class="card-head"><div class="meta"><span class="pill ${r.status === "new" ? "you" : "go"}">${r.status === "new" ? "Queued" : "Picked up"}</span><span>${esc(fmtDate(r.created_at))}</span></div><h2>${esc(r.title)}</h2>${r.notes ? `<p class="small">${esc(r.notes)}</p>` : ""}</div></article>`).join("")
       : "";
@@ -471,6 +516,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     if (tab) { setView(tab.dataset.view); return; }
     const seg = e.target.closest(".seg");
     if (seg) { setMode(seg.dataset.mode); return; }
+    const op = e.target.closest("button[data-open]");
+    if (op) { const k = op.dataset.open; opened.has(k) ? opened.delete(k) : opened.add(k); render(); return; }
     const get = e.target.closest("button[data-get]");
     if (get && !get.disabled) { getContent(get.dataset.get, get.dataset.id, get.dataset.key, get); return; }
     const btn = e.target.closest("button[data-act]");
@@ -625,6 +672,29 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     }
     if (kind === "moreangles") {
       await write(id, { status: "needs-angles", angles_requested_at: now }, "Asked for new angles. They come on the next run.");
+      return;
+    }
+    if (kind === "archive") {
+      const b = briefs.find((x) => x.id === id);
+      await write(id, { status: "archived", archived_from: b ? b.status : "decided", archived_at: now }, "Archived. Find it at the bottom of Posted.");
+      return;
+    }
+    if (kind === "restore") {
+      const b = briefs.find((x) => x.id === id);
+      const back = b && b.archived_from && b.archived_from !== "archived" ? b.archived_from : "awaiting-decision";
+      await write(id, { status: back, archived_from: null }, "Restored");
+      return;
+    }
+    if (kind === "now") {
+      const b = briefs.find((x) => x.id === id);
+      if (b && b.status === "approved") {
+        const slot = etNow();
+        await write(id, { review: { ...(b.review || {}), slot: { ...slot, tz: ET } }, rush: true }, draftKeys(b).length ? "Set for now. Copy and save the content below, post it, then tap I've posted it." : "Set for now. The next run gets it ready first.");
+        opened.add(id);
+        render();
+        return;
+      }
+      await write(id, { rush: true, rush_at: now }, "The next run does this one first.");
       return;
     }
     if (kind === "posted") {
