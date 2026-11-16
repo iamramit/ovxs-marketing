@@ -229,7 +229,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "stage": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
   };
 
-  let downloads = null, zipLib = null, mcp = null, assets = null;
+  let downloads = null, zipLib = null, mcp = null, assets = null, helperWhy = "";
   const HELPER = "host:ovxs-photos";
   const NO_HELPER = ["server_not_connected", "not_granted", "capability_disabled", "capability_removed", "not_in_manifest", "blocked_by_policy", "selection_required", "server_not_found"];
   let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only";
@@ -451,6 +451,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
         if (code === "cancelled") { toast("Cancelled. The current photo stays."); render(); return; }
         if (code && !NO_HELPER.includes(code)) { toast("The photo helper didn't answer. Try again in a moment."); render(); return; }
         mcp = null; // no helper in this view: queue it instead
+        helperWhy = code || "no answer";
       }
       return photoAct(kind, id, key, btn);
     } else if (kind === "swap") {
@@ -460,7 +461,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       const keyword = (keywords[k] || "").trim();
       if (!keyword) return;
       patch = { photo_requests: { [slot]: { action: "keyword", keyword, label: x.label || slot, at: now } } };
-      msg = `Asked for “${keyword}”. Instant photos work in the Claude app on Ramit's Mac; this one lands after the evening run.`;
+      msg = `Queued “${keyword}” for the evening run: ${helperWhy ? `the photo helper isn't running on this Mac (${helperWhy})` : "instant photos only work in the Claude app on Ramit's Mac"}.`;
     } else if (kind === "cancel") {
       patch = { photo_requests: { [slot]: null } };
       msg = "Cancelled. The current photo stays.";
@@ -1090,6 +1091,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   (async () => {
     const [dbNs, user, dl, mcpNs, assetsNs] = await Promise.all(["db", "user", "downloads", "mcp", "assets"].map((n) => window.claude?.use?.(n)));
     mcp = mcpNs || null;
+    if (!mcp) helperWhy = "helper access not available in this view";
     assets = assetsNs || null;
     canEdit = !!(user && user.canEdit());
     downloads = dl || null;
