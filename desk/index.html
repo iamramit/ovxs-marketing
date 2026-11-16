@@ -243,7 +243,31 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "stage": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
   };
 
-  let downloads = null, zipLib = null, mcp = null, assets = null, helperWhy = "";
+  let downloads = null, zipLib = null, mcp = null, assets = null, sample = null, helperWhy = "";
+
+  // Claude turns a keyword into what to photograph, so "declining sales" doesn't fetch "sale" photos.
+  async function photoPlan(b, label, keyword) {
+    if (!sample || !keyword) return null;
+    const slides = b.drafts && typeof b.drafts["IG carousel"] === "string" ? b.drafts["IG carousel"].slice(0, 1500) : "";
+    const prompt = `You choose Unsplash stock-photo searches for a graphic in a social post by Studio OVXS, a Shopify studio.
+Post title: "${b.title}"
+Graphic: ${label}
+${slides ? `Carousel text, for context:\n${slides}\n` : ""}The person typed what the photo should show: "${keyword}"
+
+Work out what they MEAN and turn it into 3 short Unsplash searches (3 to 6 words each) for things a camera can actually see, best first. Prefer calm, daylight, real-work scenes (people, hands, desks, laptops, phones, parcels, shops). Never use a word that would match the opposite literally: for "declining sales" do not search "sales"; show a worried owner, an empty shop or cart, a quiet till instead.
+Also list up to 10 words that, if they appear in a photo's description, mean it shows the wrong thing (for "declining sales": sale, discount, shopping bags, celebration, success).
+
+Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]}`;
+    try {
+      const out = await sample.json(prompt, { modelTier: "quick" });
+      const str = (v, n) => typeof v === "string" ? v.trim().slice(0, n) : "";
+      const queries = (Array.isArray(out && out.queries) ? out.queries : []).map((q) => str(q, 80)).filter(Boolean).slice(0, 3);
+      const avoid = (Array.isArray(out && out.avoid) ? out.avoid : []).map((w) => str(w, 30)).filter(Boolean).slice(0, 10);
+      return queries.length ? { queries, avoid } : null;
+    } catch (e) {
+      return null;
+    }
+  }
   const HELPER = "host:ovxs-photos";
   const NO_HELPER = ["server_not_connected", "not_granted", "capability_disabled", "capability_removed", "not_in_manifest", "blocked_by_policy", "selection_required", "server_not_found"];
   let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only", scheduling = "on";
@@ -448,7 +472,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       busyShots.add(k); render();
       try {
         const exclude = [x.photo, ...altsOf(x).map((a) => a.photo)].filter((p) => p && p.id).map((p) => p.id);
-        const res = await mcp.callTool(HELPER, "generate_photo", { topic: b.id, slot, keyword, exclude }, { cache: false });
+        const plan = await photoPlan(b, x.label || slot, keyword);
+        const res = await mcp.callTool(HELPER, "generate_photo", { topic: b.id, slot, keyword, exclude, ...(plan || {}) }, { cache: false });
         const img = (res.content || []).find((c) => c.type === "image" && c.data);
         const photo = res.payload && res.payload.photo;
         if (!img || !photo) throw { code: "tool_error", message: "The helper sent no image." };
@@ -1132,7 +1157,8 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   render();
 
   (async () => {
-    const [dbNs, user, dl, mcpNs, assetsNs] = await Promise.all(["db", "user", "downloads", "mcp", "assets"].map((n) => window.claude?.use?.(n)));
+    const [dbNs, user, dl, mcpNs, assetsNs, sampleNs] = await Promise.all(["db", "user", "downloads", "mcp", "assets", "sample"].map((n) => window.claude?.use?.(n)));
+    sample = sampleNs || null;
     mcp = mcpNs || null;
     if (!mcp) helperWhy = "helper access not available in this view";
     assets = assetsNs || null;

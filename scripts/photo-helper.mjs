@@ -34,6 +34,8 @@ const TOOL = {
       topic: { type: "string", description: "Topic folder name, e.g. 2026-11-12-too-many-apps" },
       slot: { type: "string", description: "li-graphic or slide-1 … slide-8" },
       keyword: { type: "string", description: "What the photo should show. Empty: a different photo of the slot's current scene." },
+      queries: { type: "array", items: { type: "string" }, description: "Up to 3 concrete scene searches to try in order (e.g. from Claude turning the keyword into what to photograph). Overrides keyword for searching." },
+      avoid: { type: "array", items: { type: "string" }, description: "Words that must not appear in the photo's description (e.g. sale, discount)" },
       exclude: { type: "array", items: { type: "string" }, description: "Photo ids not to use (already shown for this slot)" }
     },
     required: ["topic", "slot"]
@@ -62,16 +64,25 @@ function sceneFor(topic, slot) {
   return c && c.alt ? c.alt.split(/\s+/).slice(0, 6).join(" ") : ph.replace(/-/g, " ");
 }
 
-async function generate({ topic, slot, keyword = "", exclude = [] }) {
+const clean = (v, n) => String(v || "").replace(/[^\p{L}\p{N} ,'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, n);
+
+async function generate({ topic, slot, keyword = "", queries = [], avoid = [], exclude = [] }) {
   if (!TOPIC_RE.test(String(topic)) || !existsSync(join(root, "topics", topic, "page.html"))) throw new Error("Unknown topic");
   if (!SLOT_RE.test(String(slot))) throw new Error("Unknown slot");
-  const kw = String(keyword).replace(/[^\p{L}\p{N} ,'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 80);
-  const query = kw || sceneFor(topic, slot);
-  if (!query) throw new Error("This graphic has no photo");
-  const { stdout } = await run("node", [join(root, "scripts/stock.mjs"), "search", query, "--n", "15", "--orientation", "portrait", "--source", "unsplash"], { cwd: root, timeout: 30000 });
+  const kw = clean(keyword, 80);
+  const tries = (Array.isArray(queries) ? queries : []).map((q) => clean(q, 80)).filter(Boolean).slice(0, 3);
+  if (!tries.length) tries.push(kw || sceneFor(topic, slot));
+  if (!tries[0]) throw new Error("This graphic has no photo");
+  const bad = (Array.isArray(avoid) ? avoid : []).map((w) => clean(w, 30).toLowerCase()).filter((w) => w.length > 1).slice(0, 15);
+  const badRe = bad.length ? new RegExp(`\\b(${bad.map((w) => w.replace(/[-]/g, "\\-")).join("|")})`, "i") : null;
   const skip = new Set([...usedIds(), ...exclude.map(String)]);
-  const pick = JSON.parse(stdout).find((r) => !skip.has(r.id));
-  if (!pick) throw new Error(`No new Unsplash photo found for "${query}". Try another keyword.`);
+  let pick = null, query = tries[0];
+  for (const q of tries) {
+    const { stdout } = await run("node", [join(root, "scripts/stock.mjs"), "search", q, "--n", "15", "--orientation", "portrait", "--source", "unsplash"], { cwd: root, timeout: 30000 });
+    pick = JSON.parse(stdout).find((r) => !skip.has(r.id) && !(badRe && badRe.test(r.alt || "")));
+    if (pick) { query = q; break; }
+  }
+  if (!pick) throw new Error(`No new Unsplash photo found for "${tries.join('", "')}". Try another keyword.`);
   const dir = mkdtempSync(join(tmpdir(), "ovxs-photo-"));
   try {
     const png = join(dir, "shot.png"), jpg = join(dir, "shot.jpg");
