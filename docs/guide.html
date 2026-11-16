@@ -108,7 +108,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
 <div class="cover">
   <div><img src="../brand/ovxs-logo-white.svg" onerror="this.onerror=null;this.src='brand/ovxs-logo-white.svg'" alt="Studio OVXS"></div>
   <div>
-    <span class="eyebrow">Marketing playbook · v1.1</span>
+    <span class="eyebrow">Marketing playbook · v1.2</span>
     <h1>One topic in.<br><em>Posts out.</em></h1>
     <p style="margin-top:14pt">How the OVXS team plans, researches, writes, approves and posts content with Claude — and how we keep it sounding like us.</p>
   </div>
@@ -200,6 +200,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
       <li><b>New angles asked</b>: keeps yours as A, researches and adds B and C.</li>
       <li><b>Angle picked</b>: writes every format, picks Unsplash photos, builds the preview, renders the images and uploads them to the Desk. The card moves to Needs you as <i>Review drafts</i>.</li>
       <li><b>Changes asked</b>: changes only what your notes say. Photo swaps change only the photos.</li>
+      <li><b>Photo requests</b>: finds the photo for each keyword you sent with <i>Generate</i>, re-renders just that image, and tidies up after any instant swaps. The card stays where it is.</li>
       <li><b>Due today or overdue</b>: gets the post ready. In <i>Stage in Chrome</i> mode it also fills in the composers and stops before Post.</li>
       <li><b>Wraps up</b>: updates tracker.csv, commits to the repo and sends a notification.</li>
     </ol>
@@ -257,16 +258,24 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Scheduled</td><td>Approved, waiting for its day</td></tr>
     <tr><td>Posted</td><td>What went out, plus archived and dropped pieces you can restore</td></tr>
     <tr><td>New topic</td><td>Suggest a topic; your suggestions and their status are listed below the form</td></tr>
-    <tr><td>Get the content</td><td>On every card with drafts: <i>Copy text</i>, <i>Save</i> each image, or <i>Download everything (.zip)</i></td></tr>
+    <tr><td>Get the content</td><td>On every card with drafts: <i>Copy text</i>, <i>Save</i> each image, or <i>Download everything (.zip)</i>. In review and scheduled, each photo image also has <i>Swap photo</i> and a keyword box with <i>Generate</i></td></tr>
   </table>
-  <h3>Buttons and what they do</h3>
+</div>
+</section>
+
+<section class="page">
+<div class="block">
+<span class="eyebrow">06 · Content Desk, continued</span>
+  <h2>Buttons and <em>what they do.</em></h2>
   <table>
     <tr><th>Button</th><th>Result</th></tr>
     <tr><td>Use angle</td><td>Saves your pick and notes. Drafts come on the next daily run. Same angle, no notes → existing drafts go straight back to review.</td></tr>
     <tr><td>Drop topic</td><td>Asks once, then removes it from the flow for good</td></tr>
     <tr><td>Ask for changes · Approve and schedule</td><td>Needs a note, or a date, time (Today / Tomorrow shortcuts) and at least one channel</td></tr>
     <tr><td>Go back to the angles · Research more angles</td><td>Reopen the choice (drafts kept), or add B and C when there's only one angle</td></tr>
-    <tr><td>Swap photos · No photo</td><td>New Unsplash photos, or brand panels, on the next run; the copy stays</td></tr>
+    <tr><td>Swap photo (under an image)</td><td>Switches that image to a backup photo straight away. Press again to cycle; the count shows how many are ready</td></tr>
+    <tr><td>Keyword + Generate (under an image)</td><td>Asks for a new photo for that image only. It lands after the evening run, or sooner with <i>Run now</i>. <i>Cancel</i> withdraws it</td></tr>
+    <tr><td>Swap all photos · No photo</td><td>New Unsplash photos everywhere, or brand panels, on the next run; the copy stays</td></tr>
     <tr><td>Reschedule · Post today instead · Back to review</td><td>Change the slot, move it to today, or unschedule</td></tr>
     <tr><td>Change the angle · Cancel my changes</td><td>Take a piece back from Claude before the run</td></tr>
     <tr><td>Do this one first · Archive · Restore</td><td>Rush it, set it aside, or bring it back</td></tr>
@@ -360,6 +369,8 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li>Credit isn't required by either licence, but we keep it in credits.json, and Unsplash asks that we credit when it's practical (e.g. in the article footer).</li>
     <li>To suggest a photo yourself, paste an Unsplash photo page link in the topic notes.</li>
   </ul>
+  <h3>Changing one photo</h3>
+  <p>Under each image on a card in review or scheduled: <b>Swap photo</b> switches straight away to one of 2 backups Claude rendered with the drafts. Want something specific? Type a keyword ("packing parcels") and tap <b>Generate</b>; the new image arrives after the evening run, or press <i>Run now</i> on OVXS daily. The old photo stays as a backup, so Swap brings it back.</p>
   <h3>Setup (once)</h3>
   <ol>
     <li>Done for OVXS: an Unsplash app at <b>unsplash.com/developers</b>. Only the <i>Access key</i> is used; the secret key isn't needed.</li>
@@ -417,7 +428,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
   <table class="roadmap">
     <tr><th>Idea</th><th>Effort</th><th>Why</th></tr>
     <tr><td>Performance columns in the tracker</td><td>Small</td><td>Impressions, clicks and audit bookings per post, so the monthly review is one glance</td></tr>
-    <tr><td>Photo picks on the Desk</td><td>Small</td><td>Choose between 3 suggested photos per post instead of Claude choosing</td></tr>
+    <tr><td>Instant photo Generate</td><td>Medium</td><td>A small helper on the Mac so keyword photos render in seconds instead of at the evening run</td></tr>
     <tr><td>Monthly report artifact</td><td>Small</td><td>Auto-generated on the 1st: what posted, what worked, which pillars are quiet</td></tr>
     <tr><td>Team roles on the Desk</td><td>Medium</td><td>Team members suggest and comment; only Ramit approves</td></tr>
     <tr><td>Weekly newsletter assembly</td><td>Medium</td><td>Bundle the week's best piece into one newsletter draft for Klaviyo or Mailchimp</td></tr>
@@ -445,7 +456,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Photo search fails</td><td>The .env key is missing or wrong, or we hit Unsplash's hourly limit (about 50 requests). Run the test command in section 10, or wait an hour.</td></tr>
     <tr><td>A wrong stat went out</td><td>Edit or delete the post, fix the brief's Facts table, and add a Learned rule.</td></tr>
   </table>
-  <footer class="end">Studio OVXS · Marketing playbook v1.1 · November 2026 · Maintained in <code>docs/</code> of the ovxs-marketing repo. Questions → Ramit.</footer>
+  <footer class="end">Studio OVXS · Marketing playbook v1.2 · November 2026 · Maintained in <code>docs/</code> of the ovxs-marketing repo. Questions → Ramit.</footer>
 </div>
 <div class="block">
 <span class="eyebrow">Quick reference</span>

@@ -16,7 +16,7 @@ Everything lives in the `ovxs-marketing` repo (`/Users/ramitarora/WORK/Studio/ov
 |---|---|---|
 | a topic, or a pasted "OVXS content batch" | Ramit, live | Stages 1–3, asks the angle in chat **and** posts it to the Desk, then on his answer stages 4–6 |
 | `weekly` | Scheduled, Mondays | Picks topics, runs stages 1–3 for each, posts angles to the Desk, stops |
-| `daily` | Scheduled, every evening | Drafts what Ramit decided, redrafts what he sent back, preps today's approved posts |
+| `daily` | Scheduled, every evening | Drafts what Ramit decided, redrafts what he sent back, handles photo requests, preps today's approved posts |
 
 Either scheduled run can also be started early with "Run now" in the app's Scheduled section. This is how a test goes through the flow in one sitting.
 
@@ -44,7 +44,12 @@ One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slu
 - `decision` — `{angle, notes, decided_at}`; written by the page when Ramit picks an angle
 - `drafts` — `{"LinkedIn post": text, "Facebook post": text, "IG carousel": slide lines, "Newsletter": text, "Article": "first 2 paragraphs + word count", "LinkedIn video": script}`
 - `preview_url` — the Artifact link of the designed preview page
-- `exports` — `[{id, file, label}]`: the exported PNGs uploaded to the Desk's asset store (`id` is the 32-hex asset id, `file` like `slide-1.png`, `label` like "IG slide 1" or "LinkedIn graphic"). The Desk shows them under "Get the content" with Save and "Download everything (.zip)" buttons.
+- `exports` — `[{id, file, label, slot, photo, alts}]`: the exported PNGs uploaded to the Desk's asset store (`id` is the 32-hex asset id, `file` like `slide-1.png`, `label` like "IG slide 1" or "LinkedIn graphic"). The Desk shows them under "Get the content" with Save and "Download everything (.zip)" buttons.
+  - `slot` — the graphic's id in `page.html` (`li-graphic`, `slide-1` … `slide-8`).
+  - `photo` — `{source, id, photographer}` of the stock photo on that graphic, or `null` when the graphic has no photo (the Desk then shows no photo tools under it).
+  - `alts` — `[{id, photo}]`: the same graphic already rendered with other photos and uploaded (Stage 5 step 4). **Swap photo** on the Desk switches instantly: it puts `alts[0]` in `id`/`photo`, moves the old one to the end of `alts`, and sets `photo_sync: true`.
+- `photo_sync` — `true` after Ramit swapped to a backup on the Desk. The Desk PNG is already right; the local files are not. Stage 4c brings them in line.
+- `photo_requests` — `{<slot>: {action: "swap"|"keyword", keyword, label, at}}`; written by the page, one per graphic. `keyword` means "find a photo for this", `swap` means "a different photo, no backups left". `null` means cancelled. Handled in Stage 4c.
 - `review` — `{verdict: "approve"|"changes"|"photos", action, notes, slot: {date, time, tz: "America/New_York"}, channels, decided_at}`; written by the page. `verdict: "photos"` comes with `action` `swap`, `off` or `on` and means only the photos change (Stage 4b).
 - `photos` — `"auto"` (default when missing) or `"none"`; written by the page. `"none"` means brand-colour panels instead of photos for this piece.
 - `post_prep` — `{at, channels, files}`; written by Claude when the posts are staged. The page sets it to `null` when Ramit reschedules or sends a piece back to review, so Stage 6 runs again on the new day.
@@ -152,6 +157,21 @@ The copy is not touched. Set `status: "drafting"`, then:
 
 Update the brief's **Photos** table and add a line under **Decisions**. Then republish the preview and re-export and re-upload the images (Stage 5 steps 2–5), which also sets `status: "review"`.
 
+## Stage 4c — One photo at a time (`daily`: every doc in `review` or `approved` with `photo_sync: true` or a non-null `photo_requests` entry)
+
+The copy and status don't change, so the piece stays where it is on the Desk. For each doc:
+1. **`photo_sync`**: for every export whose `photo` isn't in `assets/credits.json` yet, run `stock.mjs get` for it (this registers the download with Unsplash and saves the credit), point that graphic in `page.html` at the new local file, and copy the chosen PNG over `export/<slot>.png` (download it from the Desk with Artifact `read`, `url` = the Desk, `path` = the asset id). Remove credits for photos no longer used. Set `photo_sync: false`.
+2. **Each `photo_requests` entry** (skip `null` ones):
+   - `keyword`: search Unsplash for the keyword, turned into a calm, specific scene that fits the photography rules (`"packing"` → `"packing parcels daylight"`). If nothing fits, try once more with a close variant.
+   - `swap`: search again with the slot's original scene and pick a photo not used in this topic or the last 6 weeks.
+   - Download the pick with `stock.mjs get`, update `page.html`, re-render that one graphic to `export/<slot>.png`, and upload it to the Desk (Artifact `publish`, `asset: true`).
+   - In `exports`, put the new asset in that entry's `id`/`photo` and move the old one to the front of its `alts`, so **Swap photo** brings it straight back. Keep at most 4 `alts`; delete the asset of any dropped beyond that.
+   - Set that `photo_requests.<slot>` to `null`.
+3. Republish the preview page, update the brief's **Photos** table, and add a line under **Decisions** ("Slide 3 photo: 'packing parcels', Desk").
+4. Mention it in the run's notification ("New photos ready: <title>").
+
+A doc with requests that also has `status: "changes"` gets them folded into Stage 4/4b instead.
+
 ## Stage 5 — Preview page
 
 1. Build `topics/<folder>/page.html` following `page-spec.md`.
@@ -174,13 +194,15 @@ Update the brief's **Photos** table and add a line under **Decisions**. Then rep
    - After that: republish the same `file_path` so the link stays the same.
 4. **Export and upload the images**, so Ramit can save them from the Desk on any device:
    - Render every graphic in the preview (`li-graphic`, `slide-1` … `slide-8`) to `topics/<folder>/export/<id>.png` with the Stage 6 command.
-   - Upload them to the Desk in one call: Artifact `publish` with `url` = the Desk URL, `asset: true`, `file_paths` = the PNGs.
-   - If the doc already has `exports`, delete those old assets afterwards (Artifact `delete` with the Desk `url` and each old `id` as `path`), so the Desk doesn't fill up.
+   - **Backup photos for instant swaps.** For every graphic with a photo, take the 2 next-best results from the search you already ran for that slot (no extra API calls) and render the graphic with each one to `export/alts/<id>-<n>.png`, adding `&photo=<image URL from the search result>` to the export URL. Don't `get` these photos: they're only downloaded if Ramit picks one (Stage 4c).
+   - Upload all PNGs, backups included, to the Desk in one call: Artifact `publish` with `url` = the Desk URL, `asset: true`, `file_paths` = the PNGs (up to 25; use a second call if there are more).
+   - Fill each export's `slot`, `photo` (or `null`) and `alts` (`[{id, photo: {source, id, photographer}}]`).
+   - If the doc already has `exports`, delete those old assets, and their `alts`, afterwards (Artifact `delete` with the Desk `url` and each old `id` as `path`), so the Desk doesn't fill up.
 5. Update the Desk doc: `drafts` (full text for every channel; for the article, the full text if it's under 1,500 words, otherwise an excerpt plus word count), `exports`, `preview_url`, `status: "review"`.
 
 ## Stage 6 — Posting prep (`daily`: status `approved`, `review.slot.date` is today or earlier in US Eastern, and no `post_prep` yet)
 
-Ramit always clicks Post himself. This stage only gets everything ready. First read `settings/posting`:
+Ramit always clicks Post himself. This stage only gets everything ready. Run Stage 4c on the doc first if it has `photo_sync` or open `photo_requests`. Then read `settings/posting`:
 - **`draft-only`** (the default): do step 1, then skip to step 3. Don't open Chrome at all. The notification says where the files are.
 - **`stage`**: do every step.
 

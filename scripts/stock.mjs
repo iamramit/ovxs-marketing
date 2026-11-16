@@ -49,7 +49,7 @@ const pexels = {
     const data = await json(url, { Authorization: keyFor("pexels") });
     return data.photos.map((p) => ({
       source: "pexels", id: String(p.id), alt: p.alt || "", width: p.width, height: p.height,
-      photographer: p.photographer, photographer_url: p.photographer_url, page: p.url, preview: p.src.medium
+      photographer: p.photographer, photographer_url: p.photographer_url, page: p.url, preview: p.src.medium, image: p.src.large2x
     }));
   },
   async get(id) {
@@ -68,7 +68,7 @@ const unsplash = {
     const data = await json(url, { Authorization: `Client-ID ${keyFor("unsplash")}`, "Accept-Version": "v1" });
     return data.results.map((p) => ({
       source: "unsplash", id: p.id, alt: p.alt_description || "", width: p.width, height: p.height,
-      photographer: p.user.name, photographer_url: `${p.user.links.html}?utm_source=ovxs_studio&utm_medium=referral`, page: p.links.html, preview: p.urls.small
+      photographer: p.user.name, photographer_url: `${p.user.links.html}?utm_source=ovxs_studio&utm_medium=referral`, page: p.links.html, preview: p.urls.small, image: `${p.urls.raw}&w=1080&fm=jpg&q=80`
     }));
   },
   async get(id) {

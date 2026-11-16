@@ -44,6 +44,7 @@ When the URL has `?export=<id>` (`li-graphic`, `slide-1` … `slide-8`):
 - Render only that element at exactly 1080×1350.
 - No scaling and no page chrome, body margin 0.
 - Wait for fonts with `document.fonts.ready`.
+- `&photo=<url or path>` replaces the photo on that graphic only (used to render backup photos for the Desk's **Swap photo**). Ignore any value that isn't an `https://images.unsplash.com/`, `https://images.pexels.com/` or `assets/` path.
 
 Headless Chrome screenshots it at `--window-size=1080,1350`.
 

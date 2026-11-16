@@ -105,7 +105,13 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 .seg:disabled { cursor: not-allowed; opacity: .5; }
 .mode .small { flex: 1 1 220px; min-width: 0; }
 .pill.test { background: var(--surface-2); color: var(--muted); border: 1px dashed var(--muted); }
-.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px 10px; }
+.photo-tools { display: grid; gap: 6px; padding-top: 6px; border-top: 1px dashed var(--line); }
+.photo-tools .kw { display: flex; gap: 6px; }
+.photo-tools input[type="text"] { font-size: 13.5px; padding: 8px 10px; border-radius: 10px; }
+.photo-tools .btn.sm { justify-content: center; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.photo-tools .pending { font-size: 12.5px; color: var(--warn); background: var(--warn-soft); border-radius: 10px; padding: 7px 9px; overflow-wrap: anywhere; }
 .shot { display: grid; gap: 6px; min-width: 0; }
 .shot img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); display: block; }
 .shot span { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
@@ -242,6 +248,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "needs-angles": ["awaiting-decision", "Keep the current angles", "Kept your current angles. Pick one in Needs you."]
   };
   const STALE_MS = 26 * 3600 * 1000;
+  const RUN_NOW_STATUSES = ["decided", "changes", "needs-angles"];
   const etNow = () => {
     const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: ET, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date()).map((x) => [x.type, x.value]));
     return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
@@ -364,6 +371,78 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   const slug = (s) => String(s || "file").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "file";
   const shotName = (x, i) => /^[\w.-]+\.(png|jpe?g|webp)$/i.test(String(x.file || "")) ? x.file : `image-${i + 1}.png`;
 
+  // Per-image photo tools. Swap is instant when Claude left backup renders in `alts`; otherwise it, and Generate, queue a photo_requests entry for that slot.
+  const PHOTO_STATUSES = ["review", "approved"];
+  const slotOf = (x, i) => /^[\w-]{1,40}$/.test(String(x.slot || "")) ? x.slot : String(x.file || "").replace(/\.(png|jpe?g|webp)$/i, "") || `image-${i + 1}`;
+  const altsOf = (x) => (Array.isArray(x.alts) ? x.alts : []).filter((a) => a && /^[0-9a-f]{32}$/.test(String(a.id || "")));
+  const kwKey = (id, slot) => `${id}|${slot}`;
+  const keywords = {};
+  const busyShots = new Set();
+
+  function photoTools(b, x, i) {
+    if (!PHOTO_STATUSES.includes(b.status) || b.photos === "none" || x.photo === null) return "";
+    const id = esc(b.id);
+    const slot = slotOf(x, i);
+    const pending = b.photo_requests && b.photo_requests[slot];
+    const alts = altsOf(x);
+    const busy = busyShots.has(kwKey(b.id, slot));
+    const dis = canEdit && !busy ? "" : "disabled";
+    const kw = keywords[kwKey(b.id, slot)] || "";
+    const inputId = `kw-${b.id}-${slot}`;
+    if (pending) {
+      const what = pending.keyword ? `New photo for “${esc(pending.keyword)}” on its way.` : "A different photo is on its way.";
+      return `<div class="photo-tools"><span class="pending">${what} It lands after the 6:30pm run, or sooner with <b>Run now</b> on OVXS daily.</span>
+        <button class="btn quiet sm" type="button" data-photo="cancel" data-id="${id}" data-key="${i}" ${dis}>Cancel</button></div>`;
+    }
+    return `<div class="photo-tools">
+        <button class="btn ghost sm" type="button" data-photo="swap" data-id="${id}" data-key="${i}" ${dis} title="${alts.length ? `${alts.length} other photo${alts.length > 1 ? "s" : ""} ready` : "Claude finds a different photo on the evening run"}">Swap photo${alts.length ? ` · ${alts.length} ready` : ""}</button>
+        <label class="visually-hidden" for="${esc(inputId)}">Keyword for a new photo on ${esc(x.label || slot)}</label>
+        <div class="kw"><input type="text" id="${esc(inputId)}" maxlength="80" placeholder="Keyword, e.g. packing parcels" value="${esc(kw)}" data-kw="${id}" data-slot="${esc(slot)}" ${canEdit ? "" : "disabled"}></div>
+        <button class="btn sm" type="button" data-photo="gen" data-id="${id}" data-key="${i}" ${canEdit && !busy && kw.trim() ? "" : "disabled"}>Generate</button>
+      </div>`;
+  }
+
+  async function photoAct(kind, id, key, btn) {
+    if (!db || !canEdit) return;
+    const b = briefs.find((z) => z.id === id);
+    const list = b && Array.isArray(b.exports) ? b.exports : [];
+    const x = shots(b || {})[Number(key)];
+    if (!b || !x) return;
+    const slot = slotOf(x, Number(key));
+    const k = kwKey(id, slot);
+    const now = new Date().toISOString();
+    let patch, msg;
+    if (kind === "swap" && altsOf(x).length) {
+      const [next, ...rest] = altsOf(x);
+      const swapped = { ...x, id: next.id, photo: next.photo || x.photo || null, alts: [...rest, { id: x.id, photo: x.photo || null }] };
+      patch = { exports: list.map((e) => e === x ? swapped : e), photo_sync: true };
+      msg = `Swapped ${x.label || slot}`;
+    } else if (kind === "swap") {
+      patch = { photo_requests: { [slot]: { action: "swap", keyword: "", label: x.label || slot, at: now } } };
+      msg = "No backups left. Claude finds a different photo on the evening run.";
+    } else if (kind === "gen") {
+      const keyword = (keywords[k] || "").trim();
+      if (!keyword) return;
+      patch = { photo_requests: { [slot]: { action: "keyword", keyword, label: x.label || slot, at: now } } };
+      msg = `Asked for “${keyword}”. It lands after the evening run.`;
+    } else if (kind === "cancel") {
+      patch = { photo_requests: { [slot]: null } };
+      msg = "Cancelled. The current photo stays.";
+    } else return;
+    busyShots.add(k);
+    btn.disabled = true;
+    try {
+      await db.doc("briefs/" + id).update({ ...patch, updated_at: now });
+      if (kind === "gen") delete keywords[k];
+      toast(msg);
+    } catch (err) {
+      toast(err && err.code === "invalid_argument" ? "You need edit access to change the desk." : "Couldn't save. Try again in a moment.");
+    } finally {
+      busyShots.delete(k);
+      render();
+    }
+  }
+
   function draftsBlock(b, open) {
     const keys = draftKeys(b);
     const imgs = shots(b);
@@ -379,6 +458,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       ${imgs.length ? `<div class="shots">${imgs.map((x, i) => `<div class="shot"><img src="${esc(blobUrl(x))}" alt="${esc(x.label || shotName(x, i))}" loading="lazy">
           <span>${esc(x.label || shotName(x, i))}</span>
           ${downloads ? `<button class="btn ghost sm" type="button" data-get="img" data-id="${id}" data-key="${i}">Save</button>` : `<a class="btn ghost sm" href="${esc(blobUrl(x))}" target="_blank" rel="noopener">Open ↗</a>`}
+          ${photoTools(b, x, i)}
         </div>`).join("")}</div>` : `<p class="small">Images appear here once Claude exports them${b.status === "approved" ? " on posting day" : " with the drafts"}.</p>`}
       ${downloads ? `<div class="row"><button class="btn sm" type="button" data-get="zip" data-id="${id}">Download everything (.zip)</button></div>` : ""}
     </div>`;
@@ -407,11 +487,11 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
         ${make.length ? `<div class="checks">${make.map((m, i) => `<label for="ch-${esc(b.id)}-${i}"><input type="checkbox" id="ch-${esc(b.id)}-${i}" data-field="channel" data-id="${esc(b.id)}" value="${esc(m)}" ${st.channels.includes(m) ? "checked" : ""} ${canEdit ? "" : "disabled"}> ${esc(m)}</label>`).join("")}</div>` : ""}
       </div>
       <div class="section"><h3>Photos</h3>
-        <p class="small">${b.photos === "none" ? "No photo: brand-colour panels only." : "Unsplash photos, picked by Claude."} Notes below are used as direction for a swap.</p>
+        <p class="small">${b.photos === "none" ? "No photo: brand-colour panels only." : "Unsplash photos, picked by Claude. To change one image, use <b>Swap photo</b> under it for a ready backup, or type a keyword and tap <b>Generate</b>. To redo them all, use <b>Swap all photos</b>: notes below are used as direction."}</p>
         <div class="row">
           ${b.photos === "none"
             ? `<button class="btn ghost" type="button" data-act="photos-on" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Use photos again</button>`
-            : `<button class="btn ghost" type="button" data-act="photos-swap" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Swap photos</button>
+            : `<button class="btn ghost" type="button" data-act="photos-swap" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Swap all photos</button>
                <button class="btn quiet" type="button" data-act="photos-off" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>No photo</button>`}
         </div>
       </div>
@@ -479,6 +559,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     return `<article class="card" data-id="${id}">
       ${cardHead(b)}
       <p class="todo"><b>What happens next:</b> Nothing for you to do. ${esc(NEXT_STEP[b.status] || "Claude picks this up on the next run.")}${b.rush ? " You asked for it first, so the next run starts with this one." : ""} When it's done, it moves to <b>Needs you</b>.</p>
+      ${RUN_NOW_STATUSES.includes(b.status) && !stalled ? `<p class="small">Want it sooner? In Claude, open <b>Scheduled</b>, pick <b>OVXS daily</b> and press <b>Run now</b>.</p>` : ""}
       ${stalled ? `<p class="warn">Waiting since ${esc(fmtDate(b.updated_at))}, longer than a day, so a daily run was missed. In Claude, open Scheduled, check <b>OVXS daily</b> is on, and press Run now.</p>` : ""}
       <div class="row">
         ${openBtn(b)}
@@ -655,13 +736,29 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     if (op) { const k = op.dataset.open; opened.has(k) ? opened.delete(k) : opened.add(k); render(); return; }
     const get = e.target.closest("button[data-get]");
     if (get && !get.disabled) { getContent(get.dataset.get, get.dataset.id, get.dataset.key, get); return; }
+    const ph = e.target.closest("button[data-photo]");
+    if (ph) { if (!ph.disabled) photoAct(ph.dataset.photo, ph.dataset.id, ph.dataset.key, ph); return; }
     const btn = e.target.closest("button[data-act]");
     if (!btn || btn.disabled) return;
     act(btn.dataset.act, btn.dataset.id, btn);
   });
 
+  document.addEventListener("keydown", (e) => {
+    const el = e.target;
+    if (e.key !== "Enter" || !el.dataset || !el.dataset.kw) return;
+    e.preventDefault();
+    const gen = el.closest(".photo-tools").querySelector('[data-photo="gen"]');
+    if (gen && !gen.disabled) gen.click();
+  });
+
   document.addEventListener("input", (e) => {
     const el = e.target;
+    if (el.dataset && el.dataset.kw) {
+      keywords[kwKey(el.dataset.kw, el.dataset.slot)] = el.value;
+      const gen = el.closest(".photo-tools").querySelector('[data-photo="gen"]');
+      if (gen) gen.disabled = !(canEdit && el.value.trim() && !busyShots.has(kwKey(el.dataset.kw, el.dataset.slot)));
+      return;
+    }
     const id = el.dataset && el.dataset.id;
     if (!id) return;
     const st = f(id);
