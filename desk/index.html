@@ -229,7 +229,9 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "stage": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
   };
 
-  let downloads = null, zipLib = null;
+  let downloads = null, zipLib = null, mcp = null, assets = null;
+  const HELPER = "host:ovxs-photos";
+  const NO_HELPER = ["server_not_connected", "not_granted", "capability_disabled", "capability_removed", "not_in_manifest", "blocked_by_policy", "selection_required", "server_not_found"];
   let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only";
   const hashView = location.hash.slice(1) === "progress" ? "claude" : location.hash.slice(1);
   let view = VIEWS.includes(hashView) ? hashView : "needs";
@@ -389,6 +391,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const pending = b.photo_requests && b.photo_requests[slot];
     const alts = altsOf(x);
     const busy = busyShots.has(kwKey(b.id, slot));
+    if (busy) return `<div class="photo-tools"><span class="pending">Finding a photo and rendering ${esc(x.label || slot)}…</span></div>`;
     const dis = canEdit && !busy ? "" : "disabled";
     const kw = keywords[kwKey(b.id, slot)] || "";
     const inputId = `kw-${b.id}-${slot}`;
@@ -420,6 +423,36 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       const swapped = { ...x, id: next.id, photo: next.photo || x.photo || null, alts: [...rest, { id: x.id, photo: x.photo || null }] };
       patch = { exports: list.map((e) => e === x ? swapped : e), photo_sync: true };
       msg = `Swapped ${x.label || slot}`;
+    } else if ((kind === "swap" || kind === "gen") && mcp && assets && !(kind === "gen" && !(keywords[k] || "").trim())) {
+      const keyword = kind === "gen" ? keywords[k].trim() : "";
+      busyShots.add(k); render();
+      try {
+        const exclude = [x.photo, ...altsOf(x).map((a) => a.photo)].filter((p) => p && p.id).map((p) => p.id);
+        const res = await mcp.callTool(HELPER, "generate_photo", { topic: b.id, slot, keyword, exclude }, { cache: false });
+        const img = (res.content || []).find((c) => c.type === "image" && c.data);
+        const photo = res.payload && res.payload.photo;
+        if (!img || !photo) throw { code: "tool_error", message: "The helper sent no image." };
+        const bytes = Uint8Array.from(atob(img.data), (ch) => ch.charCodeAt(0));
+        const up = await assets.upload(new Blob([bytes], { type: img.mimeType || "image/jpeg" }));
+        const fresh = briefs.find((z) => z.id === id) || b;
+        const cur = shots(fresh).find((e) => slotOf(e, 0) === slot) || x;
+        const kept = [{ id: cur.id, photo: cur.photo || null }, ...altsOf(cur)];
+        const placed = { ...cur, id: up.id, photo: { source: photo.source, id: photo.id, photographer: photo.photographer }, alts: kept.slice(0, 4) };
+        await db.doc("briefs/" + id).update({ exports: (fresh.exports || []).map((e) => e === cur ? placed : e), photo_sync: true, photo_requests: { [slot]: null }, updated_at: new Date().toISOString() });
+        for (const gone of kept.slice(4)) { try { await assets.delete(gone.id); } catch (e) {} }
+        if (kind === "gen") delete keywords[k];
+        toast(`New photo on ${x.label || slot}. The old one is a backup.`);
+        busyShots.delete(k); render();
+        return;
+      } catch (err) {
+        busyShots.delete(k);
+        const code = err && err.code;
+        if (code === "tool_error") { toast(String(err.message || "Couldn't find a photo. Try another keyword.").slice(0, 140)); render(); return; }
+        if (code === "cancelled") { toast("Cancelled. The current photo stays."); render(); return; }
+        if (code && !NO_HELPER.includes(code)) { toast("The photo helper didn't answer. Try again in a moment."); render(); return; }
+        mcp = null; // no helper in this view: queue it instead
+      }
+      return photoAct(kind, id, key, btn);
     } else if (kind === "swap") {
       patch = { photo_requests: { [slot]: { action: "swap", keyword: "", label: x.label || slot, at: now } } };
       msg = "No backups left. Claude finds a different photo on the evening run.";
@@ -427,7 +460,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       const keyword = (keywords[k] || "").trim();
       if (!keyword) return;
       patch = { photo_requests: { [slot]: { action: "keyword", keyword, label: x.label || slot, at: now } } };
-      msg = `Asked for “${keyword}”. It lands after the evening run.`;
+      msg = `Asked for “${keyword}”. Instant photos work in the Claude app on Ramit's Mac; this one lands after the evening run.`;
     } else if (kind === "cancel") {
       patch = { photo_requests: { [slot]: null } };
       msg = "Cancelled. The current photo stays.";
@@ -1055,7 +1088,9 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   render();
 
   (async () => {
-    const [dbNs, user, dl] = await Promise.all([window.claude?.use?.("db"), window.claude?.use?.("user"), window.claude?.use?.("downloads")]);
+    const [dbNs, user, dl, mcpNs, assetsNs] = await Promise.all(["db", "user", "downloads", "mcp", "assets"].map((n) => window.claude?.use?.(n)));
+    mcp = mcpNs || null;
+    assets = assetsNs || null;
     canEdit = !!(user && user.canEdit());
     downloads = dl || null;
     db = dbNs || null;

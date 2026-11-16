@@ -274,7 +274,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>Ask for changes · Approve and schedule</td><td>Needs a note, or a date, time (Today / Tomorrow shortcuts) and at least one channel</td></tr>
     <tr><td>Go back to the angles · Research more angles</td><td>Reopen the choice (drafts kept), or add B and C when there's only one angle</td></tr>
     <tr><td>Swap photo (under an image)</td><td>Switches that image to a backup photo straight away. Press again to cycle; the count shows how many are ready</td></tr>
-    <tr><td>Keyword + Generate (under an image)</td><td>Asks for a new photo for that image only. It lands after the evening run, or sooner with <i>Run now</i>. <i>Cancel</i> withdraws it</td></tr>
+    <tr><td>Keyword + Generate (under an image)</td><td>A new photo for that image only: instant in the Claude app on Ramit's Mac, otherwise after the evening run (<i>Cancel</i> withdraws it)</td></tr>
     <tr><td>Swap all photos · No photo</td><td>New Unsplash photos everywhere, or brand panels, on the next run; the copy stays</td></tr>
     <tr><td>Reschedule · Post today instead · Back to review</td><td>Change the slot, move it to today, or unschedule</td></tr>
     <tr><td>Change the angle · Cancel my changes</td><td>Take a piece back from Claude before the run</td></tr>
@@ -370,7 +370,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li>To suggest a photo yourself, paste an Unsplash photo page link in the topic notes.</li>
   </ul>
   <h3>Changing one photo</h3>
-  <p>Under each image on any card that has images (angle picks and With Claude cards too; open <i>Current drafts and images</i> or <i>Open</i>): <b>Swap photo</b> switches straight away to one of 2 backups Claude rendered with the drafts. Want something specific? Type a keyword ("packing parcels") and tap <b>Generate</b>; the new image arrives after the evening run, or press <i>Run now</i> on OVXS daily. The old photo stays as a backup, so Swap brings it back.</p>
+  <p>Under each image on any card that has images (angle picks and With Claude cards too; open <i>Current drafts and images</i> or <i>Open</i>): <b>Swap photo</b> switches straight away to one of 2 backups Claude rendered with the drafts. Want something specific? Type a keyword ("packing parcels") and tap <b>Generate</b>. In the Claude desktop app on Ramit's Mac the new image is in place in about half a minute, made by a small photo helper on that Mac (<code>scripts/photo-helper.mjs</code>, set up in <code>.mcp.json</code>; approve it once when Claude asks). Anywhere else (phone, browser, other people) it arrives after the evening run. The old photo stays as a backup, so Swap brings it back.</p>
   <h3>Setup (once)</h3>
   <ol>
     <li>Done for OVXS: an Unsplash app at <b>unsplash.com/developers</b>. Only the <i>Access key</i> is used; the secret key isn't needed.</li>
@@ -428,7 +428,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
   <table class="roadmap">
     <tr><th>Idea</th><th>Effort</th><th>Why</th></tr>
     <tr><td>Performance columns in the tracker</td><td>Small</td><td>Impressions, clicks and audit bookings per post, so the monthly review is one glance</td></tr>
-    <tr><td>Instant photo Generate</td><td>Medium</td><td>A small helper on the Mac so keyword photos render in seconds instead of at the evening run</td></tr>
+    <tr><td>Instant Generate everywhere</td><td>Medium</td><td>Make keyword photos instant on phones too, not only in the Claude app on Ramit's Mac</td></tr>
     <tr><td>Monthly report artifact</td><td>Small</td><td>Auto-generated on the 1st: what posted, what worked, which pillars are quiet</td></tr>
     <tr><td>Team roles on the Desk</td><td>Medium</td><td>Team members suggest and comment; only Ramit approves</td></tr>
     <tr><td>Weekly newsletter assembly</td><td>Medium</td><td>Bundle the week's best piece into one newsletter draft for Klaviyo or Mailchimp</td></tr>
@@ -453,6 +453,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>A piece has only one angle</td><td>Press "Research more angles" on its card.</td></tr>
     <tr><td>The draft doesn't sound like us</td><td>Ask for changes with specifics, then add the rule to voice.md.</td></tr>
     <tr><td>Chrome didn't open on posting day</td><td>Mode is Draft only, or Chrome wasn't connected. Files are in the topic's export/ folder.</td></tr>
+    <tr><td>Generate isn't instant on the Mac</td><td>Open the Desk in the Claude desktop app, not a browser. Approve the <b>ovxs-photos</b> server when Claude asks (it's in <code>.mcp.json</code>), then reload the Desk.</td></tr>
     <tr><td>Photo search fails</td><td>The .env key is missing or wrong, or we hit Unsplash's hourly limit (about 50 requests). Run the test command in section 10, or wait an hour.</td></tr>
     <tr><td>A wrong stat went out</td><td>Edit or delete the post, fix the brief's Facts table, and add a Learned rule.</td></tr>
   </table>

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "ovxs-photos": {
+      "type": "stdio",
+      "command": "/usr/local/bin/node",
+      "args": ["scripts/photo-helper.mjs"]
+    }
+  }
+}
