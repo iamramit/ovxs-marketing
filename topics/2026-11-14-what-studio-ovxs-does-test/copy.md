@@ -1,6 +1,6 @@
 # What Studio OVXS does. An introduction. — copy (TEST)
 
-Ramit’s copy, used as is. Behind the studio · Everyone · CTA: $99 video audit.
+Ramit’s copy, used as is. Revised 2026-11-16: project prices removed (Ramit’s note). Behind the studio · Everyone · CTA: $99 video audit.
 
 ## LinkedIn post
 
@@ -44,9 +44,9 @@ If you’re not sure, our $99 video audit is a 10–15 minute walkthrough of you
 
 1. Cover (photo) · Studio OVXS — Building better e-commerce. *From strategy to store.* — Who we work with, and how. Swipe.
 2. Who we work with — We work with businesses that want *more from their digital commerce experience.*
-3. 01 · New (photo) — Building *something new?* — Launch on Shopify from $3,000, in 3–6 weeks.
-4. 02 · Fix (photo) — Trying to fix *an existing store?* — Start with a $99 video audit: three ranked fixes.
-5. 03 · Scale (photo) — Scaling into *what’s next?* — Growth builds from $6,500, in 6–10 weeks.
+3. 01 · New (photo) — Building *something new?* — We plan, design and build it on Shopify.
+4. 02 · Fix (photo) — Trying to fix *an existing store?* — We find what’s costing you sales, and fix that first.
+5. 03 · Scale (photo) — Scaling into *what’s next?* — We build what themes and apps can’t.
 6. What we bring — We bring together *strategy + UX + design + technology.* — One senior team, start to finish.
 7. How we think — Business first. *Technology second.* — If an app or a small fix will do, we’ll say so.
 8. Final — Welcome to *Studio OVXS.* — 10+ years on Shopify. Senior people do the work. — Book a $99 video audit →
@@ -72,11 +72,11 @@ Not sure where to start? Our $99 video audit gives you three ranked fixes for yo
 
 Most businesses come to us with one of three questions.
 
-Building something new? We plan, design and build it on Shopify. Launch from $3,000, in 3–6 weeks.
+Building something new? We plan, design and build it on Shopify.
 
 Trying to fix an existing store? We find what’s costing you sales and fix that first, often without a redesign.
 
-Scaling into what’s next? We build the custom parts that off-the-shelf themes and apps can’t. Growth builds from $6,500, in 6–10 weeks.
+Scaling into what’s next? We build the custom parts that off-the-shelf themes and apps can’t.
 
 Whichever it is, strategy, UX, design and technology come from one senior team. And business comes first, technology second.
 
@@ -100,15 +100,17 @@ Here’s what that means in practice.
 
 We work with businesses that want more from their digital commerce experience. They usually arrive with one of three questions.
 
-**Building something new?** You have a product, a brand or a plan, and you need a store that’s right from day one. We plan it, design it and build it on Shopify. A launch starts from $3,000 and takes 3–6 weeks. If you’re moving from WooCommerce, Squarespace, Wix or somewhere else, a move to Shopify starts from $1,500, and we look after your data, redirects and rankings on the way.
+**Building something new?** You have a product, a brand or a plan, and you need a store that’s right from day one. We plan it, design it and build it on Shopify. If you’re moving from WooCommerce, Squarespace, Wix or somewhere else, we move you to Shopify and look after your data, redirects and rankings on the way.
 
 **Trying to fix an existing store?** Traffic comes in, sales don’t, and you’re not sure why. This is where we’re most often honest in a way that costs us work. The fix is rarely a redesign. It’s usually checkout friction, too many apps, unclear pricing or missing trust. We find what’s costing you sales and fix that first.
 
-**Scaling into what’s next?** Your store is working, and now it needs to do more: subscriptions, courses, complex catalogues, connected systems. That’s where off-the-shelf themes and apps run out. A growth build starts from $6,500 and takes 6–10 weeks. For [Naba](https://ovxs.studio/blogs/case-studies/naba-from-wellness-start-up-to-quicksilver-scientific), that meant 150+ page and product templates and 15+ expert-led courses launched on Shopify, before the business was acquired by Quicksilver Scientific.
+**Scaling into what’s next?** Your store is working, and now it needs to do more: subscriptions, courses, complex catalogues, connected systems. That’s where off-the-shelf themes and apps run out. For [Naba](https://ovxs.studio/blogs/case-studies/naba-from-wellness-start-up-to-quicksilver-scientific), that meant 150+ page and product templates and 15+ expert-led courses launched on Shopify, before the business was acquired by Quicksilver Scientific.
 
 ### What we bring
 
 We bring together strategy, UX, design and technology. That sounds like a list of departments, but it isn’t. It’s the same small team, start to finish.
+
+When those four sit with different people, every hand-off loses something. A strategy nobody designs to. A design that ignores how Shopify actually works. A build that the team can’t edit without calling a developer. Keeping them in one small team is how a store ends up both good to look at and easy to run.
 
 **Strategy** is deciding what the store needs to do for the business before anyone opens a design file.
 
@@ -124,7 +126,7 @@ Senior people do this work. You talk to the people building your store, not to a
 
 Every project starts the same way: we look before we quote. That might be a $99 video audit of your current store, or a free 30-minute call about what you want to build. Either way, you get a straight answer about what’s worth doing, and what isn’t.
 
-Then you get a fixed price and a plan, so you know the cost and the timeline before anything starts. We publish our starting prices for the same reason. You talk to the people doing the work throughout, not to an account manager in between.
+Then you get a fixed price and a plan, so you know the cost and the timeline before anything starts. You talk to the people doing the work throughout, not to an account manager in between.
 
 When the store is live, we don’t disappear. We can stay on as a long-term partner: new sections, new campaigns, speed and SEO work, and an honest second opinion when someone tries to sell you an app you don’t need.
 
@@ -134,7 +136,7 @@ If there’s one line that explains how we work, it’s this one. Business first
 
 We like good technology and we like good design. But neither is the point. The point is a store that sells, that your team can run, and that doesn’t cost more every month than it earns.
 
-So we’ll tell you when an app does the job better than custom code. We’ll tell you when a redesign isn’t the answer. And we publish our prices, so you know where you stand before we talk.
+So we’ll tell you when an app does the job better than custom code. We’ll tell you when a redesign isn’t the answer.
 
 ### Where to start
 
@@ -149,7 +151,7 @@ Welcome to Studio OVXS.
 **Meta description:** Studio OVXS is a senior Shopify studio. We help businesses launch, fix and scale their stores, from strategy to store. Here’s what we do and how.
 **Target keyword:** Shopify studio
 **Slug:** /blogs/journal/what-studio-ovxs-does
-**Length:** about 800 words
+**Length:** about 810 words
 
 ## LinkedIn video
 

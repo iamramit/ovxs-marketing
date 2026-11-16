@@ -21,7 +21,7 @@ Skipped: Ramit’s own copy, used as is. No statistics are used, so nothing need
 ### A — Ramit’s copy
 - Hook: Building better e-commerce. From strategy to store.
 - Argument: who we work with (new, fixing, scaling), what we bring, how we think.
-- Proof used: 10+ years on Shopify; published prices; Naba case study in the article.
+- Proof used: 10+ years on Shopify; Naba case study in the article.
 - Risk: an introduction can read like an ad. Kept plain and specific.
 
 ## Decisions
@@ -30,6 +30,7 @@ Skipped: Ramit’s own copy, used as is. No statistics are used, so nothing need
 - CTA: Book a $99 video audit (default). The free 30-minute call is mentioned in the article and newsletter for bigger projects.
 - Make (final): all six formats.
 - Decided on: 2026-11-14, drafted the same day in an interactive session.
+- 2026-11-16: Ramit re-decided A with “Remove pricing from Angle A”. Daily run removed every project price (Launch, Move, Growth) and the “we publish our prices” lines from all six formats. Slides 3–5 now say what we do for each kind of business (slide 4 no longer leads with the audit). Kept the $99 video audit as the CTA, since it’s the offer itself, not a price list. Added one paragraph to the article (what we bring) to keep it above 800 words.
 
 ## Photos
 See assets/credits.json.
