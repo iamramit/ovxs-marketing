@@ -412,6 +412,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     if (pending) {
       const what = pending.keyword ? `New photo for “${esc(pending.keyword)}” on its way.` : "A different photo is on its way.";
       return `<div class="photo-tools"><span class="pending">${what} It lands after the 6:30pm run, or sooner with <b>Run now</b> on OVXS daily.</span>
+        ${mcp && assets ? `<button class="btn sm" type="button" data-photo="now" data-id="${id}" data-key="${i}" ${dis}>Do it now</button>` : ""}
         <button class="btn quiet sm" type="button" data-photo="cancel" data-id="${id}" data-key="${i}" ${dis}>Cancel</button></div>`;
     }
     return `<div class="photo-tools">
@@ -432,12 +433,17 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const k = kwKey(id, slot);
     const now = new Date().toISOString();
     let patch, msg;
+    if (kind === "now") {
+      const queued = b.photo_requests && b.photo_requests[slot];
+      if (!queued || !mcp) return;
+      if (queued.keyword) { keywords[k] = queued.keyword; kind = "gen"; } else kind = "fresh";
+    }
     if (kind === "swap" && altsOf(x).length) {
       const [next, ...rest] = altsOf(x);
       const swapped = { ...x, id: next.id, photo: next.photo || x.photo || null, alts: [...rest, { id: x.id, photo: x.photo || null }] };
-      patch = { exports: list.map((e) => e === x ? swapped : e), photo_sync: true };
+      patch = { exports: list.map((e) => e === x ? swapped : e), photo_sync: true, photo_requests: { [slot]: null } };
       msg = `Swapped ${x.label || slot}`;
-    } else if ((kind === "swap" || kind === "gen") && mcp && assets && !(kind === "gen" && !(keywords[k] || "").trim())) {
+    } else if ((kind === "swap" || kind === "gen" || kind === "fresh") && mcp && assets && !(kind === "gen" && !(keywords[k] || "").trim())) {
       const keyword = kind === "gen" ? keywords[k].trim() : "";
       busyShots.add(k); render();
       try {
