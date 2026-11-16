@@ -335,6 +335,9 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.raw_angle ? `<p class="small"><b>Your note:</b> ${esc(b.raw_angle)}</p>` : ""}</div>
       <p class="todo"><b>What you do now:</b> Read what the research says, pick A, B or C, and tap <b>Use angle</b>. Claude writes the drafts on the next daily run.</p>
       ${research(b)}
+      ${shots(b).length ? `<details${opened.has(b.id) ? " open" : ""} data-keep="${esc(b.id)}"><summary>Current drafts and images</summary>
+        <p class="small">From the earlier drafts. You can swap their photos now; if you pick a different angle, Claude rewrites them and keeps your photo picks where they still fit.</p>
+        ${draftsBlock(b, false)}</details>` : ""}
       <div class="section"><h3>Pick an angle</h3>
         <div class="angles" role="radiogroup" aria-label="Angles for ${esc(b.title)}">
         ${angles.map((a) => {
@@ -372,7 +375,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   const shotName = (x, i) => /^[\w.-]+\.(png|jpe?g|webp)$/i.test(String(x.file || "")) ? x.file : `image-${i + 1}.png`;
 
   // Per-image photo tools. Swap is instant when Claude left backup renders in `alts`; otherwise it, and Generate, queue a photo_requests entry for that slot.
-  const PHOTO_STATUSES = ["review", "approved"];
+  const NO_PHOTO_TOOLS = ["posted", "archived", "dropped", "drafting", "researching"];
   const slotOf = (x, i) => /^[\w-]{1,40}$/.test(String(x.slot || "")) ? x.slot : String(x.file || "").replace(/\.(png|jpe?g|webp)$/i, "") || `image-${i + 1}`;
   const altsOf = (x) => (Array.isArray(x.alts) ? x.alts : []).filter((a) => a && /^[0-9a-f]{32}$/.test(String(a.id || "")));
   const kwKey = (id, slot) => `${id}|${slot}`;
@@ -380,7 +383,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   const busyShots = new Set();
 
   function photoTools(b, x, i) {
-    if (!PHOTO_STATUSES.includes(b.status) || b.photos === "none" || x.photo === null) return "";
+    if (NO_PHOTO_TOOLS.includes(b.status) || b.photos === "none" || x.photo === null) return "";
     const id = esc(b.id);
     const slot = slotOf(x, i);
     const pending = b.photo_requests && b.photo_requests[slot];
@@ -742,6 +745,12 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     if (!btn || btn.disabled) return;
     act(btn.dataset.act, btn.dataset.id, btn);
   });
+
+  document.addEventListener("toggle", (e) => {
+    const d = e.target;
+    if (!d.dataset || !d.dataset.keep) return;
+    d.open ? opened.add(d.dataset.keep) : opened.delete(d.dataset.keep);
+  }, true);
 
   document.addEventListener("keydown", (e) => {
     const el = e.target;
