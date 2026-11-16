@@ -2,6 +2,15 @@
 // OVXS photo helper: a tiny local MCP server (stdio) the Content Desk calls for instant "Generate".
 // One tool, generate_photo: search Unsplash for a keyword, render that one slide with the top unused
 // photo, and return the image. The Unsplash key stays on this Mac (.env); nothing in the repo changes.
+//
+// Setup, once per Mac: Claude app → Settings → Developer → Edit Config, add inside the outer { }:
+//   "mcpServers": {
+//     "ovxs-photos": {
+//       "command": "/bin/zsh",
+//       "args": ["-lc", "exec node \"$HOME/WORK/STUDIO/ovxs-marketing/scripts/photo-helper.mjs\""]
+//     }
+//   }
+// then quit (Cmd+Q) and reopen the app. $HOME and a login shell keep it working on any Mac.
 import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from "node:fs";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";

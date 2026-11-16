@@ -377,6 +377,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <li>Done for OVXS: an Unsplash app at <b>unsplash.com/developers</b>. Only the <i>Access key</i> is used; the secret key isn't needed.</li>
     <li>The key lives in <code>.env</code> in the repo (copy <code>.env.example</code> to create it, then paste the key in an editor). Never commit .env or paste keys into a chat. It doesn't travel with the repo: on a new Mac, create it again.</li>
     <li>Test: <code>node scripts/stock.mjs search "packing parcels"</code></li>
+    <li>Instant <i>Generate</i>: once per Mac, paste the block at the top of <code>scripts/photo-helper.mjs</code> into Claude → Settings → Developer → Edit Config, then reopen the app.</li>
   </ol>
 </div>
 </section>
@@ -454,7 +455,7 @@ footer.end { margin-top: 18pt; font-size: 8.5pt; color: var(--muted); border-top
     <tr><td>A piece has only one angle</td><td>Press "Research more angles" on its card.</td></tr>
     <tr><td>The draft doesn't sound like us</td><td>Ask for changes with specifics, then add the rule to voice.md.</td></tr>
     <tr><td>Chrome didn't open on posting day</td><td>Mode is Draft only, or Chrome wasn't connected. Files are in the topic's export/ folder.</td></tr>
-    <tr><td>Generate isn't instant on the Mac</td><td>Open the Desk in the Claude desktop app, not a browser. Approve the <b>ovxs-photos</b> server when Claude asks (it's in <code>.mcp.json</code>), then reload the Desk.</td></tr>
+    <tr><td>Generate isn't instant on the Mac</td><td>Open the Desk in the Claude desktop app, not a browser. Check the photo helper is in the app's config (section 10, setup step 4), quit and reopen the app, then reload the Desk. The queued message says why it couldn't reach it.</td></tr>
     <tr><td>Photo search fails</td><td>The .env key is missing or wrong, or we hit Unsplash's hourly limit (about 50 requests). Run the test command in section 10, or wait an hour.</td></tr>
     <tr><td>A wrong stat went out</td><td>Edit or delete the post, fix the brief's Facts table, and add a Learned rule.</td></tr>
   </table>
