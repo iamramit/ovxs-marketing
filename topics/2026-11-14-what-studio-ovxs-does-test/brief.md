@@ -31,9 +31,18 @@ Skipped: Ramit’s own copy, used as is. No statistics are used, so nothing need
 - Make (final): all six formats.
 - Decided on: 2026-11-14, drafted the same day in an interactive session.
 - 2026-11-16: Ramit re-decided A with “Remove pricing from Angle A”. Daily run removed every project price (Launch, Move, Growth) and the “we publish our prices” lines from all six formats. Slides 3–5 now say what we do for each kind of business (slide 4 no longer leads with the audit). Kept the $99 video audit as the CTA, since it’s the offer itself, not a price list. Added one paragraph to the article (what we bring) to keep it above 800 words.
+- 2026-11-16 (evening daily run): Ramit asked for new photos (swap) on the Desk, then picked them himself with Generate on all five photo graphics. Those picks are new and not reused, so they count as the swap. Synced them locally: LinkedIn graphic, slide 1 (cover), 3, 4 and 5. The LinkedIn graphic now has its own photo file (`li.jpg`), separate from the slide 1 cover. Copy unchanged; back in review.
 
 ## Photos
-See assets/credits.json.
+| Graphic | File | Photo | Photographer |
+|---|---|---|---|
+| LinkedIn graphic | assets/li.jpg | [Unsplash pVfYvqX_jos](https://unsplash.com/photos/pVfYvqX_jos) (gold star medal from a gift box) | Kingsley Mkpandiok |
+| Slide 1 (cover) | assets/cover.jpg | [Unsplash ejhjSZKTeeg](https://unsplash.com/photos/ejhjSZKTeeg) (person using a laptop) | Roberto Cortese |
+| Slide 3 (new) | assets/new.jpg | [Unsplash YOy-ek-aBR0](https://unsplash.com/photos/YOy-ek-aBR0) (shuttle launch at golden hour) | Iván Martínez Díaz |
+| Slide 4 (fix) | assets/fix.jpg | [Unsplash 2uE2yhyTFrQ](https://unsplash.com/photos/2uE2yhyTFrQ) (man working on a laptop) | Andrew Valdivia |
+| Slide 5 (scale) | assets/scale.jpg | [Unsplash Nt8eTN62nUI](https://unsplash.com/photos/Nt8eTN62nUI) (craftsman at a workbench) | T |
+
+All picked by Ramit on the Desk (Generate), 2026-11-16. Full credits in assets/credits.json.
 
 ## SEO (articles only)
 - Target keyword: Shopify studio
