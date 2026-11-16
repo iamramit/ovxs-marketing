@@ -47,6 +47,7 @@ h1 em { font-style: italic; text-decoration: underline wavy var(--primary); text
 .summary { color: var(--muted); margin: 6px 0 0; font-variant-numeric: tabular-nums; }
 nav { display: flex; flex-wrap: wrap; gap: 8px; }
 .tab { font: 900 14px/1 var(--label); letter-spacing: .06em; text-transform: uppercase; padding: 11px 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.tab[hidden] { display: none; }
 .tab[aria-selected="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 .count { font: 600 12px/1 var(--body); letter-spacing: 0; padding: 3px 7px; border-radius: 999px; background: var(--surface-2); color: var(--ink); font-variant-numeric: tabular-nums; }
 .tab[aria-selected="true"] .count { background: var(--on-primary); color: var(--primary); }
@@ -140,6 +141,15 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     <span class="small" id="mode-help">Claude exports the images and post text and tells you. Get them from the card here. Nothing opens.</span>
   </div>
 
+  <div class="mode" role="group" aria-labelledby="sched-label">
+    <span class="mode-label" id="sched-label">Scheduling</span>
+    <span class="seg-group">
+      <button class="seg" type="button" data-sched="on" aria-pressed="true">On</button>
+      <button class="seg" type="button" data-sched="off" aria-pressed="false">Off</button>
+    </span>
+    <span class="small" id="sched-help">Pick a date and time when you approve. The piece waits in Scheduled until its day.</span>
+  </div>
+
   <nav role="tablist" aria-label="Desk views">
     <button class="tab" role="tab" id="tab-needs" data-view="needs" aria-selected="true">Needs you <span class="count" id="c-needs">0</span></button>
     <button class="tab" role="tab" id="tab-claude" data-view="claude" aria-selected="false">With Claude <span class="count" id="c-claude">0</span></button>
@@ -224,6 +234,10 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     "draft-only": "Claude exports the images and post text and tells you. Get them from the card here. Nothing opens.",
     "stage": "Claude opens LinkedIn, Facebook and Instagram in Chrome with everything filled in. You click Post."
   };
+  const SCHED_HELP = {
+    on: "Pick a date and time when you approve. The piece waits in Scheduled until its day.",
+    off: "No dates. Approve a piece and it's ready to post right away in Needs you."
+  };
   const APPROVED_NEXT = {
     "draft-only": "On the day, Claude tells you it's ready. Copy the text and save the images below, then post.",
     "stage": "On the day, Claude opens each composer in Chrome and fills it in. You click Post."
@@ -232,7 +246,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
   let downloads = null, zipLib = null, mcp = null, assets = null, helperWhy = "";
   const HELPER = "host:ovxs-photos";
   const NO_HELPER = ["server_not_connected", "not_granted", "capability_disabled", "capability_removed", "not_in_manifest", "blocked_by_policy", "selection_required", "server_not_found"];
-  let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only";
+  let db = null, canEdit = false, briefs = [], requests = [], mode = "draft-only", scheduling = "on";
   const hashView = location.hash.slice(1) === "progress" ? "claude" : location.hash.slice(1);
   let view = VIEWS.includes(hashView) ? hashView : "needs";
   const form = {};
@@ -506,21 +520,22 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const make = Array.isArray(b.make) ? b.make : [];
     if (!st.channels) st.channels = make.slice();
     const pv = safeUrl(b.preview_url);
-    const ready = canEdit && st.date && st.time && st.channels.length;
+    const schedOn = scheduling !== "off";
+    const ready = canEdit && st.channels.length && (!schedOn || (st.date && st.time));
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>
         ${b.decision && b.decision.angle ? `<p class="small"><b>Angle ${esc(b.decision.angle)}</b>${b.decision.notes ? ` · ${esc(b.decision.notes)}` : ""}</p>` : ""}
         ${b.review && b.review.verdict === "changes" && b.review.notes ? `<p class="small"><b>Last notes:</b> ${esc(b.review.notes)}</p>` : ""}
       </div>
-      <p class="todo"><b>What you do now:</b> Read the drafts and the preview. Happy? Pick a date and time and tap <b>Approve and schedule</b>. Not yet? Write what to change and tap <b>Ask for changes</b>.</p>
+      <p class="todo"><b>What you do now:</b> Read the drafts and the preview. Happy? ${schedOn ? "Pick a date and time and tap <b>Approve and schedule</b>" : "Tick the channels and tap <b>Approve, ready to post</b>"}. Not yet? Write what to change and tap <b>Ask for changes</b>.</p>
       ${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
       ${draftsBlock(b, true)}
-      <div class="section"><h3>Post on (US Eastern)</h3>
-        <div class="grid2">
+      <div class="section"><h3>${schedOn ? "Post on (US Eastern)" : "Post on"}</h3>
+        ${schedOn ? `<div class="grid2">
           <label class="field" for="d-${esc(b.id)}">Date<input type="date" id="d-${esc(b.id)}" data-field="date" data-id="${esc(b.id)}" value="${esc(st.date)}" min="${etNow().date}" ${canEdit ? "" : "disabled"}></label>
           <label class="field" for="t-${esc(b.id)}">Time<input type="time" id="t-${esc(b.id)}" data-field="time" data-id="${esc(b.id)}" value="${esc(st.time)}" step="900" ${canEdit ? "" : "disabled"}></label>
         </div>
-        <div class="row"><button class="btn quiet sm" type="button" data-act="today" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Today</button><button class="btn quiet sm" type="button" data-act="tomorrow" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Tomorrow</button></div>
+        <div class="row"><button class="btn quiet sm" type="button" data-act="today" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Today</button><button class="btn quiet sm" type="button" data-act="tomorrow" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Tomorrow</button></div>` : ""}
         ${make.length ? `<div class="checks">${make.map((m, i) => `<label for="ch-${esc(b.id)}-${i}"><input type="checkbox" id="ch-${esc(b.id)}-${i}" data-field="channel" data-id="${esc(b.id)}" value="${esc(m)}" ${st.channels.includes(m) ? "checked" : ""} ${canEdit ? "" : "disabled"}> ${esc(m)}</label>`).join("")}</div>` : ""}
       </div>
       <div class="section"><h3>Photos</h3>
@@ -536,7 +551,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
         <textarea id="n-${esc(b.id)}" data-field="notes" data-id="${esc(b.id)}" placeholder="What to change before it goes out" ${canEdit ? "" : "disabled"}>${esc(st.notes)}</textarea>
       </label>
       <div class="row">
-        <button class="btn" type="button" data-act="approve" data-id="${esc(b.id)}" ${ready ? "" : "disabled"}>Approve and schedule →</button>
+        <button class="btn" type="button" data-act="approve" data-id="${esc(b.id)}" ${ready ? "" : "disabled"}>${schedOn ? "Approve and schedule →" : "Approve, ready to post →"}</button>
         <button class="btn ghost" type="button" data-act="changes" data-id="${esc(b.id)}" ${canEdit && st.notes.trim() ? "" : "disabled"}>Ask for changes</button>
         ${dropControl(b)}
       </div>
@@ -617,7 +632,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       <p class="todo"><b>What happens next:</b> Nothing until the day. Then it moves to <b>Needs you</b> with the text and images ready to post${mode === "stage" ? ", and Claude opens the composers in Chrome" : ""}.${b.test ? " It's a test, so you only check it, then tap <b>Test done</b>." : ""}</p>
       <div class="row">
         ${openBtn(b)}
-        <button class="btn ghost" type="button" data-act="resched" data-id="${id}" ${dis}>Reschedule</button>
+        ${scheduling !== "off" ? `<button class="btn ghost" type="button" data-act="resched" data-id="${id}" ${dis}>Reschedule</button>` : ""}
         ${!b.test ? `<button class="btn ghost" type="button" data-act="now" data-id="${id}" ${dis}>Post today instead</button>` : ""}
         <button class="btn ghost" type="button" data-act="unapprove" data-id="${id}" ${dis}>Back to review</button>
         <button class="btn quiet" type="button" data-act="archive" data-id="${id}" ${dis}>Archive</button>
@@ -644,7 +659,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       <p class="todo"><b>What you do now:</b> ${todo}</p>
       <div class="row">
         <button class="btn" type="button" data-act="posted" data-id="${id}" ${dis}>${b.test ? "Test done" : "I've posted it"}</button>
-        <button class="btn ghost" type="button" data-act="resched" data-id="${id}" ${dis}>Reschedule</button>
+        ${scheduling !== "off" ? `<button class="btn ghost" type="button" data-act="resched" data-id="${id}" ${dis}>Reschedule</button>` : ""}
         <button class="btn ghost" type="button" data-act="unapprove" data-id="${id}" ${dis}>Back to review</button>
       </div>
       ${reschedBlock(b)}
@@ -752,10 +767,13 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 
     $("#nt-submit").disabled = !canEdit;
     for (const s of document.querySelectorAll(".seg")) {
-      s.setAttribute("aria-pressed", String(s.dataset.mode === mode));
+      s.setAttribute("aria-pressed", String(s.dataset.mode ? s.dataset.mode === mode : s.dataset.sched === scheduling));
       s.disabled = !canEdit;
     }
     $("#mode-help").textContent = MODE_HELP[mode];
+    $("#sched-help").textContent = SCHED_HELP[scheduling];
+    $("#tab-scheduled").hidden = scheduling === "off" && !scheduled.length;
+    if ($("#tab-scheduled").hidden && view === "scheduled") setView("needs");
     if (keepFocus) {
       const el = document.getElementById(keepFocus);
       if (el) { el.focus({ preventScroll: true }); if (caret && "setSelectionRange" in el) { try { el.setSelectionRange(caret[0], caret[1]); } catch (e) {} } }
@@ -766,7 +784,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const tab = e.target.closest(".tab");
     if (tab) { setView(tab.dataset.view); return; }
     const seg = e.target.closest(".seg");
-    if (seg) { setMode(seg.dataset.mode); return; }
+    if (seg) { seg.dataset.sched ? setScheduling(seg.dataset.sched) : setMode(seg.dataset.mode); return; }
     const rq = e.target.closest("button[data-req]");
     if (rq && !rq.disabled) { requestAct(rq.dataset.req, rq.dataset.id, rq); return; }
     const op = e.target.closest("button[data-open]");
@@ -820,7 +838,7 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     const decide = card.querySelector('[data-act="decide"]');
     if (decide) { decide.disabled = !(canEdit && st.angle); decide.textContent = `Use angle ${st.angle} →`; }
     const approve = card.querySelector('[data-act="approve"]');
-    if (approve) approve.disabled = !(canEdit && st.date && st.time && st.channels && st.channels.length);
+    if (approve) approve.disabled = !(canEdit && st.channels && st.channels.length && (scheduling === "off" || (st.date && st.time)));
     const changes = card.querySelector('[data-act="changes"]');
     if (changes) changes.disabled = !(canEdit && st.notes.trim());
   });
@@ -947,13 +965,28 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
     }
   }
 
+  async function setScheduling(next) {
+    if (!db || !canEdit || next === scheduling || !SCHED_HELP[next]) return;
+    const prev = scheduling;
+    scheduling = next;
+    render();
+    try {
+      await db.doc("settings/posting").set({ mode, scheduling: next, updated_at: new Date().toISOString() });
+      toast(next === "off" ? "Scheduling off. Approved pieces are ready to post right away." : "Scheduling on. Pick a date when you approve.");
+    } catch (err) {
+      scheduling = prev;
+      render();
+      toast("Couldn't save the setting. Try again.");
+    }
+  }
+
   async function setMode(next) {
     if (!db || !canEdit || next === mode || !MODE_HELP[next]) return;
     const prev = mode;
     mode = next;
     render();
     try {
-      await db.doc("settings/posting").set({ mode: next, updated_at: new Date().toISOString() });
+      await db.doc("settings/posting").set({ mode: next, scheduling, updated_at: new Date().toISOString() });
       toast(next === "stage" ? "Posts will open in Chrome on the day" : "Posts will be saved as drafts only");
     } catch (err) {
       mode = prev;
@@ -1011,6 +1044,10 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       return;
     }
     if (kind === "approve") {
+      if (scheduling === "off") {
+        await write(id, { status: "approved", rush: true, review: { verdict: "approve", notes: st.notes.trim(), slot: { ...etNow(), tz: ET }, channels: st.channels, decided_at: now } }, "Approved. It's in Needs you, ready to post.");
+        return;
+      }
       await write(id, { status: "approved", review: { verdict: "approve", notes: st.notes.trim(), slot: { date: st.date, time: st.time, tz: ET }, channels: st.channels, decided_at: now } }, "Approved and scheduled");
       return;
     }
@@ -1103,8 +1140,10 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
       render();
     }, () => notice("The desk stopped updating. Reload the page."));
     db.doc("settings/posting").onSnapshot((snap) => {
-      const m = snap.exists && snap.data().mode;
-      if (MODE_HELP[m]) { mode = m; render(); }
+      const data = snap.exists ? snap.data() : {};
+      if (MODE_HELP[data.mode]) mode = data.mode;
+      scheduling = data.scheduling === "off" ? "off" : "on";
+      render();
     }, () => {});
     db.collection("requests").orderBy("created_at", "desc").limit(30).onSnapshot((snap) => {
       requests = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r) => r.status !== "archived" && r.status !== "removed");
