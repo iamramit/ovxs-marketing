@@ -32,6 +32,7 @@ Skipped: Ramit’s own copy, used as is. No statistics are used, so nothing need
 - Decided on: 2026-11-14, drafted the same day in an interactive session.
 - 2026-11-16: Ramit re-decided A with “Remove pricing from Angle A”. Daily run removed every project price (Launch, Move, Growth) and the “we publish our prices” lines from all six formats. Slides 3–5 now say what we do for each kind of business (slide 4 no longer leads with the audit). Kept the $99 video audit as the CTA, since it’s the offer itself, not a price list. Added one paragraph to the article (what we bring) to keep it above 800 words.
 - 2026-11-16 (evening daily run): Ramit asked for new photos (swap) on the Desk, then picked them himself with Generate on all five photo graphics. Those picks are new and not reused, so they count as the swap. Synced them locally: LinkedIn graphic, slide 1 (cover), 3, 4 and 5. The LinkedIn graphic now has its own photo file (`li.jpg`), separate from the slide 1 cover. Copy unchanged; back in review.
+- 2026-11-16: Ramit approved it on the Desk (scheduling off, so it went straight to Post today). Daily run prepped it in draft-only mode: the PNGs from the last render were still current, and post-linkedin.txt, post-facebook.txt and caption-instagram.txt were written to export/. TEST — never posted; close it with Test done.
 
 ## Photos
 | Graphic | File | Photo | Photographer |
