@@ -433,9 +433,9 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
   const altsOf = (x) => (Array.isArray(x.alts) ? x.alts : []).filter((a) => a && /^[0-9a-f]{32}$/.test(String(a.id || "")));
 
   // ---- Carousel: order, leave out, style, accent (re-rendered instantly by the photo helper)
-  const STYLE_NAMES = { evergreen: "Evergreen", night: "Night", editorial: "Editorial", neon: "Neon", grid: "Grid" };
-  const STYLE_HINT = { evergreen: "Teal, mint and paper, as today", night: "Dark mode, mint accent", editorial: "Paper and ink, teal underline", neon: "Dark with one bright accent", grid: "Textured paper, dotted grid, burst badges" };
-  const ACCENT_HEX = { teal: "#1B6A63", mint: "#7FC8BC", magenta: "#E03CF0", green: "#2BFF2B", blue: "#1F3BFF", red: "#FF3B30" };
+  const STYLE_NAMES = { evergreen: "Evergreen", notes: "Studio Notes", field: "Deep Field", poster: "Poster", coast: "Coastline" };
+  const STYLE_HINT = { evergreen: "The page as Claude designed it", notes: "Warm paper, sticky notes, Romie, taped photos", field: "Navy dark mode, lilac highlights, full-bleed photos", poster: "Star yellow and ink, huge Elza type, shaped photos", coast: "Blue and mint, rounded cards, wave motif" };
+  const ACCENT_HEX = {};
   const orderDraft = {};   // briefId -> { order: [slots], hidden: Set(slots) }
   const lookDraft = {};    // briefId -> { style, accent }
   const progress = {};     // briefId -> text while re-rendering
@@ -487,7 +487,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
   const photoArg = (p) => !p ? "" : p.image ? p.image : p.source === "local" && p.file ? p.file : (p.source === "unsplash" || p.source === "pexels") && p.id ? `${p.source}:${p.id}` : "";
   const orderNums = (b) => { const st = carouselState(b); return st.visible.map((o) => slideNum(o.slot)); };
   async function renderVia(b, slot, photo, look, order) {
-    const res = await mcp.callTool(HELPER, "render_slide", { topic: b.id, slot, photo: photoArg(photo), style: look.style, accent: look.accent || undefined, order }, { cache: false });
+    const res = await mcp.callTool(HELPER, "render_slide", { topic: b.id, slot, photo: photoArg(photo), style: look.style, order }, { cache: false });
     const img = (res.content || []).find((c) => c.type === "image" && c.data);
     if (!img) throw { code: "tool_error", message: "The helper sent no image." };
     const bytes = Uint8Array.from(atob(img.data), (ch) => ch.charCodeAt(0));
@@ -507,11 +507,6 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         <label class="small" for="sty-${id}"><b>Style</b></label>
         <select id="sty-${id}" data-look="style" data-id="${id}" ${dis}>${Object.entries(STYLE_NAMES).map(([k, v]) => `<option value="${k}" ${look.style === k ? "selected" : ""}>${v}</option>`).join("")}</select>
         <span class="small">${esc(STYLE_HINT[look.style])}</span>
-      </div>
-      <div class="row" role="group" aria-label="Accent colour">
-        <span class="small"><b>Accent</b></span>
-        <button class="accent-dot" type="button" data-look="accent" data-val="" data-id="${id}" aria-pressed="${!look.accent}" title="Style default" ${dis}>Auto</button>
-        ${Object.entries(ACCENT_HEX).map(([k, hex]) => `<button class="accent-dot" type="button" data-look="accent" data-val="${k}" data-id="${id}" aria-pressed="${look.accent === k}" aria-label="${k}" title="${k}" style="background:${hex}" ${dis}></button>`).join("")}
       </div>
       ${st.visible.length > 1 ? `<p class="small">Drag slides to reorder (or use ← →). <b>Leave out</b> drops a slide from the post.</p>` : ""}
       ${busy ? `<p class="pending" style="font-size:13px">${esc(busy)}</p>` : dirty ? `<div class="row">
@@ -546,7 +541,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         ...st.left.map((o) => ({ ...(bySlot.get(o.slot) || o.x), hidden: true }))
       ];
       const oldIds = shots(latest).filter((x, i) => fresh[slotOf(x, i)]).map((x) => x.id);
-      await db.doc("briefs/" + b.id).update({ exports: out, style: look.style, accent: look.accent || null, order, photo_sync: true, updated_at: new Date().toISOString() });
+      await db.doc("briefs/" + b.id).update({ exports: out, style: look.style, accent: null, order, photo_sync: true, updated_at: new Date().toISOString() });
       const keep = new Set(out.flatMap((x) => [x.id, ...altsOf(x).map((a) => a.id)]));
       for (const old of oldIds) if (!keep.has(old)) { try { await assets.delete(old); } catch (e) {} }
       delete orderDraft[b.id]; delete lookDraft[b.id]; delete progress[b.id];
@@ -632,7 +627,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         const exclude = [x.photo, ...altsOf(x).map((a) => a.photo)].filter((p) => p && p.id).map((p) => p.id);
         const plan = await photoPlan(b, x.label || slot, keyword);
         const lk = savedLook(b);
-        const res = await mcp.callTool(HELPER, "generate_photo", { topic: b.id, slot, keyword, exclude, ...(plan || {}), style: lk.style, accent: lk.accent || undefined, order: orderNums(b) }, { cache: false });
+        const res = await mcp.callTool(HELPER, "generate_photo", { topic: b.id, slot, keyword, exclude, ...(plan || {}), style: lk.style, order: orderNums(b) }, { cache: false });
         const img = (res.content || []).find((c) => c.type === "image" && c.data);
         const photo = res.payload && res.payload.photo;
         if (!img || !photo) throw { code: "tool_error", message: "The helper sent no image." };
@@ -700,7 +695,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
           <button class="btn ghost sm" type="button" data-order="right" data-id="${id}" data-slot="${esc(slot)}" aria-label="Move later" ${pos === st.visible.length ? "disabled" : ""}>→</button>
           <button class="btn quiet sm" type="button" data-order="hide" data-id="${id}" data-slot="${esc(slot)}" ${st.visible.length < 2 ? "disabled" : ""}>Leave out</button>`}
         </div>` : ""}
-        ${left ? "" : downloads ? `<button class="btn ghost sm" type="button" data-get="img" data-id="${id}" data-key="${i}">Save</button>` : `<a class="btn ghost sm" href="${esc(blobUrl(x))}" target="_blank" rel="noopener">Open ↗</a>`}
+        ${left ? "" : downloads ? `<div class="order-btns"><button class="btn ghost sm" type="button" data-get="img" data-id="${id}" data-key="${i}">Save</button>${canRender() ? `<button class="btn quiet sm" type="button" data-express="${esc(slot)}" data-id="${id}" ${making[b.id] ? "disabled" : ""} title="Editable PDF for Adobe Express">Express</button>` : ""}</div>` : `<a class="btn ghost sm" href="${esc(blobUrl(x))}" target="_blank" rel="noopener">Open ↗</a>`}
         ${left || progress[b.id] ? "" : photoTools(b, x, i)}
       </div>`;
     };
@@ -712,7 +707,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
   const canVideo = () => typeof window.VideoEncoder === "function" && typeof window.VideoFrame === "function";
   function makeRow(b) {
     const st = carouselState(b);
-    if (!downloads || st.visible.length < 2) return "";
+    if (!downloads || (st.visible.length < 2 && !canRender())) return "";
     const id = esc(b.id), busy = making[b.id];
     return `<div class="make-row">
       <span class="small"><b>Make from the slides</b></span>
@@ -720,7 +715,8 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       <button class="btn ghost sm" type="button" data-make="reel" data-id="${id}" ${busy ? "disabled" : ""}>Reel 9:16</button>
       <label class="visually-hidden" for="secs-${id}">Seconds per slide</label>
       <select id="secs-${id}" data-secs="${id}" ${busy ? "disabled" : ""}>${[2, 3, 4, 5].map((n) => `<option value="${n}" ${n === 3 ? "selected" : ""}>${n}s per slide</option>`).join("")}</select>` : ""}
-      <button class="btn ghost sm" type="button" data-make="stories" data-id="${id}" ${busy ? "disabled" : ""}>Story images 9:16</button>
+      ${st.visible.length >= 2 ? `<button class="btn ghost sm" type="button" data-make="stories" data-id="${id}" ${busy ? "disabled" : ""}>Story images 9:16</button>` : ""}
+      ${canRender() ? `<button class="btn ghost sm" type="button" data-express="all" data-id="${id}" ${busy ? "disabled" : ""} title="One editable PDF, a page per graphic">All for Adobe Express</button>` : ""}
       ${busy ? `<span class="pending" style="font-size:13px">${esc(busy)}</span>` : ""}
     </div>`;
   }
@@ -793,6 +789,27 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       if (await save(`${slug(b.title)}-${kind === "reel" ? "reel-9x16" : "video-4x5"}.mp4`, new Blob([muxer.target.buffer], { type: "video/mp4" }))) toast("Video saved");
     } catch (err) {
       toast(err && err.code === "nocodec" ? "This browser can't make MP4 video. Try the Claude desktop app or Chrome." : "Couldn't make the video. Try again.");
+    }
+    delete making[b.id]; render();
+  }
+  async function exportExpress(b, which) {
+    if (!canRender() || making[b.id]) return;
+    const st = carouselState(b);
+    const list = which === "all" ? [...st.others, ...st.visible] : [...st.others, ...st.visible].filter((o) => o.slot === which);
+    if (!list.length) return;
+    making[b.id] = `Making the Adobe Express PDF (${list.length} page${list.length === 1 ? "" : "s"})…`; render();
+    try {
+      const photos = {};
+      for (const o of list) { const p = photoArg(o.x.photo); if (p) photos[o.slot] = p; }
+      const res = await mcp.callTool(HELPER, "export_pdf", { topic: b.id, pages: list.map((o) => o.slot), photos, style: savedLook(b).style, order: orderNums(b) }, { cache: false });
+      const b64 = res.payload && res.payload.pdf;
+      if (!b64) throw { code: "tool_error", message: "The helper sent no PDF." };
+      const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
+      const name = which === "all" ? "all" : (list[0].x.label ? slug(list[0].x.label) : which);
+      if (await save(`${slug(b.title)}-${name}-adobe-express.pdf`, new Blob([bytes], { type: "application/pdf" }))) toast("Saved. In Adobe Express: Create → Import, then pick this PDF.");
+    } catch (err) {
+      const code = err && err.code;
+      toast(NO_HELPER.includes(code) ? "The photo helper isn't running on this Mac." : code === "tool_error" ? String(err.message || "Couldn't make the PDF.").slice(0, 140) : "Couldn't make the PDF. Try again.");
     }
     delete making[b.id]; render();
   }
@@ -1126,6 +1143,8 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       if (car.dataset.car === "apply") applyCarousel(b);
       return;
     }
+    const ex = e.target.closest("button[data-express]");
+    if (ex) { const b = briefs.find((z) => z.id === ex.dataset.id); if (b && !ex.disabled) exportExpress(b, ex.dataset.express); return; }
     const mk = e.target.closest("button[data-make]");
     if (mk) {
       const b = briefs.find((z) => z.id === mk.dataset.id); if (!b || mk.disabled) return;

@@ -38,12 +38,17 @@ function lookQuery({ order, style, accent } = {}) {
 }
 
 const urlCache = new Map();
-async function resolvePhoto(photo) {
+async function resolvePhoto(photo, topic) {
   const p = String(photo || "").trim();
   if (!p) return "";
   if (PHOTO_RE.test(p)) return p;
   const m = /^(unsplash|pexels):([\w-]{1,40})$/.exec(p);
   if (!m) throw new Error("Unknown photo");
+  // Already downloaded for this topic? Use the local file (no API call).
+  if (topic && TOPIC_RE.test(topic)) {
+    const cf = join(root, "topics", topic, "assets", "credits.json");
+    if (existsSync(cf)) { try { const c = JSON.parse(readFileSync(cf, "utf8")).find((x) => x.id === m[2] && /^[\w.-]+$/.test(x.file || "")); if (c) return `assets/${c.file}`; } catch {} }
+  }
   if (!urlCache.has(p)) {
     const { stdout } = await run("node", [join(root, "scripts/stock.mjs"), "url", m[1], m[2]], { cwd: root, timeout: 20000 });
     urlCache.set(p, JSON.parse(stdout).image);
@@ -69,9 +74,28 @@ function checkTarget(topic, slot) {
   if (!SLOT_RE.test(String(slot))) throw new Error("Unknown slot");
 }
 
+async function exportPdf(args) {
+  const topic = String(args.topic || "");
+  if (!TOPIC_RE.test(topic) || !existsSync(join(root, "topics", topic, "page.html"))) throw new Error("Unknown topic");
+  const pages = (Array.isArray(args.pages) ? args.pages : []).map(String).filter((p) => SLOT_RE.test(p)).slice(0, 12);
+  if (!pages.length) throw new Error("No pages");
+  let extra = `&pages=${pages.join(",")}` + lookQuery({ order: args.order, style: args.style });
+  const photos = args.photos && typeof args.photos === "object" ? args.photos : {};
+  for (const id of pages) { const u = await resolvePhoto(photos[id], topic); if (u) extra += `&ph.${id}=${encodeURIComponent(u)}`; }
+  const dir = mkdtempSync(join(tmpdir(), "ovxs-pdf-"));
+  try {
+    const pdf = join(dir, "slides.pdf");
+    await run(CHROME, ["--headless=new", "--no-pdf-header-footer", "--virtual-time-budget=12000", `--user-data-dir=${join(dir, "chrome")}`, `--print-to-pdf=${pdf}`, `file://${join(root, "topics", topic, "page.html")}?export=pdf${extra}`], { timeout: 90000 });
+    const data = readFileSync(pdf).toString("base64");
+    return { content: [{ type: "text", text: JSON.stringify({ pages: pages.length, bytes: Math.round(data.length * 0.75) }) }], structuredContent: { pdf: data, pages: pages.length } };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 async function renderSlide(args) {
   checkTarget(args.topic, args.slot);
-  const photo = await resolvePhoto(args.photo);
+  const photo = await resolvePhoto(args.photo, args.topic);
   const data = await shoot(args.topic, args.slot, lookQuery(args) + (photo ? `&photo=${encodeURIComponent(photo)}` : ""));
   return { content: [{ type: "image", data, mimeType: "image/jpeg" }, { type: "text", text: JSON.stringify({ rendered: args.slot }) }], structuredContent: { rendered: args.slot } };
 }
@@ -92,6 +116,21 @@ const RENDER_TOOL = {
       ...LOOK
     },
     required: ["topic", "slot"]
+  },
+  annotations: { readOnlyHint: true }
+};
+const PDF_TOOL = {
+  name: "export_pdf",
+  description: "Export graphics of an OVXS topic as a multi-page PDF (1080x1350 pages, live text and vector shapes) for editing in Adobe Express. Returns the PDF as base64. Changes no files in the repo.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      topic: { type: "string" },
+      pages: { type: "array", items: { type: "string" }, description: "Graphics in page order: li-graphic, slide-1 …" },
+      photos: { type: "object", additionalProperties: { type: "string" }, description: "Photo per graphic id, same forms as render_slide's photo" },
+      order: LOOK.order, style: LOOK.style
+    },
+    required: ["topic", "pages"]
   },
   annotations: { readOnlyHint: true }
 };
@@ -171,9 +210,9 @@ createInterface({ input: process.stdin }).on("line", async (line) => {
   try {
     if (method === "initialize") send({ id, result: { protocolVersion: params?.protocolVersion || "2025-06-18", capabilities: { tools: {} }, serverInfo: { name: "ovxs-photos", version: "1.0.0" } } });
     else if (method === "ping") send({ id, result: {} });
-    else if (method === "tools/list") send({ id, result: { tools: [TOOL, RENDER_TOOL] } });
+    else if (method === "tools/list") send({ id, result: { tools: [TOOL, RENDER_TOOL, PDF_TOOL] } });
     else if (method === "tools/call") {
-      const fn = { [TOOL.name]: generate, [RENDER_TOOL.name]: renderSlide }[params?.name];
+      const fn = { [TOOL.name]: generate, [RENDER_TOOL.name]: renderSlide, [PDF_TOOL.name]: exportPdf }[params?.name];
       if (!fn) throw Object.assign(new Error("Unknown tool"), { rpc: -32602 });
       try { send({ id, result: await fn(params.arguments || {}) }); }
       catch (e) { send({ id, result: { isError: true, content: [{ type: "text", text: e.message }] } }); }

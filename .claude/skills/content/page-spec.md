@@ -27,7 +27,7 @@ Use the Studio OVXS Design System (artifact `https://claude.ai/artifact/B8eCw13j
 **IG carousel.** Every carousel should look like it was designed for its topic, not filled into the same template.
 - A grid of slides, 4 per row on desktop and 2 on phones. Each slide is a 1080×1350 artboard scaled down, with `id="slide-1"` … `id="slide-N"`.
 - **Slide count fits the content: 5 to 10.** A sharp point is 5–6 slides; a checklist can run to 10. Never default to 8.
-- Slides come from one `slides` array: `{bg, ph, n, ey, hd, sb, src, cta, lay, stat}`. `bg` is `primary`, `surface`, `dark` or `container` (the Evergreen look); the kit restyles it for other styles.
+- Slides come from one `slides` array: `{bg, ph, n, ey, hd, sb, src, cta, lay, stat, icon}`. `icon` is a Material Symbols Rounded name (the brand's only icon set) that fits what the slide says, e.g. `smartphone` for mobile, `verified` for trust, `shopping_cart_checkout` for checkout, `payments` for price; leave it out on the CTA slide. The kit draws it in each scheme's style and guesses one from the words when it's missing. `bg` is `primary`, `surface`, `dark` or `container` (the Evergreen look); the kit restyles it for other styles.
 - **Layouts (`lay`)** come from `brand/carousel-kit.js`: none (photo on top or plain panel), `"type"` (no photo, huge headline), `"stat"` (giant figure in `stat`, short headline under it), `"quote"` (pull quote with big quote mark), `"split"` (photo on the left half). Use at least 3 different layouts per carousel.
 - **The cover changes every time.** Pick from photo-led, type-only, big stat or quote, and not the same cover layout or style as the previous carousel (check the last topic's `page.html` and Desk doc).
 - **Vary the words.** Mix punchy 3–6 word headlines (some slides headline only, no `sb`) with fuller slides up to 12 words plus a one-line `sb`. Don't give every slide the same rhythm.
@@ -46,16 +46,17 @@ Use the Studio OVXS Design System (artifact `https://claude.ai/artifact/B8eCw13j
 ## Carousel kit
 Load `<script src="../../brand/carousel-kit.js"></script>` in `<head>`. In export mode, after `document.body.replaceChildren(el)`, call `if(window.OVXSKit)OVXSKit.apply(el,q,slides);`. The kit handles, from the URL:
 - `order=3,1,2…` slide order (left-out slides dropped) and renumbers the footer and step badges;
-- `style=evergreen|night|editorial|neon|grid` and `accent=teal|mint|magenta|green|blue|red`, all from the Studio OVXS design system;
+- `style=evergreen|notes|field|poster|coast`: Evergreen is the page as written; the four schemes are Studio Notes (warm paper, sticky notes, Romie, taped photos), Deep Field (navy from the tertiary blue, lilac, full-bleed and split photos), Poster (star yellow, ink and sand, huge Elza, shape-cut photos) and Coastline (blue and mint, rounded cards, wave). Each has its own photo placements, badge shape and decoration;
 - `photo=<unsplash/pexels URL or assets/file>` for that graphic.
-The Desk uses these through the photo helper (`render_slide`) to reorder, leave out and restyle slides instantly.
+- `export=pdf&pages=li-graphic,slide-1,…` (+ `ph.<id>=<photo>`) lays graphics out as 1080×1350 PDF pages with live text and vector shapes, for Adobe Express.
+The Desk uses these through the photo helper (`render_slide`, `export_pdf`) to reorder, leave out, restyle and export slides instantly.
 
 ## Export mode
 When the URL has `?export=<id>` (`li-graphic`, `slide-1` … `slide-N`):
 - Render only that element at exactly 1080×1350.
 - No scaling and no page chrome, body margin 0.
 - Wait for fonts with `document.fonts.ready`.
-- Add `&style=<style>&accent=<accent>` from the Desk doc so the exported images match the chosen look.
+- Add `&style=<style>` from the Desk doc so the exported images match the chosen look.
 - `&photo=<url or path>` replaces the photo on that graphic only (used to render backup photos for the Desk's **Swap photo**). Ignore any value that isn't an `https://images.unsplash.com/`, `https://images.pexels.com/` or `assets/` path.
 
 Headless Chrome screenshots it at `--window-size=1080,1350`.
