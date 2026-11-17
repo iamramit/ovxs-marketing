@@ -226,19 +226,24 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
 
   // style=evergreen given on purpose → the Evergreen scheme; no style at all → the page exactly as written.
   const explicitStyle = () => new URLSearchParams(location.search).get("style") === "evergreen";
+  // Designs a slide can wear, independent of its content: cover, a, b, c, d, last.
+  const LOOKS = ["cover", "a", "b", "c", "d", "last"];
+  const EVER_BG = { cover: "bg-primary", a: "bg-container", b: "bg-surface", c: "bg-dark", d: "bg-primary", last: "bg-dark" };
   function params() {
     const P = new URLSearchParams(location.search);
     const order = (P.get("order") || "").split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0);
     const style = STYLES.includes(P.get("style")) ? P.get("style") : "evergreen";
     const photo = P.get("photo") || "";
-    return { P, order, style, photo: PHOTO_RE.test(photo) ? photo : "" };
+    const look = LOOKS.includes(P.get("look")) ? P.get("look") : "";
+    return { P, order, style, look, photo: PHOTO_RE.test(photo) ? photo : "" };
   }
 
   // el: the exported board; id: "li-graphic" or "slide-N"; slides: the page's slides array (optional).
-  function apply(el, id, slides, photoOverride) {
+  function apply(el, id, slides, photoOverride, lookOverride) {
     if (!el) return;
     injectCss();
-    const { order, style, photo: urlPhoto } = params();
+    const { order, style, photo: urlPhoto, look: urlLook } = params();
+    const look = lookOverride !== undefined ? (LOOKS.includes(lookOverride) ? lookOverride : "") : urlLook;
     const photo = photoOverride !== undefined ? photoOverride : urlPhoto;
     if (photo) el.querySelectorAll(".ph").forEach((p) => { p.style.backgroundImage = `url("${photo}")`; });
     const m = /^slide-(\d+)$/.exec(id);
@@ -259,8 +264,10 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
       }
     }
     if (style === "evergreen" && !explicitStyle()) return;
-    const posClass = !m || pos === 1 ? "pos-cover" : pos === seq.length ? "pos-last" : ["pos-a", "pos-b", "pos-c", "pos-d"][(pos - 2) % 4];
+    const posClass = look ? "pos-" + (look === "last" ? "last" : look) : !m || pos === 1 ? "pos-cover" : pos === seq.length ? "pos-last" : ["pos-a", "pos-b", "pos-c", "pos-d"][(pos - 2) % 4];
     if (style === "evergreen") {
+      if (look) { for (const c of [...el.classList]) if (c.startsWith("bg-")) el.classList.remove(c); el.classList.add(EVER_BG[look]); }
+      if (look) { const lg = el.querySelector(".ft img"), dark = /primary|dark/.test(EVER_BG[look]); if (lg) lg.src = lg.getAttribute("src").replace(/ovxs-logo(-white)?\.svg/, dark ? "ovxs-logo-white.svg" : "ovxs-logo.svg"); }
       el.classList.add("sch-ever", posClass);
       decorate(el, style, slide);
       fit(el);
@@ -321,7 +328,7 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
       }));
       for (const [id, el] of els) {
         const ph = P.get("ph." + id) || "";
-        apply(el, id, slides, PHOTO_RE.test(ph) ? ph : "");
+        apply(el, id, slides, PHOTO_RE.test(ph) ? ph : "", P.get("lk." + id) || "");
         flattenMasks(el);
       }
     });

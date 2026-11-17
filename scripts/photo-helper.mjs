@@ -24,16 +24,18 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const TOPIC_RE = /^\d{4}-\d{2}-\d{2}-[a-z0-9-]{1,80}$/;
 const SLOT_RE = /^(li-graphic|slide-(10|[1-9]))$/;
-const STYLES = ["evergreen", "night", "editorial", "neon", "grid"];
+const STYLES = ["evergreen", "notes", "field", "poster", "coast"];
+const LOOKS = ["cover", "a", "b", "c", "d", "last"];
 const ACCENTS = ["teal", "mint", "magenta", "green", "blue", "red"];
 const PHOTO_RE = /^(https:\/\/images\.(unsplash|pexels)\.com\/[^"'()\s]+|assets\/[\w.-]+)$/;
 
-function lookQuery({ order, style, accent } = {}) {
+function lookQuery({ order, style, accent, look } = {}) {
   const q = [];
   const o = (Array.isArray(order) ? order : []).map(Number).filter((n) => Number.isInteger(n) && n > 0 && n <= 20).slice(0, 20);
   if (o.length) q.push(`order=${o.join(",")}`);
   if (STYLES.includes(style)) q.push(`style=${style}`);
   if (ACCENTS.includes(accent)) q.push(`accent=${accent}`);
+  if (LOOKS.includes(look)) q.push(`look=${look}`);
   return q.length ? "&" + q.join("&") : "";
 }
 
@@ -82,6 +84,8 @@ async function exportPdf(args) {
   let extra = `&pages=${pages.join(",")}` + lookQuery({ order: args.order, style: args.style });
   const photos = args.photos && typeof args.photos === "object" ? args.photos : {};
   for (const id of pages) { const u = await resolvePhoto(photos[id], topic); if (u) extra += `&ph.${id}=${encodeURIComponent(u)}`; }
+  const looks = args.looks && typeof args.looks === "object" ? args.looks : {};
+  for (const id of pages) if (LOOKS.includes(looks[id])) extra += `&lk.${id}=${looks[id]}`;
   const dir = mkdtempSync(join(tmpdir(), "ovxs-pdf-"));
   try {
     const pdf = join(dir, "slides.pdf");
@@ -102,7 +106,8 @@ async function renderSlide(args) {
 
 const LOOK = {
   order: { type: "array", items: { type: "integer" }, description: "Slide numbers (as in page.html) in display order; slides left out are dropped" },
-  style: { type: "string", description: "evergreen, night, editorial, neon or grid" },
+  style: { type: "string", description: "evergreen, notes, field, poster or coast" },
+  look: { type: "string", description: "Design this graphic wears, independent of its content: cover, a, b, c, d or last" },
   accent: { type: "string", description: "teal, mint, magenta, green, blue or red" }
 };
 const RENDER_TOOL = {
@@ -128,6 +133,7 @@ const PDF_TOOL = {
       topic: { type: "string" },
       pages: { type: "array", items: { type: "string" }, description: "Graphics in page order: li-graphic, slide-1 …" },
       photos: { type: "object", additionalProperties: { type: "string" }, description: "Photo per graphic id, same forms as render_slide's photo" },
+      looks: { type: "object", additionalProperties: { type: "string" }, description: "Design per graphic id: cover, a, b, c, d or last" },
       order: LOOK.order, style: LOOK.style
     },
     required: ["topic", "pages"]
@@ -176,7 +182,7 @@ function sceneFor(topic, slot) {
 
 const clean = (v, n) => String(v || "").replace(/[^\p{L}\p{N} ,'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, n);
 
-async function generate({ topic, slot, keyword = "", queries = [], avoid = [], exclude = [], order, style, accent }) {
+async function generate({ topic, slot, keyword = "", queries = [], avoid = [], exclude = [], order, style, accent, look }) {
   checkTarget(topic, slot);
   const kw = clean(keyword, 80);
   const tries = (Array.isArray(queries) ? queries : []).map((q) => clean(q, 80)).filter(Boolean).slice(0, 3);
@@ -192,7 +198,7 @@ async function generate({ topic, slot, keyword = "", queries = [], avoid = [], e
     if (pick) { query = q; break; }
   }
   if (!pick) throw new Error(`No new Unsplash photo found for "${tries.join('", "')}". Try another keyword.`);
-  const data = await shoot(topic, slot, lookQuery({ order, style, accent }) + `&photo=${encodeURIComponent(pick.image)}`);
+  const data = await shoot(topic, slot, lookQuery({ order, style, accent, look }) + `&photo=${encodeURIComponent(pick.image)}`);
   const photo = { source: "unsplash", id: pick.id, photographer: pick.photographer, alt: pick.alt, image: pick.image };
   return {
     content: [{ type: "image", data, mimeType: "image/jpeg" }, { type: "text", text: JSON.stringify({ photo, query }) }],

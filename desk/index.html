@@ -484,10 +484,25 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     vis.splice(to, 0, slot);
     d.order = [...vis, ...d.order.filter((sl) => d.hidden.has(sl))];
   }
+  // Designs: each slide wears one (cover, a, b, c, d, last) independent of its words. Dragging swaps designs, never content.
+  const LOOK_NAMES = { cover: "Cover design", a: "Design A", b: "Design B", c: "Design C", d: "Design D", last: "Closing design" };
+  const LOOK_ORDER = ["cover", "a", "b", "c", "d", "last"];
+  const designDraft = {};  // briefId -> { slot: look }
+  function defaultLooks(b) {
+    const st = carouselState(b), m = {};
+    for (const o of st.others) m[o.slot] = "cover";
+    st.visible.forEach((o, p) => { m[o.slot] = p === 0 ? "cover" : p === st.visible.length - 1 ? "last" : ["a", "b", "c", "d"][(p - 1) % 4]; });
+    return m;
+  }
+  const savedLooks = (b) => ({ ...defaultLooks(b), ...(b.looks && typeof b.looks === "object" ? b.looks : {}) });
+  const looksOf = (b) => ({ ...savedLooks(b), ...(designDraft[b.id] || {}) });
+  const designChanged = (b) => { const d = designDraft[b.id]; if (!d) return false; const s = savedLooks(b); return Object.keys(d).some((k) => d[k] !== s[k]); };
+  function swapDesigns(b, a, c) { const L = looksOf(b); designDraft[b.id] = { ...(designDraft[b.id] || {}), [a]: L[c], [c]: L[a] }; }
+  function cycleDesign(b, slot, dir) { const L = looksOf(b); const i = Math.max(0, LOOK_ORDER.indexOf(L[slot])); designDraft[b.id] = { ...(designDraft[b.id] || {}), [slot]: LOOK_ORDER[(i + dir + LOOK_ORDER.length) % LOOK_ORDER.length] }; }
   const photoArg = (p) => !p ? "" : p.image ? p.image : p.source === "local" && p.file ? p.file : (p.source === "unsplash" || p.source === "pexels") && p.id ? `${p.source}:${p.id}` : "";
   const orderNums = (b) => { const st = carouselState(b); return st.visible.map((o) => slideNum(o.slot)); };
   async function renderVia(b, slot, photo, look, order) {
-    const res = await mcp.callTool(HELPER, "render_slide", { topic: b.id, slot, photo: photoArg(photo), style: look.style, order }, { cache: false });
+    const res = await mcp.callTool(HELPER, "render_slide", { topic: b.id, slot, photo: photoArg(photo), style: look.style, look: looksOf(b)[slot], order }, { cache: false });
     const img = (res.content || []).find((c) => c.type === "image" && c.data);
     if (!img) throw { code: "tool_error", message: "The helper sent no image." };
     const bytes = Uint8Array.from(atob(img.data), (ch) => ch.charCodeAt(0));
@@ -499,7 +514,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     const st = carouselState(b);
     if (!st.visible.length && !st.others.length) return "";
     const id = esc(b.id), look = lookOf(b), busy = progress[b.id];
-    const dirty = orderChanged(b) || lookChanged(b);
+    const dirty = orderChanged(b) || lookChanged(b) || designChanged(b);
     const n = st.visible.length + (lookChanged(b) ? st.others.length : 0);
     const dis = busy || !canRender() ? "disabled" : "";
     return `<div class="carousel-bar">
@@ -508,7 +523,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         <select id="sty-${id}" data-look="style" data-id="${id}" ${dis}>${Object.entries(STYLE_NAMES).map(([k, v]) => `<option value="${k}" ${look.style === k ? "selected" : ""}>${v}</option>`).join("")}</select>
         <span class="small">${esc(STYLE_HINT[look.style])}</span>
       </div>
-      ${st.visible.length > 1 ? `<p class="small">Drag slides to reorder (or use ← →). <b>Leave out</b> drops a slide from the post.</p>` : ""}
+      ${st.visible.length > 1 ? `<p class="small">Drag one slide onto another to <b>swap their designs</b>, or use ◀ ▶ to change a slide's design. The words stay where they are. <b>Leave out</b> drops a slide from the post.</p>` : ""}
       ${busy ? `<p class="pending" style="font-size:13px">${esc(busy)}</p>` : dirty ? `<div class="row">
           <button class="btn sm" type="button" data-car="apply" data-id="${id}" ${dis}>Apply · re-render ${n} image${n === 1 ? "" : "s"}</button>
           <button class="btn quiet sm" type="button" data-car="reset" data-id="${id}">Reset</button>
@@ -541,10 +556,10 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         ...st.left.map((o) => ({ ...(bySlot.get(o.slot) || o.x), hidden: true }))
       ];
       const oldIds = shots(latest).filter((x, i) => fresh[slotOf(x, i)]).map((x) => x.id);
-      await db.doc("briefs/" + b.id).update({ exports: out, style: look.style, accent: null, order, photo_sync: true, updated_at: new Date().toISOString() });
+      await db.doc("briefs/" + b.id).update({ exports: out, style: look.style, accent: null, order, looks: looksOf(b), photo_sync: true, updated_at: new Date().toISOString() });
       const keep = new Set(out.flatMap((x) => [x.id, ...altsOf(x).map((a) => a.id)]));
       for (const old of oldIds) if (!keep.has(old)) { try { await assets.delete(old); } catch (e) {} }
-      delete orderDraft[b.id]; delete lookDraft[b.id]; delete progress[b.id];
+      delete orderDraft[b.id]; delete lookDraft[b.id]; delete designDraft[b.id]; delete progress[b.id];
       toast(`Done: ${targets.length} image${targets.length === 1 ? "" : "s"} re-rendered.`);
     } catch (err) {
       delete progress[b.id];
@@ -627,7 +642,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         const exclude = [x.photo, ...altsOf(x).map((a) => a.photo)].filter((p) => p && p.id).map((p) => p.id);
         const plan = await photoPlan(b, x.label || slot, keyword);
         const lk = savedLook(b);
-        const res = await mcp.callTool(HELPER, "generate_photo", { topic: b.id, slot, keyword, exclude, ...(plan || {}), style: lk.style, order: orderNums(b) }, { cache: false });
+        const res = await mcp.callTool(HELPER, "generate_photo", { topic: b.id, slot, keyword, exclude, ...(plan || {}), style: lk.style, look: looksOf(b)[slot], order: orderNums(b) }, { cache: false });
         const img = (res.content || []).find((c) => c.type === "image" && c.data);
         const photo = res.payload && res.payload.photo;
         if (!img || !photo) throw { code: "tool_error", message: "The helper sent no image." };
@@ -688,11 +703,11 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       const name = left ? `${x.label || slot} · left out` : isSlide(x, i) ? `IG slide ${pos}` : (x.label || shotName(x, i));
       return `<div class="shot${left ? " left-out" : ""}" ${reorder && !left && isSlide(x, i) ? `draggable="true"` : ""} data-slot="${esc(slot)}" data-brief="${id}">
         <img src="${esc(blobUrl(x))}" alt="${esc(name)}" loading="lazy" draggable="false">
-        <span>${esc(name)}</span>
+        <span>${esc(name)}${!left && isSlide(x, i) ? ` · ${esc(LOOK_NAMES[looksOf(b)[slot]] || "")}` : ""}</span>
         ${reorder && isSlide(x, i) ? `<div class="order-btns">
           ${left ? `<button class="btn ghost sm" type="button" data-order="show" data-id="${id}" data-slot="${esc(slot)}">Put back</button>` : `
-          <button class="btn ghost sm" type="button" data-order="left" data-id="${id}" data-slot="${esc(slot)}" aria-label="Move earlier" ${pos === 1 ? "disabled" : ""}>←</button>
-          <button class="btn ghost sm" type="button" data-order="right" data-id="${id}" data-slot="${esc(slot)}" aria-label="Move later" ${pos === st.visible.length ? "disabled" : ""}>→</button>
+          <button class="btn ghost sm" type="button" data-design="-1" data-id="${id}" data-slot="${esc(slot)}" aria-label="Previous design" title="Previous design">◀</button>
+          <button class="btn ghost sm" type="button" data-design="1" data-id="${id}" data-slot="${esc(slot)}" aria-label="Next design" title="Next design">▶</button>
           <button class="btn quiet sm" type="button" data-order="hide" data-id="${id}" data-slot="${esc(slot)}" ${st.visible.length < 2 ? "disabled" : ""}>Leave out</button>`}
         </div>` : ""}
         ${left ? "" : downloads ? `<div class="order-btns"><button class="btn ghost sm" type="button" data-get="img" data-id="${id}" data-key="${i}">Save</button>${canRender() ? `<button class="btn quiet sm" type="button" data-express="${esc(slot)}" data-id="${id}" ${making[b.id] ? "disabled" : ""} title="Editable PDF for Adobe Express">Express</button>` : ""}</div>` : `<a class="btn ghost sm" href="${esc(blobUrl(x))}" target="_blank" rel="noopener">Open ↗</a>`}
@@ -801,7 +816,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     try {
       const photos = {};
       for (const o of list) { const p = photoArg(o.x.photo); if (p) photos[o.slot] = p; }
-      const res = await mcp.callTool(HELPER, "export_pdf", { topic: b.id, pages: list.map((o) => o.slot), photos, style: savedLook(b).style, order: orderNums(b) }, { cache: false });
+      const res = await mcp.callTool(HELPER, "export_pdf", { topic: b.id, pages: list.map((o) => o.slot), photos, looks: looksOf(b), style: savedLook(b).style, order: orderNums(b) }, { cache: false });
       const b64 = res.payload && res.payload.pdf;
       if (!b64) throw { code: "tool_error", message: "The helper sent no PDF." };
       const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
@@ -1134,12 +1149,14 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       if (ord.dataset.order === "show") { d.hidden.delete(sl); const vis = d.order.filter((x) => !d.hidden.has(x) && x !== sl); d.order = [...vis, sl, ...d.order.filter((x) => d.hidden.has(x))]; }
       render(); return;
     }
+    const dz = e.target.closest("button[data-design]");
+    if (dz) { const b = briefs.find((z) => z.id === dz.dataset.id); if (!b || dz.disabled) return; cycleDesign(b, dz.dataset.slot, Number(dz.dataset.design)); render(); return; }
     const lk = e.target.closest("button[data-look]");
     if (lk) { const b = briefs.find((z) => z.id === lk.dataset.id); if (!b || lk.disabled) return; lookDraft[b.id] = { ...lookOf(b), accent: lk.dataset.val }; render(); return; }
     const car = e.target.closest("button[data-car]");
     if (car) {
       const b = briefs.find((z) => z.id === car.dataset.id); if (!b || car.disabled) return;
-      if (car.dataset.car === "reset") { delete orderDraft[b.id]; delete lookDraft[b.id]; render(); }
+      if (car.dataset.car === "reset") { delete orderDraft[b.id]; delete lookDraft[b.id]; delete designDraft[b.id]; render(); }
       if (car.dataset.car === "apply") applyCarousel(b);
       return;
     }
@@ -1192,7 +1209,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     if (!sh || !dragSlot || sh.dataset.brief !== dragBrief || sh.dataset.slot === dragSlot) { dragSlot = null; return; }
     e.preventDefault();
     const b = briefs.find((z) => z.id === dragBrief);
-    if (b && /^slide-/.test(sh.dataset.slot) && !sh.classList.contains("left-out")) { moveSlot(b, dragSlot, sh.dataset.slot, 0); render(); }
+    if (b && /^slide-/.test(sh.dataset.slot) && !sh.classList.contains("left-out")) { swapDesigns(b, dragSlot, sh.dataset.slot); render(); }
     dragSlot = null;
   });
   document.addEventListener("dragend", () => { dragSlot = null; document.querySelectorAll(".shot.drag-over").forEach((n) => n.classList.remove("drag-over")); });
