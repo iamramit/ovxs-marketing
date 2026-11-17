@@ -46,7 +46,7 @@ Use the Studio OVXS Design System (artifact `https://claude.ai/artifact/B8eCw13j
 ## Carousel kit
 Load `<script src="../../brand/carousel-kit.js"></script>` in `<head>`. In export mode, after `document.body.replaceChildren(el)`, call `if(window.OVXSKit)OVXSKit.apply(el,q,slides);`. The kit handles, from the URL:
 - `order=3,1,2…` slide order (left-out slides dropped) and renumbers the footer and step badges;
-- `style=evergreen|notes|field|poster|coast`: Evergreen is the page as written; the four schemes are Studio Notes (warm paper, sticky notes, Romie, taped photos), Deep Field (navy from the tertiary blue, lilac, full-bleed and split photos), Poster (star yellow, ink and sand, huge Elza, shape-cut photos) and Coastline (blue and mint, rounded cards, wave). Each has its own photo placements, badge shape and decoration;
+- `style=evergreen|notes|field|poster|coast`: Evergreen (teal, mint, paper and deep green, plus textures, inset and split photos, wave line and glyphs; with no `style` at all the page renders exactly as written) and four more schemes: Studio Notes (warm paper, sticky notes, Romie, taped photos), Deep Field (navy from the tertiary blue, lilac, full-bleed and split photos), Poster (star yellow, ink and sand, huge Elza, shape-cut photos) and Coastline (blue and mint, rounded cards, wave). Each has its own photo placements, badge shape and decoration;
 - `photo=<unsplash/pexels URL or assets/file>` for that graphic.
 - `export=pdf&pages=li-graphic,slide-1,…` (+ `ph.<id>=<photo>`) lays graphics out as 1080×1350 PDF pages with live text and vector shapes, for Adobe Express.
 The Desk uses these through the photo helper (`render_slide`, `export_pdf`) to reorder, leave out, restyle and export slides instantly.

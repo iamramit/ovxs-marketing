@@ -53,6 +53,31 @@
 .board[class*="sch-"] .ft img{height:46px}
 .k-deco{position:absolute;pointer-events:none;display:block}
 
+/* ================= Evergreen (the brand's own teal, mint, paper and deep green) ================= */
+.sch-ever.bg-surface{background:#F6FAF8 repeating-linear-gradient(0deg,rgba(22,29,28,.035) 0 1px,transparent 1px 4px)}
+.sch-ever.bg-container{background:radial-gradient(rgba(27,106,99,.16) 2px,transparent 2.5px) 0 0/30px 30px,linear-gradient(165deg,#DDF1EC,#CDEBE5)}
+.sch-ever.bg-primary{background:radial-gradient(circle at 88% 8%,rgba(205,235,229,.22),transparent 45%),#1B6A63}
+.sch-ever.bg-dark{background:radial-gradient(circle at 12% 92%,rgba(127,200,188,.16),transparent 50%),#0F2F2C}
+.board.sch-ever .badge{border-radius:50%;-webkit-mask:none;mask:none}
+/* cover: photo inset in a rounded frame */
+.sch-ever.ph-on.pos-cover .ph{margin:56px 56px 0;border-radius:28px;flex-basis:46%!important}
+/* split: photo down the left half */
+.sch-ever.ph-on.pos-b,.sch-ever.ph-on.pos-d{flex-direction:row}
+.sch-ever.ph-on.pos-b .ph,.sch-ever.ph-on.pos-d .ph{flex:0 0 44%!important;height:100%}
+.sch-ever.ph-on.pos-b .pn,.sch-ever.ph-on.pos-d .pn{padding:120px 64px 170px;justify-content:center}
+.sch-ever.ph-on.pos-b .ft,.sch-ever.ph-on.pos-d .ft{left:calc(44% + 64px)}
+.sch-ever.ph-on.pos-b .badge,.sch-ever.ph-on.pos-d .badge{top:72px!important;right:64px}
+.sch-ever.ph-on.pos-b .hd,.sch-ever.ph-on.pos-d .hd{font-size:76px}
+/* photo in a rounded window on the right, text below (pos-a/c) */
+.sch-ever.ph-on.pos-a .ph,.sch-ever.ph-on.pos-c .ph{margin:56px 56px 0 auto;width:62%;flex:0 0 40%!important;border-radius:28px 28px 28px 120px}
+.sch-ever .ey{display:flex;align-items:center;gap:14px}
+.sch-ever.bg-surface .ey::after,.sch-ever.bg-container .ey::after{content:"";width:72px;height:12px;background:${wave("#1B6A63")} 0 50%/24px 12px repeat-x}
+.sch-ever.bg-primary .ey::after,.sch-ever.bg-dark .ey::after{content:"";width:72px;height:12px;background:${wave("#7FC8BC")} 0 50%/24px 12px repeat-x}
+.sch-ever .k-glyph{font-size:132px;right:80px;bottom:128px;font-variation-settings:"FILL" 0,"wght" 300,"GRAD" 0,"opsz" 48}
+.sch-ever.bg-surface .k-glyph{color:#1B6A63}.sch-ever.bg-container .k-glyph{color:#14534D}.sch-ever.bg-primary .k-glyph{color:#CDEBE5}.sch-ever.bg-dark .k-glyph{color:#7FC8BC}
+.sch-ever.ph-on.pos-a .k-glyph,.sch-ever.ph-on.pos-c .k-glyph,.sch-ever.ph-on.pos-cover .k-glyph{bottom:auto;top:96px;left:80px;right:auto;font-size:110px}
+.sch-ever.ph-on.pos-cover .k-glyph{display:none}
+
 /* ================= Studio Notes ================= */
 .sch-notes{background:#F7F2E8 repeating-linear-gradient(0deg,rgba(23,29,28,.035) 0 1px,transparent 1px 4px);color:#171D1C;--k-shape:${COOKIE}}
 .sch-notes .ph{margin:64px 64px 0;flex-basis:40%!important;border-radius:22px;border:14px solid #fff;box-shadow:0 2px 0 rgba(23,29,28,.08),0 18px 40px rgba(23,29,28,.12);transform:rotate(-1.2deg);position:relative;z-index:1}
@@ -199,6 +224,8 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
     document.head.appendChild(l);
   }
 
+  // style=evergreen given on purpose → the Evergreen scheme; no style at all → the page exactly as written.
+  const explicitStyle = () => new URLSearchParams(location.search).get("style") === "evergreen";
   function params() {
     const P = new URLSearchParams(location.search);
     const order = (P.get("order") || "").split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0);
@@ -231,8 +258,14 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
         if (idx >= 0) badge.textContent = String(idx + 1).padStart(2, "0");
       }
     }
-    if (style === "evergreen") return;
+    if (style === "evergreen" && !explicitStyle()) return;
     const posClass = !m || pos === 1 ? "pos-cover" : pos === seq.length ? "pos-last" : ["pos-a", "pos-b", "pos-c", "pos-d"][(pos - 2) % 4];
+    if (style === "evergreen") {
+      el.classList.add("sch-ever", posClass);
+      decorate(el, style, slide);
+      fit(el);
+      return;
+    }
     for (const c of [...el.classList]) if (c.startsWith("bg-")) el.classList.remove(c);
     el.classList.add("sch-" + style, posClass);
     if (!el.classList.contains("ph-on") && !el.querySelector(".ph")) el.classList.add("full");
