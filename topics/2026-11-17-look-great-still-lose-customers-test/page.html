@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brief — Six questions shoppers ask (test)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"IvyPresto Display";font-weight:700;font-display:swap;src:url(fonts/ivy-presto-display.woff2) format("woff2"),url(../../brand/ivy-presto-display.woff2) format("woff2")}
+@font-face{font-family:"Elza Condensed";font-weight:900;font-display:swap;src:url(fonts/elza-condensed-black.woff2) format("woff2"),url(../../brand/elza-condensed-black.woff2) format("woff2")}
+:root{
+  --primary:#1B6A63;--on-primary:#FFFFFF;--container:#CDEBE5;--surface:#F6FAF8;--on-surface:#161D1C;
+  --muted:#4A5754;--dark:#0F2F2C;--outline:#BFC9C6;--card:#FFFFFF;--accent:#7FC8BC;
+  --serif:"IvyPresto Display",Georgia,serif;--label:"Elza Condensed","Arial Narrow",sans-serif;--sans:Inter,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--surface:#0E1514;--on-surface:#E3EAE8;--muted:#A9B6B3;--card:#16201E;--outline:#3A4744}}
+:root[data-theme="dark"]{--surface:#0E1514;--on-surface:#E3EAE8;--muted:#A9B6B3;--card:#16201E;--outline:#3A4744}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--surface);color:var(--on-surface);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+.eyebrow{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .eyebrow{color:var(--accent)}}
+h1.title{font:700 clamp(40px,7vw,76px)/1 var(--serif);letter-spacing:-.02em;margin:14px 0 26px}
+em.p{font-style:italic;text-decoration:underline wavy var(--primary);text-decoration-thickness:2px;text-underline-offset:.18em}
+.lede{color:var(--muted);max-width:640px;margin:0 0 28px}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 32px}
+.tabs a{font:900 15px/1 var(--label);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:12px 20px;border-radius:999px;border:1.5px solid var(--primary);color:var(--primary)}
+.tabs a[aria-selected="true"]{background:var(--primary);color:var(--on-primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs a:not([aria-selected="true"]){color:var(--accent);border-color:var(--accent)}}
+.panel{display:none}.panel.on{display:block}
+.h3{font:700 13px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--outline);border-radius:28px;padding:24px}
+.two{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:1fr}.wrap{padding:28px 16px 64px}}
+.li-head{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.av{width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font:900 18px var(--label);letter-spacing:.04em}
+.li-head b{display:block;font-weight:600}.li-head span{font-size:13px;color:var(--muted)}
+.post{white-space:pre-wrap;font-size:15px;line-height:1.55}
+.tag{color:var(--primary);font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag{color:var(--accent)}}
+.small{border-radius:16px;padding:16px 18px;font-size:14px;margin-top:20px;background:var(--card);border:1px solid var(--outline)}
+.small a{color:inherit;word-break:break-all}
+.frame{width:100%;aspect-ratio:4/5;position:relative;overflow:hidden;border-radius:16px;box-shadow:0 1px 0 var(--outline)}
+.frame>.board{position:absolute;top:0;left:0;transform-origin:0 0}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cap{white-space:pre-wrap;margin-top:28px}
+.email{max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--outline);border-radius:28px;overflow:hidden}
+.email .meta{padding:18px 28px;border-bottom:1px solid var(--outline);font-size:14px}
+.email .meta div+div{color:var(--muted)}
+.email .body{padding:28px}
+.email ol{padding-left:20px}.email li{margin:6px 0}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--primary);color:#fff;text-decoration:none;font:900 16px/1 var(--label);letter-spacing:.06em;text-transform:uppercase;padding:16px 26px;border-radius:999px}
+.article{max-width:680px;margin:0 auto}
+.article h2.t{font:700 clamp(32px,5vw,48px)/1.04 var(--serif);letter-spacing:-.02em;margin:0 0 14px}
+.article .dek{font-style:italic;font-size:19px;color:var(--muted);margin:0 0 28px}
+.article p,.article li{font-size:17px;line-height:1.6}
+.article h3{font:700 28px/1.1 var(--serif);letter-spacing:-.02em;margin:36px 0 10px}
+.article a{color:var(--primary)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .article a{color:var(--accent)}}
+.seo{margin-top:36px;border-radius:16px;padding:18px 20px;background:var(--card);border:1px solid var(--outline);font-size:14px}
+.seo div{margin:4px 0}
+
+.board{width:1080px;height:1350px;position:relative;overflow:hidden;font-family:var(--sans);display:flex;flex-direction:column}
+.board .ph{flex:0 0 46%;background-size:cover;background-position:center}
+#li-graphic .ph{flex-basis:54%}
+.board .pn{flex:1;padding:60px 80px 0;display:flex;flex-direction:column;position:relative}
+.board.full .pn{padding:0 80px 140px;justify-content:center}
+.board.ph-on .hd{font-size:84px;max-width:740px}
+.board .ey{font:700 26px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin-bottom:28px}
+.board .hd{font:700 96px/1 var(--serif);letter-spacing:-.02em;margin:0;max-width:800px}
+.board.full .hd{font-size:118px}
+.board .hd em{font-style:italic;text-decoration:underline wavy;text-decoration-thickness:4px;text-underline-offset:.16em}
+.board .sb{font:500 34px/1.38 var(--sans);margin-top:34px;max-width:880px}
+.board .src{font:500 22px/1 var(--sans);margin-top:18px;opacity:.8}
+.board .badge{position:absolute;top:56px;right:80px;width:112px;height:112px;border-radius:50%;display:grid;place-items:center;font:900 46px/1 var(--label);letter-spacing:.02em}
+.board.ph-on .badge{top:calc(46% + 48px)}
+#li-graphic.ph-on .hd{font-size:96px}
+.board .ft{position:absolute;left:80px;right:80px;bottom:56px;display:flex;justify-content:space-between;align-items:center;font:600 22px/1 var(--sans);letter-spacing:.04em}
+.board .ft img{height:46px}
+.board .cta{display:inline-flex;align-self:flex-start;gap:14px;margin-top:44px;padding:28px 44px;border-radius:999px;font:900 34px/1 var(--label);letter-spacing:.06em;text-transform:uppercase}
+.bg-primary{background:var(--primary);color:#fff}.bg-primary .hd em{text-decoration-color:var(--accent)}.bg-primary .ey{color:var(--container)}.bg-primary .badge{background:#fff;color:var(--primary)}.bg-primary .cta{background:#fff;color:var(--primary)}
+.bg-dark{background:#0F2F2C;color:#fff}.bg-dark .hd em{text-decoration-color:var(--accent)}.bg-dark .ey{color:var(--accent)}.bg-dark .badge{background:var(--accent);color:#0F2F2C}.bg-dark .cta{background:var(--container);color:#0F2F2C}
+.bg-surface{background:#F6FAF8;color:#161D1C}.bg-surface .hd em{text-decoration-color:var(--primary)}.bg-surface .ey{color:var(--primary)}.bg-surface .badge{background:var(--primary);color:#fff}
+.bg-container{background:#CDEBE5;color:#161D1C}.bg-container .hd em{text-decoration-color:var(--primary)}.bg-container .ey{color:#14534D}.bg-container .badge{background:#0F2F2C;color:#fff}
+
+body.export{background:#fff;overflow:hidden}
+body.export .board{transform:none!important}
+.fb{max-width:560px}.vid ol{padding-left:20px}.vid li{margin:8px 0}.ts{font:700 13px var(--sans);color:var(--primary);margin-right:8px}
+</style>
+<body>
+<main class="wrap" id="app">
+  <div class="eyebrow">Honest advice · Everyone · Angle C · Test</div>
+  <h1 class="title">Your store can look great. <em class="p">And still lose customers.</em></h1>
+  <p class="lede">Six questions every shopper asks before buying, and what a good answer looks like. Ends on your lines: good design gets attention, good UX makes buying easier. Five formats for review. Test piece: never posted.</p>
+  <nav class="tabs" role="tablist">
+    <a href="#linkedin" role="tab" data-t="linkedin">LinkedIn post</a>
+    <a href="#facebook" role="tab" data-t="facebook">Facebook post</a>
+    <a href="#carousel" role="tab" data-t="carousel">IG carousel</a>
+    <a href="#newsletter" role="tab" data-t="newsletter">Newsletter</a>
+    <a href="#article" role="tab" data-t="article">Article</a>
+  </nav>
+
+  <section class="panel" id="p-linkedin">
+    <div class="two">
+      <div class="card">
+        <div class="li-head"><div class="av">OV</div><div><b>Studio OVXS</b><span>@ovxs.studio · 1d</span></div></div>
+        <div class="post">Every shopper asks six questions before they buy. A pretty store can answer none of them.
+
+It’s a store we see often in audits. Lovely photos. A palette that feels like the brand. Steady traffic.
+
+And sales that don’t match.
+
+The owner usually blames the traffic. In our experience, the shopper just didn’t get their answers:
+
+→ Where is it? The menu speaks your language, not theirs.
+→ What exactly am I getting? Size, materials and delivery are missing.
+→ Does this work on my phone? Tiny buttons, a pop-up over everything.
+→ Can I trust you? No reviews, no returns policy in sight.
+→ Is this easy? Surprise costs, a forced account, extra steps.
+→ What do I do next? Three buttons, none of them clear.
+
+Roughly 7 in 10 online carts are abandoned (Baymard Institute).
+
+None of the six needs a redesign. Most need a clearer label, a fuller product page or one less step.
+
+Good design gets attention.
+Good UX makes buying easier.
+
+Our $99 video audit checks your store against all six and gives you three ranked fixes. No logins, no call.
+
+Link in comments.
+
+<span class="tag">#Shopify #Ecommerce #UX</span></div>
+      </div>
+      <div>
+        <div class="h3">Graphic · 4:5</div>
+        <div class="frame"><div class="board bg-primary ph-on" id="li-graphic">
+          <div class="ph" style="background-image:url(assets/li.jpg)"></div>
+          <div class="pn">
+            <div class="ey">Honest advice · Studio OVXS</div>
+            <h2 class="hd">Every shopper asks <em>six questions.</em></h2>
+            <div class="sb" style="margin-top:26px">A pretty store can answer none of them.</div>
+            <div class="cta" style="margin-top:36px">Book a $99 video audit →</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="small"><b>First comment:</b> The $99 video audit: <a href="https://ovxs.studio/pages/request-audit">https://ovxs.studio/pages/request-audit</a><br>Cart abandonment figure: <a href="https://baymard.com/lists/cart-abandonment-rate">https://baymard.com/lists/cart-abandonment-rate</a></div>
+  </section>
+
+  <section class="panel" id="p-facebook">
+    <div class="card fb">
+      <div class="li-head"><div class="av">OV</div><div><b>Studio OVXS</b><span>Just now</span></div></div>
+      <div class="post">Your store can look great and still lose customers.
+
+Before anyone buys, they quietly ask six questions. Where is it? What exactly am I getting? Does this work on my phone? Can I trust you? Is this easy? What do I do next?
+
+If your store can’t answer one of them in a few seconds, they leave. Usually without a word.
+
+Good design gets attention. Good UX makes buying easier.
+
+Which of the six would your store struggle with?
+
+Our $99 video audit checks all six and gives you three ranked fixes: https://ovxs.studio/pages/request-audit</div>
+      <div class="h3" style="margin-top:18px">Same graphic as LinkedIn</div>
+      <div class="frame" style="max-width:360px"><img src="export/li-graphic.png" alt="LinkedIn graphic" style="width:100%;display:block" onerror="this.parentNode.remove()"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-carousel">
+    <div class="grid" id="slides"></div>
+    <div class="card cap"><div class="h3">Caption</div>Your store can look great and still lose customers.
+
+Every shopper asks six questions before they buy.
+A pretty store can answer none of them.
+A clear one answers all six in seconds.
+
+Roughly 7 in 10 online carts are abandoned (Baymard Institute). Swipe for the six questions, and what a good answer looks like.
+
+Good design gets attention. Good UX makes buying easier.
+
+Our $99 video audit checks your store against all six and ranks three fixes. Link in bio.
+
+<span class="tag">#shopify #ecommerce #ux #shopifystore #smallbusiness</span></div>
+  </section>
+
+  <section class="panel" id="p-newsletter">
+    <div class="email">
+      <div class="meta"><div><b>Subject:</b> Six questions your shoppers ask</div><div><b>Preview:</b> A pretty store can answer none of them.</div></div>
+      <div class="body">
+        <p>Your store can look great and still lose customers.</p>
+        <p>Before anyone buys, they ask six quiet questions:</p>
+        <ol><li>Where is it?</li><li>What exactly am I getting?</li><li>Does this work on my phone?</li><li>Can I trust you?</li><li>Is this easy?</li><li>What do I do next?</li></ol>
+        <p>A good store answers each one in seconds: menus named the way shoppers search, sizes and delivery next to the button, real reviews and returns in plain sight, and one clear next step.</p>
+        <p>Roughly 7 in 10 online carts are abandoned (<a href="https://baymard.com/lists/cart-abandonment-rate">Baymard Institute</a>). Most of the fixes are small. A clearer label. A fuller product page. One less step.</p>
+        <p>Good design gets attention. Good UX makes buying easier.</p>
+        <p>Want to know which of the six your store misses? Our $99 video audit ranks three fixes for you. No logins, no call.</p>
+        <p style="margin-top:24px"><a class="btn" href="https://ovxs.studio/pages/request-audit">Book a $99 video audit →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-article">
+    <article class="article">
+      <h2 class="t">Shopify store not converting? <em class="p">Six questions your shoppers need answered</em></h2>
+      <p class="dek">A store can look great and still lose customers. Here’s what shoppers quietly ask before they buy, and what a good answer looks like.</p>
+      <p>It’s late in the evening. Someone taps your ad on their phone, half-watching something else. Your homepage loads and the photos are lovely. They scroll, open the menu, can’t see what they came for, and go back to their programme. Nobody tells you. In your analytics, it’s one more visit that didn’t convert.</p>
+      <p>If your Shopify store is not converting, this is usually how it happens. Not one big failure, but a few small questions nobody answered.</p>
+      <p>We see it often in our audits: a store that looks good, gets steady traffic and still doesn’t sell enough. The owner tends to blame the traffic, the ads or the season. In our experience, the store simply didn’t answer what the shopper was asking.</p>
+      <p>Every shopper asks six questions before they buy. Here they are, with what a good answer looks like.</p>
+      <h3>1. “Where is it?”</h3>
+      <p>Shoppers arrive with something in mind. If the menu is organised the way you stock products, with collection names, internal ranges or clever labels, they have to translate. Most won’t bother.</p>
+      <p><b>A good answer:</b> menu labels in the words shoppers search with, no more than one or two levels deep on a phone, and a search bar people can see without hunting for an icon.</p>
+      <h3>2. “What exactly am I getting?”</h3>
+      <p>In a shop, people pick a product up. Online, the product page has to do that job, and many don’t. Baymard Institute’s product page benchmark rates 62% of mobile sites and 52% of desktop sites as mediocre or worse (<a href="https://baymard.com/research-articles/current-state-ecommerce-product-page-ux">Baymard</a>). Usually the basics are missing: size, materials, what’s in the box, when it arrives.</p>
+      <p><b>A good answer:</b> the details people need to decide, close to the add to cart button. Delivery time and returns in one line, not on a separate page. Photos that show scale and use, not only the product on white.</p>
+      <h3>3. “Does this work on my phone?”</h3>
+      <p>Check your own analytics, but for many stores most visits now come from phones, and that’s where small problems get big. A pop-up covering the page. Buttons too small for a thumb. A sticky bar that eats a third of the screen. A menu that takes four taps.</p>
+      <p><b>A good answer:</b> try your store on your own phone, one-handed, on mobile data, and buy something. Every moment you hesitate is a moment a shopper leaves.</p>
+      <h3>4. “Can I trust you?”</h3>
+      <p>A new shopper doesn’t know you. In Baymard’s research, 19% of shoppers who abandoned a checkout said they didn’t trust the site with their card details (<a href="https://baymard.com/lists/cart-abandonment-rate">Baymard</a>).</p>
+      <p><b>A good answer:</b> real reviews on the product page, a returns policy that’s easy to find and easy to read, a way to reach a person, and a checkout that looks like a checkout. Badges from yet another app rarely do this; real proof does. <a href="https://ovxs.studio/blogs/case-studies/halm-club">Halm</a>, one of our case studies, has a 4.8 star average rating from 400+ customer reviews. That kind of proof works harder than any badge.</p>
+      <h3>5. “Is this easy?”</h3>
+      <p>Friction is anything that makes buying harder than it needs to be. In Baymard’s data, the most common reason for leaving a checkout is extra costs that are too high, at 40%. Being asked to create an account comes in at 18% (<a href="https://baymard.com/lists/cart-abandonment-rate">Baymard</a>).</p>
+      <p><b>A good answer:</b> shipping costs shown before checkout, guest checkout switched on, and as few steps and fields as possible. Shopify’s checkout is good out of the box. In our experience, the problems come from what gets added around it.</p>
+      <h3>6. “What do I do next?”</h3>
+      <p>Every page should have one obvious next step. When a homepage offers a slideshow, three banners, a newsletter pop-up and a quiz, the shopper has to choose, and choosing is work.</p>
+      <p><b>A good answer:</b> one main button per page, worded for what happens next, like “Add to cart” or “Shop the range”, with everything else visually quieter.</p>
+      <h3>Good design gets attention. Good UX makes buying easier.</h3>
+      <p>None of this is an argument against design. A good-looking store earns the first few seconds, and that matters. But looks bring shoppers in; answers make the sale.</p>
+      <p>Roughly 7 in 10 online carts are abandoned (<a href="https://baymard.com/lists/cart-abandonment-rate">Baymard</a>). No store gets that to zero, but each of the six questions is a place to win some back.</p>
+      <p>The good news is that most of these are small fixes, not a redesign. A clearer menu. A fuller product page. One less step at checkout. Sometimes it’s a single custom section on a product page, which we build from $250.</p>
+      <h3>Where to start</h3>
+      <p>Go through the six questions on your own phone, as if you’d never seen your store before. Note every moment you hesitate.</p>
+      <p>If you’d like a second pair of eyes, our $99 video audit is a 10–15 minute recorded walkthrough of your public store: what’s working, what’s costing you, and three ranked fixes. No logins, no call, delivered within 3 working days. If you start a project with us within 60 days, the $99 is credited in full.</p>
+      <p>Business first. Design second.</p>
+      <p style="margin-top:24px"><a class="btn" href="https://ovxs.studio/pages/request-audit" style="color:#fff">Book a $99 video audit →</a></p>
+      <div class="seo">
+        <div><b>Meta description:</b> Shopify store not converting? Shoppers ask six questions before they buy. Here’s what a good answer looks like, and what to fix first.</div>
+        <div><b>Target keyword:</b> Shopify store not converting</div>
+        <div><b>Slug:</b> /blogs/journal/shopify-store-not-converting</div>
+        <div><b>Length:</b> about 870 words</div>
+      </div>
+    </article>
+  </section>
+</main>
+<script>
+const slides=[
+  {bg:"primary",ph:"cover",ey:"Honest advice",hd:"Your store can look great. <em>And still lose customers.</em>",sb:"Six questions every shopper asks before buying. Swipe."},
+  {bg:"container",ph:"where",n:"01",ey:"Navigation",hd:"“Where <em>is it?</em>”",sb:"Name menus the way shoppers search, not the way you stock."},
+  {bg:"surface",n:"02",ey:"Product information",hd:"“What exactly <em>am I getting?</em>”",sb:"Size, materials, delivery and returns, right by the button.",src:"62% of mobile product pages rate mediocre or worse · Baymard"},
+  {bg:"dark",ph:"phone",n:"03",ey:"Mobile",hd:"“Does this work <em>on my phone?</em>”",sb:"Big tap targets, a short menu, nothing covering the page."},
+  {bg:"primary",n:"04",ey:"Trust",hd:"“Can I <em>trust you?</em>”",sb:"Real reviews, clear returns and a way to reach a person.",src:"19% left a checkout over card trust · Baymard"},
+  {bg:"container",ph:"easy",n:"05",ey:"Friction",hd:"“Is this <em>easy?</em>”",sb:"Costs shown early, guest checkout, as few steps as possible."},
+  {bg:"surface",n:"06",ey:"Next step",hd:"“What do I <em>do next?</em>”",sb:"One clear button per page. Everything else steps back."},
+  {bg:"dark",ey:"The short version",hd:"Good design gets attention. <em>Good UX makes buying easier.</em>",sb:"Roughly 7 in 10 online carts are abandoned.",src:"Baymard Institute",cta:"Book a $99 video audit →"}
+];
+const light=b=>b==="surface"||b==="container";
+document.getElementById("slides").innerHTML=slides.map((s,i)=>`
+<div class="frame"><div class="board bg-${s.bg}${s.ph?" ph-on":" full"}" id="slide-${i+1}">
+  ${s.ph?`<div class="ph" style="background-image:url(assets/${s.ph}.jpg)"></div>`:""}
+  ${s.n?`<div class="badge">${s.n}</div>`:""}
+  <div class="pn">
+    <div class="ey">${s.ey}</div>
+    <h2 class="hd">${s.hd}</h2>
+    <div class="sb">${s.sb}</div>
+    ${s.src?`<div class="src">${s.src}</div>`:""}
+    ${s.cta?`<div class="cta">${s.cta}</div>`:""}
+  </div>
+  <div class="ft"><img src="assets/${light(s.bg)?"ovxs-logo":"ovxs-logo-white"}.svg" alt="Studio OVXS"><span>ovxs.studio · ${i+1}/8</span></div>
+</div></div>`).join("");
+
+const q=new URLSearchParams(location.search).get("export");
+if(q){
+  const el=document.getElementById(q);
+  document.body.className="export";
+  document.body.replaceChildren(el);
+  const ph=new URLSearchParams(location.search).get("photo");
+  if(ph&&/^(https:\/\/images\.(unsplash|pexels)\.com\/[^"'()\s]+|assets\/[\w.-]+)$/.test(ph))el.querySelectorAll(".ph").forEach(p=>p.style.backgroundImage=`url("${ph}")`);
+}else{
+  const fit=()=>document.querySelectorAll(".frame").forEach(f=>{const b=f.firstElementChild;b.style.transform=`scale(${f.clientWidth/1080})`});
+  new ResizeObserver(fit).observe(document.body);fit();
+  const show=()=>{const t=(location.hash.slice(1)||"linkedin");const ok=document.getElementById("p-"+t)?t:"linkedin";
+    document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+ok));
+    document.querySelectorAll(".tabs a").forEach(a=>a.setAttribute("aria-selected",a.dataset.t===ok));fit();};
+  addEventListener("hashchange",show);show();
+}
+document.fonts.ready.then(()=>document.documentElement.dataset.ready="1");
+</script>
+</body>
+</html>

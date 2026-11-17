@@ -1,5 +1,5 @@
 # “Your store can look great and still lose customers.”
-Pillar: Honest advice · Audience: Everyone · Make: LinkedIn post, Facebook post, IG carousel, Newsletter, Article · CTA: Book a $99 video audit · Status: awaiting-decision · TEST (never posted)
+Pillar: Honest advice · Audience: Everyone · Make: LinkedIn post, Facebook post, IG carousel, Newsletter, Article · CTA: Book a $99 video audit · Status: review · TEST (never posted)
 
 ## Raw input
 Desk request 2p3c4zbattg45bpnifxh, test: true, Research now (rush) on 2026-11-17.
@@ -38,9 +38,11 @@ Good UX makes buying easier.
 | Claim | Source | Year |
 |---|---|---|
 | Roughly 7 in 10 online carts are abandoned (70.22%, average of 50 studies) | https://baymard.com/lists/cart-abandonment-rate | 2025 |
-| 62% of mobile sites and 52% of desktop sites have “mediocre or worse” product page UX | https://baymard.com/research-articles/current-state-ecommerce-product-page-ux | 2025 (benchmark page; confirm date before drafting) |
-| Up to 67% of leading US and European sites perform mediocre to poor on mobile homepage and category navigation | https://baymard.com/research-articles/mobile-ecommerce-search-and-navigation | 2025 |
+| 62% of mobile sites and 52% of desktop sites have “mediocre or worse” product page UX | https://baymard.com/research-articles/current-state-ecommerce-product-page-ux | Confirmed 2026-11-17: article updated Mar 18, 2026 |
+| ~~Up to 67% of leading sites mediocre to poor on mobile navigation~~ DROPPED 2026-11-17: the linked article (2015) doesn't state this figure | https://baymard.com/research-articles/mobile-ecommerce-search-and-navigation | 2015 |
 | 10% of the largest e-commerce sites don’t keep product descriptions consistently detailed | https://baymard.com/research-articles/product-descriptions | 2025 (confirm date before drafting) |
+
+| Checkout abandonment reasons: extra costs too high 40%, didn’t trust the site with card details 19%, forced account creation 18% | https://baymard.com/lists/cart-abandonment-rate | page dated Oct 2026 (survey year not stated) |
 
 ### So what
 - Even the biggest stores get the basics wrong: about two in three leading sites are mediocre or worse on mobile navigation and product pages (Baymard, 2025).
@@ -70,18 +72,31 @@ Good UX makes buying easier.
 - Risk: A six-point list sits near Brief 1’s “six-check afternoon”. The question framing must carry it, with the checklist kept short.
 
 ## Decisions
-- Angle:
+- Angle: C — Six questions every shopper asks before buying (picked on the Desk, no notes)
 - Must include: Ramit’s closing lines, “Good design gets attention. Good UX makes buying easier.”
 - Must avoid:
 - CTA: Book a $99 video audit
-- Make (final):
-- Decided on:
+- Make (final): LinkedIn post, Facebook post, IG carousel, Newsletter, Article
+- Decided on: 2026-11-17
+- Drafting note (daily run 2026-11-17): six questions need six slides, so the carousel drops the separate setup slide — the cover carries the setup line, slides 2–7 are the questions, slide 8 is Ramit’s closing lines + CTA.
+- Drafting note: the 67% mobile-navigation stat was cut (source didn’t support it). Stats used: 70.22% cart abandonment, 62%/52% product page UX, checkout reasons 40% / 19% / 18% — all Baymard, linked.
+- Drafting note: the article links the Halm case study (4.8 star average, 400+ reviews) under the trust question.
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
+| li.jpg (LinkedIn graphic) | Unsplash | Ana Tavares | https://unsplash.com/photos/woman-sitting-on-carpet-leaning-on-couch-bKrmXTShj7k |
+| cover.jpg (slide 1) | Unsplash | Indu Pandey | https://unsplash.com/photos/woman-in-pink-long-sleeve-shirt-sitting-on-brown-sofa-chair-3wacD2E3b-I |
+| where.jpg (slide 2) | Unsplash | Michal Biernat | https://unsplash.com/photos/person-using-smartphone-in-workspace-h0xEUQXzU38 |
+| phone.jpg (slide 4) | Unsplash | Good Faces Agency | https://unsplash.com/photos/a-woman-sitting-on-a-bench-holding-a-cell-phone-Lr0UX1VBajs |
+| easy.jpg (slide 6) | Unsplash | Sincerely Media | https://unsplash.com/photos/woman-sitting-on-bed-and-using-laptop-x1i9rVh_klk |
+
+Backups for Swap photo (on the Desk only, not downloaded): 2 per photo graphic.
 
 ## SEO (articles only)
-- Target keyword:
-- Meta description:
-- Slug:
+- Target keyword: Shopify store not converting
+- Meta description: Shopify store not converting? Shoppers ask six questions before they buy. Here’s what a good answer looks like, and what to fix first.
+- Slug: /blogs/journal/shopify-store-not-converting
+
+## Preview
+https://claude.ai/artifact/GNUBUuvM5ymALMYwEPANWp
