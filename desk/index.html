@@ -523,7 +523,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         <select id="sty-${id}" data-look="style" data-id="${id}" ${dis}>${Object.entries(STYLE_NAMES).map(([k, v]) => `<option value="${k}" ${look.style === k ? "selected" : ""}>${v}</option>`).join("")}</select>
         <span class="small">${esc(STYLE_HINT[look.style])}</span>
       </div>
-      ${st.visible.length > 1 ? `<p class="small">Drag one slide onto another to <b>swap their designs</b>, or use ◀ ▶ to change a slide's design. The words stay where they are. <b>Leave out</b> drops a slide from the post.</p>` : ""}
+      ${st.visible.length > 1 ? `<p class="small"><b>Drag</b> a slide to move it (its words and design go together). <b>◀ ▶</b> change a slide's design without moving it. <b>Leave out</b> drops a slide from the post.</p>` : ""}
       ${busy ? `<p class="pending" style="font-size:13px">${esc(busy)}</p>` : dirty ? `<div class="row">
           <button class="btn sm" type="button" data-car="apply" data-id="${id}" ${dis}>Apply · re-render ${n} image${n === 1 ? "" : "s"}</button>
           <button class="btn quiet sm" type="button" data-car="reset" data-id="${id}">Reset</button>
@@ -1209,7 +1209,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     if (!sh || !dragSlot || sh.dataset.brief !== dragBrief || sh.dataset.slot === dragSlot) { dragSlot = null; return; }
     e.preventDefault();
     const b = briefs.find((z) => z.id === dragBrief);
-    if (b && /^slide-/.test(sh.dataset.slot) && !sh.classList.contains("left-out")) { swapDesigns(b, dragSlot, sh.dataset.slot); render(); }
+    if (b && /^slide-/.test(sh.dataset.slot) && !sh.classList.contains("left-out")) { designDraft[b.id] = looksOf(b); moveSlot(b, dragSlot, sh.dataset.slot, 0); render(); }
     dragSlot = null;
   });
   document.addEventListener("dragend", () => { dragSlot = null; document.querySelectorAll(".shot.drag-over").forEach((n) => n.classList.remove("drag-over")); });
