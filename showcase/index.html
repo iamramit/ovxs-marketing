@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OVXS store add-ons showcase</title>
+<meta name="description" content="Twelve add-ons for a Shopify store, from an AI assistant to a rewards cart drawer. Studio OVXS.">
+<link rel="icon" href="../brand/ovxs-favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+@font-face { font-family: "IvyPresto Display"; src: url("../brand/ivy-presto-display.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Elza Condensed"; src: url("../brand/elza-condensed-black.woff2") format("woff2"); font-weight: 900; font-display: swap; }
+
+:root {
+  --ink: #171D1C; --muted: #4E5E5A; --teal: #1B6A63; --deep: #0F2F2C; --mint: #DDF1EC; --mint2: #7FC8BC;
+  --sand: #F7F2E8; --butter: #F6E7A8; --lilac: #E2DCF6; --peach: #F8D5C3; --navy: #0B3351; --sky: #CFE6FB;
+  --yellow: #F2B01E; --steel: #3C6284; --teal2: #007369;
+  --serif: "IvyPresto Display", Georgia, serif; --label: "Elza Condensed", "Arial Narrow", sans-serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font: 16px/1.6 var(--sans); color: var(--ink); background: var(--deep); -webkit-font-smoothing: antialiased; }
+img, svg { max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; cursor: pointer; }
+
+/* ---------- section themes ---------- */
+.pg { --bg: #fff; --fg: var(--ink); --soft: var(--muted); --acc: var(--teal); --btn: var(--ink); --btnfg: #fff; --shape: var(--teal); --line: rgba(23,29,28,.16);
+  background: var(--bg); color: var(--fg); padding: 88px 0; position: relative; overflow: hidden; scroll-margin-top: 56px; }
+.t-deep   { --bg: var(--deep);   --fg: #E6F2EF; --soft: #A9C6C0; --acc: var(--mint2); --btn: var(--mint2); --btnfg: var(--deep); --shape: #1d4a45; --line: rgba(230,242,239,.2); }
+.t-sand   { --bg: var(--sand); --acc: var(--teal); --shape: #E8DFC8; }
+.t-teal   { --bg: var(--teal);   --fg: #fff; --soft: #CDEBE5; --acc: #CDEBE5; --btn: #fff; --btnfg: var(--teal); --shape: #2c7d75; --line: rgba(255,255,255,.28); }
+.t-mint   { --bg: var(--mint); --acc: var(--teal); --shape: #BFE3DB; }
+.t-butter { --bg: var(--butter); --acc: #8A5A00; --shape: #EED98A; }
+.t-lilac  { --bg: var(--lilac); --acc: #5A47A8; --shape: #CFC6EE; }
+.t-peach  { --bg: var(--peach); --acc: #A24A1E; --shape: #F1BFA5; }
+.t-navy   { --bg: var(--navy);   --fg: #EAF3FB; --soft: #AACBEA; --acc: #AACBEA; --btn: #AACBEA; --btnfg: var(--navy); --shape: #14476c; --line: rgba(234,243,251,.24); }
+.t-sky    { --bg: var(--sky); --acc: #244A6A; --shape: #B7D6F0; }
+.t-yellow { --bg: var(--yellow); --acc: var(--ink); --shape: #F7C94F; }
+.t-ink    { --bg: var(--ink);    --fg: #EEF3F2; --soft: #A8B5B2; --acc: #B1F2E9; --btn: #B1F2E9; --btnfg: var(--ink); --shape: #2A3532; --line: rgba(238,243,242,.22); }
+.t-steel  { --bg: var(--steel);  --fg: #fff; --soft: #D4E3F0; --acc: #CFE6FB; --btn: #fff; --btnfg: var(--steel); --shape: #4d759a; --line: rgba(255,255,255,.28); }
+.t-bright { --bg: var(--teal2);  --fg: #fff; --soft: #CDEBE5; --acc: #B1F2E9; --btn: #fff; --btnfg: var(--teal2); --shape: #12877c; --line: rgba(255,255,255,.28); }
+
+/* ---------- layout ---------- */
+.wrap { width: min(1240px, calc(100% - 64px)); margin: 0 auto; display: grid; grid-template-columns: 1fr 1.05fr; gap: 64px; align-items: center; position: relative; z-index: 1; }
+.flip .copy { order: 2; } .flip .stage { order: 1; }
+.shape { position: absolute; pointer-events: none; fill: var(--shape); z-index: 0; }
+.pg > .shape { width: 520px; height: 520px; right: -150px; top: -170px; opacity: .9; }
+.flip > .shape { right: auto; left: -170px; }
+
+.num { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 62px; height: 62px; margin-bottom: 18px; }
+.num .shape { position: absolute; inset: 0; width: 62px; height: 62px; fill: var(--acc); }
+.num b { position: relative; font: 900 24px/1 var(--label); letter-spacing: .02em; color: var(--bg); }
+.eyebrow { font: 700 12px/1.3 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 14px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 700; letter-spacing: -.02em; margin: 0; line-height: 1.04; }
+h2 { font-size: clamp(38px, 4.2vw, 58px); margin-bottom: 18px; }
+em { font-style: italic; text-decoration: underline wavy var(--acc); text-decoration-thickness: 2px; text-underline-offset: .16em; }
+.lead { font-size: 18px; line-height: 1.55; color: var(--soft); margin: 0 0 22px; max-width: 54ch; }
+.ticks { list-style: none; padding: 0; margin: 0 0 22px; display: grid; gap: 9px; }
+.ticks li { position: relative; padding-left: 28px; font-size: 15.5px; line-height: 1.45; }
+.ticks li::before { content: ""; position: absolute; left: 0; top: 3px; width: 17px; height: 17px; border-radius: 50%; background: var(--acc); }
+.ticks li::after { content: ""; position: absolute; left: 5.5px; top: 7px; width: 6px; height: 3.5px; border-left: 2px solid var(--bg); border-bottom: 2px solid var(--bg); transform: rotate(-45deg); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0 0 18px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.meta div { font-size: 14px; line-height: 1.4; }
+.meta span { display: block; font: 700 11px/1.4 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+.take { font-size: 14.5px; line-height: 1.5; color: var(--soft); margin: 0 0 22px; max-width: 56ch; }
+.take b { color: var(--fg); }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; background: var(--btn); color: var(--btnfg); font: 600 15px/1 var(--sans); text-decoration: none; border: 0; transition: transform .15s; }
+.btn:hover { transform: translateY(-2px); }
+.pick { padding: 12px 20px; border-radius: 999px; background: transparent; color: var(--fg); border: 1.5px solid var(--fg); font: 600 15px/1 var(--sans); }
+.pick[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.pill { display: inline-flex; align-items: center; gap: 8px; font: 600 12px/1 var(--sans); padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,.55); color: var(--ink); margin: 0 0 16px 14px; vertical-align: top; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+.pill.req::before { background: #B9770E; }
+.pill.cl::before { background: #5A47A8; }
+.t-deep .pill, .t-teal .pill, .t-navy .pill, .t-ink .pill, .t-steel .pill, .t-bright .pill { background: rgba(255,255,255,.16); color: #fff; }
+.t-deep .pill::before, .t-teal .pill::before, .t-navy .pill::before, .t-ink .pill::before, .t-steel .pill::before, .t-bright .pill::before { background: #B1F2E9; }
+
+/* ---------- mock surfaces ---------- */
+.stage { position: relative; display: flex; justify-content: center; }
+.mock { --mt: #1B6A63; background: #fff; color: #171D1C; border-radius: 22px; box-shadow: 0 34px 70px -24px rgba(0,0,0,.42), 0 0 0 1px rgba(0,0,0,.05); overflow: hidden; width: 100%; max-width: 470px; font-size: 14px; line-height: 1.45; position: relative; }
+.mock * { font-family: var(--sans); }
+.mock b, .mock strong { font-weight: 600; }
+.tag-ex { position: absolute; bottom: 7px; right: 14px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #8A9094; z-index: 3; }
+.mhead { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #ECEFEE; font-weight: 600; }
+.mhead small { font-weight: 400; color: #6a7370; font-size: 12.5px; }
+.sw { display: block; width: 46px; height: 46px; border-radius: 10px; flex: none; }
+/* dummy products: flat illustrations on a tinted tile */
+.sw { background-repeat: no-repeat; background-position: center; background-size: auto 88%; }
+.sw.shoe  { background-color: #CFE6FB; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M8 66H92Q95 66 95 70Q95 76 89 76H14Q6 76 6 70Q6 66 8 66Z' fill='%23F4EFE6' stroke='%23171D1C' stroke-width='3' stroke-linejoin='round'/><path d='M10 66V40Q10 36 14 36H30Q36 36 40 42L46 50Q52 56 60 56L80 60Q92 62 92 66Z' fill='%23fff' stroke='%23171D1C' stroke-width='3' stroke-linejoin='round'/><path d='M28 60Q50 63 76 63' stroke='%231B6A63' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M38 46l7-4M44 52l7-4M50 56l7-4' stroke='%23171D1C' stroke-width='2.5' stroke-linecap='round'/></svg>"); }
+.sw.soap  { background-color: #E3F1ED; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='16' y='38' width='64' height='34' rx='11' fill='%23F6E7A8' stroke='%23171D1C' stroke-width='3'/><rect x='24' y='45' width='48' height='20' rx='7' fill='none' stroke='%23171D1C' stroke-opacity='.25' stroke-width='2.5'/><circle cx='78' cy='28' r='7' fill='%23fff' stroke='%23171D1C' stroke-width='2.5'/><circle cx='89' cy='19' r='4' fill='%23fff' stroke='%23171D1C' stroke-width='2.5'/><circle cx='68' cy='19' r='3' fill='%23fff' stroke='%23171D1C' stroke-width='2.5'/></svg>"); }
+.sw.soap.v2 { filter: hue-rotate(70deg); } .sw.soap.v3 { filter: hue-rotate(150deg); } .sw.soap.v4 { filter: hue-rotate(220deg); } .sw.soap.v5 { filter: hue-rotate(290deg); } .sw.soap.v6 { filter: hue-rotate(110deg) saturate(.7); }
+.sw.candle { background-color: #F7F2E8; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 14Q60 27 50 37Q40 27 50 14Z' fill='%23F2B01E' stroke='%23171D1C' stroke-width='2.5' stroke-linejoin='round'/><path d='M50 37V43' stroke='%23171D1C' stroke-width='2.5'/><rect x='28' y='43' width='44' height='9' rx='3' fill='%23171D1C'/><rect x='30' y='52' width='40' height='32' rx='6' fill='%23F8D5C3' stroke='%23171D1C' stroke-width='3'/><rect x='38' y='62' width='24' height='12' rx='2' fill='%23fff' stroke='%23171D1C' stroke-width='2'/></svg>"); }
+.sw.bottle { background-color: #FDE9E0; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='39' y='20' width='22' height='8' rx='3' fill='%23171D1C'/><path d='M39 24H32' stroke='%23171D1C' stroke-width='3' stroke-linecap='round'/><rect x='46' y='28' width='8' height='10' fill='%23171D1C'/><rect x='34' y='38' width='32' height='48' rx='9' fill='%23CDEBE5' stroke='%23171D1C' stroke-width='3'/><rect x='39' y='55' width='22' height='18' rx='3' fill='%23fff' stroke='%23171D1C' stroke-width='2'/></svg>"); }
+.sw.spray { background-color: #EEEAFB; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='40' y='24' width='22' height='9' rx='3' fill='%23171D1C'/><path d='M40 28H33M40 31H34' stroke='%23171D1C' stroke-width='2.5' stroke-linecap='round'/><rect x='46' y='33' width='10' height='10' fill='%23171D1C'/><rect x='36' y='43' width='30' height='43' rx='7' fill='%23DDF1EC' stroke='%23171D1C' stroke-width='3'/><rect x='41' y='56' width='20' height='16' rx='3' fill='%23fff' stroke='%23171D1C' stroke-width='2'/></svg>"); }
+.sw.mug   { background-color: #FBE3D6; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M30 38H66V74Q66 82 58 82H38Q30 82 30 74Z' fill='%23CFE6FB' stroke='%23171D1C' stroke-width='3' stroke-linejoin='round'/><path d='M66 46Q84 46 84 60Q84 72 66 70' fill='none' stroke='%23171D1C' stroke-width='3'/><path d='M42 30Q38 24 42 18M54 30Q50 24 54 18' stroke='%23171D1C' stroke-opacity='.4' stroke-width='2.5' fill='none' stroke-linecap='round'/></svg>"); }
+.sw.tote  { background-color: #FBF0C4; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M36 42V34Q36 22 50 22Q64 22 64 34V42' fill='none' stroke='%23171D1C' stroke-width='3'/><path d='M24 42H76L80 86H20Z' fill='%23E2DCF6' stroke='%23171D1C' stroke-width='3' stroke-linejoin='round'/><rect x='38' y='58' width='24' height='16' rx='2' fill='%23fff' stroke='%23171D1C' stroke-width='2'/></svg>"); }
+.sw.socks { background-color: #DDF1EC; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M36 16H60V50L78 62Q86 70 78 80Q68 86 58 78L34 62Q30 58 30 50Z' fill='%23F6E7A8' stroke='%23171D1C' stroke-width='3' stroke-linejoin='round'/><path d='M36 26H60M36 36H60' stroke='%23171D1C' stroke-width='3'/></svg>"); }
+.sw.laces { background-color: #EEEAFB; background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M18 52C18 30 44 30 50 52C56 74 82 74 82 52C82 30 56 30 50 52C44 74 18 74 18 52Z' fill='none' stroke='%23171D1C' stroke-width='4' stroke-linecap='round'/><path d='M50 52L40 82M50 52L60 82' stroke='%231B6A63' stroke-width='3.5' stroke-linecap='round'/></svg>"); }
+.row { display: flex; gap: 12px; align-items: center; }
+.price { font-weight: 600; white-space: nowrap; }
+.muted { color: #6a7370; }
+.mbtn { display: block; width: 100%; padding: 13px 16px; border-radius: 12px; background: var(--mt); color: #fff; border: 0; font-weight: 600; text-align: center; font-size: 14.5px; }
+.mbtn.ghost { background: #fff; color: #171D1C; border: 1.5px solid #D5DBDA; }
+.step { display: inline-flex; align-items: center; border: 1px solid #D5DBDA; border-radius: 8px; overflow: hidden; }
+.step button { width: 28px; height: 28px; border: 0; background: #F3F6F5; font-size: 16px; line-height: 1; }
+.step output { min-width: 26px; text-align: center; font-size: 13px; font-weight: 600; }
+
+/* 01 Ovi chat */
+.chat { max-width: 400px; }
+.chat .mhead { background: var(--teal); color: #fff; border: 0; justify-content: flex-start; gap: 12px; }
+.chat .av { width: 38px; height: 38px; border-radius: 50%; background: #CDEBE5; color: var(--teal); display: grid; place-items: center; font: 900 20px/1 var(--label); }
+.chat .mhead small { color: #CDEBE5; display: block; }
+.log { padding: 16px; background: #F6FAF8; display: flex; flex-direction: column; gap: 10px; height: 520px; overflow: hidden; justify-content: flex-end; }
+.msg { max-width: 82%; padding: 10px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.45; animation: pop .25s ease-out; }
+.msg.bot { background: #fff; border: 1px solid #E3EAE8; border-bottom-left-radius: 4px; align-self: flex-start; }
+.msg.me { background: var(--teal); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+.msg a, .linkcard { display: block; margin-top: 8px; padding: 9px 11px; border-radius: 10px; background: #E3F1ED; color: #14534D; font-weight: 600; font-size: 12.5px; text-decoration: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px 4px; background: #F6FAF8; }
+.chips button { padding: 7px 11px; border-radius: 999px; border: 1.2px solid var(--teal); background: #fff; color: var(--teal); font-size: 12.5px; font-weight: 600; }
+.chips button:hover { background: #E3F1ED; }
+.handoff { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.handoff span { padding: 7px 10px; border-radius: 999px; background: var(--teal); color: #fff; font-size: 12px; font-weight: 600; }
+.handoff span + span { background: #fff; color: var(--teal); border: 1.2px solid var(--teal); }
+.composer { display: flex; gap: 8px; padding: 10px 14px 14px; background: #F6FAF8; }
+.composer i { flex: 1; font-style: normal; border: 1px solid #D5DBDA; border-radius: 999px; padding: 9px 14px; color: #8A9094; font-size: 13px; background: #fff; }
+.composer b { width: 36px; height: 36px; border-radius: 50%; background: var(--teal); }
+.thumbs { font-size: 11px; color: #8A9094; margin-top: 6px; letter-spacing: .04em; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* 02 rewards drawer */
+.drawer { max-width: 420px; --mt: #2E8B57; }
+.rw { background: #E9F2EC; padding: 14px 20px 8px; text-align: center; color: #1F2A22; }
+.rw p { margin: 0 0 12px; font-size: 14px; } .rw b { color: #2E8B57; }
+.track { position: relative; height: 8px; background: #D3DDD6; border-radius: 99px; margin: 8px 46px 42px 16px; }
+.fill { position: absolute; inset: 0 auto 0 0; background: #2E8B57; border-radius: 99px; transition: width .45s; }
+.ms { position: absolute; top: -7px; transform: translateX(-50%); text-align: center; }
+.ms i { display: block; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid #D3DDD6; margin: 0 auto 4px; transition: .3s; }
+.ms.on i { background: #2E8B57; border-color: #2E8B57; }
+.ms span { font-size: 11px; font-weight: 600; white-space: nowrap; color: #1F2A22; }
+.lines { list-style: none; margin: 0; padding: 4px 20px; }
+.lines li { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #ECEFEE; }
+.lines .t { flex: 1; font-weight: 500; font-size: 13.5px; }
+.lines .t small { display: block; color: #8A9094; font-weight: 400; }
+.giftrow { margin: 10px 20px 0; padding: 12px; border: 1.5px dashed #2E8B57; border-radius: 14px; background: #F3F9F5; display: flex; gap: 12px; align-items: center; }
+.giftrow[hidden] { display: none; }
+.giftrow .bd { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: #2E8B57; }
+.giftrow button { margin-left: auto; padding: 8px 12px; border-radius: 99px; border: 0; background: #2E8B57; color: #fff; font-size: 12px; font-weight: 600; }
+.dfoot { padding: 14px 20px 20px; }
+.dfoot .row { justify-content: space-between; margin-bottom: 12px; font-weight: 600; }
+.demo-note { text-align: center; font-size: 11.5px; color: #8A9094; padding: 0 0 12px; }
+
+/* 03 add-ons */
+.addrow { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 0 20px 6px; }
+.addc { border: 1.2px solid #E0E6E4; border-radius: 14px; padding: 10px; text-align: center; background: #fff; }
+.addc .sw { width: 100%; height: 58px; margin-bottom: 8px; }
+.addc strong { display: block; font-size: 12.5px; line-height: 1.3; } .addc small { color: #6a7370; font-size: 12px; }
+.addc button { margin-top: 8px; width: 100%; padding: 7px; border-radius: 99px; border: 1.3px solid #171D1C; background: #fff; font-size: 12px; font-weight: 600; }
+.addc.on { border-color: #1B6A63; background: #F3F9F7; } .addc.on button { background: #1B6A63; border-color: #1B6A63; color: #fff; }
+.sechead { padding: 16px 20px 10px; font: 600 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #6a7370; }
+
+/* 04 FBT */
+.fbt { max-width: 520px; padding: 22px; }
+.fbt h4 { margin: 0 0 14px; font-size: 16px; }
+.trio { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.tile { flex: 1; border: 1.5px solid #E0E6E4; border-radius: 14px; padding: 10px; text-align: center; position: relative; transition: opacity .2s; background: #fff; }
+.tile.off { opacity: .4; }
+.tile .sw { width: 100%; height: 74px; margin-bottom: 8px; }
+.tile strong { display: block; font-size: 12.5px; } .tile small { color: #6a7370; font-size: 12px; }
+.tile input { position: absolute; top: 8px; left: 8px; width: 17px; height: 17px; accent-color: #1B6A63; }
+.plus { font-size: 20px; color: #8A9094; }
+.fbt-list { list-style: none; padding: 0; margin: 0 0 14px; font-size: 13px; display: grid; gap: 6px; }
+.fbt-list li { display: flex; justify-content: space-between; }
+.fbt-total { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #ECEFEE; margin-bottom: 12px; }
+.fbt-total s { color: #8A9094; font-weight: 400; margin-right: 6px; }
+.save { color: #1B6A63; font-weight: 600; font-size: 12.5px; }
+
+/* 05 bundle builder */
+.bb { max-width: 520px; padding: 22px; }
+.tiers { display: flex; gap: 6px; margin: 12px 0 14px; }
+.tiers div { flex: 1; text-align: center; padding: 8px 4px; border-radius: 10px; background: #F3F0EA; font-size: 12px; font-weight: 600; color: #6a7370; transition: .25s; }
+.tiers div.on { background: #A24A1E; color: #fff; }
+.grid6 { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+.opt { border: 1.5px solid #E0E6E4; border-radius: 14px; padding: 8px; background: #fff; text-align: center; position: relative; }
+.opt .sw { width: 100%; height: 62px; margin-bottom: 6px; }
+.opt strong { font-size: 12.5px; display: block; } .opt small { color: #6a7370; font-size: 12px; }
+.opt.on { border-color: #A24A1E; background: #FFF6F1; }
+.opt.on::after { content: "✓"; position: absolute; top: 6px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: #A24A1E; color: #fff; font-size: 12px; display: grid; place-items: center; }
+
+/* 06 subscribe */
+.sub { max-width: 430px; padding: 22px; }
+.sub .pdp { display: flex; gap: 14px; align-items: center; margin-bottom: 16px; }
+.sub .pdp .sw { width: 76px; height: 76px; }
+.sub h4 { margin: 0; font-size: 17px; }
+.opt2 { display: flex; gap: 12px; align-items: flex-start; border: 1.5px solid #D5DBDA; border-radius: 14px; padding: 13px 14px; margin-bottom: 10px; background: #fff; text-align: left; width: 100%; }
+.opt2 .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #8A9094; margin-top: 2px; flex: none; position: relative; }
+.opt2.on { border-color: #0B3351; background: #F2F8FD; }
+.opt2.on .dot { border-color: #0B3351; } .opt2.on .dot::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #0B3351; }
+.opt2 .p { margin-left: auto; font-weight: 600; }
+.opt2 small { display: block; color: #6a7370; font-size: 12.5px; }
+.freq { display: none; margin: 4px 0 12px 30px; } .opt2.on + .freqwrap .freq { display: flex; gap: 6px; flex-wrap: wrap; }
+.freq button { padding: 6px 11px; border-radius: 99px; border: 1.3px solid #AACBEA; background: #fff; font-size: 12px; font-weight: 600; }
+.freq button.on { background: #0B3351; color: #fff; border-color: #0B3351; }
+.perks { list-style: none; padding: 0; margin: 4px 0 16px; font-size: 12.5px; color: #4E5E5A; display: grid; gap: 4px; }
+.perks li::before { content: "· "; font-weight: 700; }
+
+/* 07 quiz */
+.quiz { max-width: 440px; padding: 24px; min-height: 350px; display: flex; flex-direction: column; }
+.dots { display: flex; gap: 6px; margin-bottom: 18px; }
+.dots i { height: 5px; flex: 1; border-radius: 9px; background: #DDE5EC; } .dots i.on { background: #244A6A; }
+.quiz h4 { margin: 0 0 6px; font: 700 24px/1.15 var(--serif); letter-spacing: -.01em; }
+.quiz h4, .quiz h4 * { font-family: var(--serif); }
+.qopt { display: block; width: 100%; text-align: left; padding: 13px 15px; border: 1.5px solid #D5DBDA; border-radius: 13px; margin-top: 9px; background: #fff; font-weight: 500; font-size: 14px; }
+.qopt:hover, .qopt.on { border-color: #244A6A; background: #F2F8FD; }
+.qres { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 16px; background: #F2F8FD; margin: 12px 0; }
+.qres .sw { width: 84px; height: 84px; }
+.reset { background: none; border: 0; color: #244A6A; font-weight: 600; font-size: 13px; margin-top: auto; padding-top: 12px; text-align: left; }
+
+/* 08 post purchase */
+.thanks { max-width: 460px; }
+.thanks .top { padding: 22px 24px; background: #F6FAF8; display: flex; gap: 14px; align-items: center; border-bottom: 1px solid #ECEFEE; }
+.check { width: 40px; height: 40px; border-radius: 50%; background: #1B6A63; position: relative; flex: none; }
+.check::after { content: ""; position: absolute; left: 12px; top: 12px; width: 15px; height: 8px; border-left: 3px solid #fff; border-bottom: 3px solid #fff; transform: rotate(-45deg); }
+.offer { margin: 20px 24px 24px; border: 2px solid #171D1C; border-radius: 18px; padding: 18px; }
+.offer .lbl { font: 700 10.5px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: #8A5A00; margin-bottom: 12px; }
+.offer .row { align-items: flex-start; margin-bottom: 14px; }
+.offer .sw { width: 84px; height: 84px; }
+.offer s { color: #8A9094; }
+.later { text-align: center; margin-top: 10px; font-size: 13px; color: #6a7370; }
+
+/* 09 checkout */
+.co { max-width: 460px; }
+.co .sechead { padding-top: 18px; }
+.co ul.lines { padding-bottom: 2px; }
+.chk { display: flex; gap: 12px; align-items: center; padding: 13px 20px; border-top: 1px solid #ECEFEE; width: 100%; background: #fff; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; }
+.chk .bx { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #8A9094; flex: none; position: relative; }
+.chk.on .bx { background: #0F2F2C; border-color: #0F2F2C; }
+.chk.on .bx::after { content: ""; position: absolute; left: 4px; top: 3px; width: 8px; height: 4px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
+.chk small { display: block; color: #6a7370; font-size: 12px; } .chk .price { margin-left: auto; }
+.tot { padding: 14px 20px 20px; border-top: 1px solid #ECEFEE; }
+.tot .row { justify-content: space-between; font-size: 13.5px; margin-bottom: 4px; } .tot .big { font-size: 17px; font-weight: 600; margin-top: 6px; }
+
+/* 10 delivery + sticky */
+.phones { display: flex; gap: 18px; align-items: flex-start; }
+.phone { color: #171D1C; font-family: var(--sans); width: 270px; border-radius: 36px; background: #fff; border: 9px solid #14191F; box-shadow: 0 34px 70px -24px rgba(0,0,0,.5); overflow: hidden; position: relative; height: 560px; }
+.phone .scr { padding: 16px; }
+.phone .hero { height: 190px; border-radius: 16px; margin-bottom: 12px; }
+.phone h4 { margin: 0 0 2px; font-size: 16px; } .phone .rate { color: #F2B01E; letter-spacing: 2px; font-size: 13px; }
+.eta { margin: 12px 0; padding: 11px 12px; border-radius: 12px; background: #EAF3FB; font-size: 12.5px; color: #244A6A; }
+.eta b { color: #0B3351; font-variant-numeric: tabular-nums; }
+.stick { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #E0E6E4; padding: 12px 14px 16px; display: flex; gap: 10px; align-items: center; box-shadow: 0 -10px 24px rgba(0,0,0,.08); }
+.stick .sw { width: 38px; height: 38px; } .stick strong { font-size: 12.5px; display: block; line-height: 1.2; } .stick small { color: #6a7370; font-size: 12px; }
+.stick button { margin-left: auto; white-space: nowrap; padding: 11px 15px; border-radius: 99px; border: 0; background: #244A6A; color: #fff; font-weight: 600; font-size: 12.5px; }
+.phone.two { margin-top: 56px; height: 504px; }
+.phone.two .scr { filter: blur(1.5px); opacity: .55; }
+.pop { position: absolute; left: 14px; right: 14px; top: 78px; background: #fff; border-radius: 18px; padding: 18px 16px; text-align: center; box-shadow: 0 16px 40px rgba(0,0,0,.28); }
+.pop h4 { font: 700 20px/1.1 var(--serif); }
+.pop .bar { font-size: 11px; margin-top: 8px; color: #6a7370; }
+
+/* 11 welcome popup */
+.wp { max-width: 540px; background: #E9EDEC; padding: 0; }
+.bgpage { padding: 18px; opacity: .55; filter: blur(1.4px); }
+.bgpage .nav { height: 14px; border-radius: 6px; background: #C9D1CF; margin-bottom: 14px; }
+.bgpage .big { height: 110px; border-radius: 14px; background: linear-gradient(135deg,#CDEBE5,#7FC8BC); margin-bottom: 12px; }
+.bgpage .three { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; } .bgpage .three i { display: block; width: auto; height: 70px; border-radius: 10px; }
+.modal { position: absolute; inset: 40px 32px auto; margin: 0 auto; max-width: 400px; background: #fff; border-radius: 22px; display: grid; grid-template-columns: 1fr; overflow: hidden; box-shadow: 0 26px 60px rgba(0,0,0,.35); }
+.modal .pic { height: 96px; background: linear-gradient(135deg,#007369,#7FC8BC); }
+.modal .in { padding: 20px 22px 18px; text-align: center; }
+.modal h4 { font: 700 26px/1.1 var(--serif); margin: 0 0 6px; } .modal h4 em { text-decoration-color: #007369; }
+.field { display: flex; gap: 6px; margin: 14px 0 8px; }
+.field input { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #D5DBDA; font-size: 14px; }
+.field button { padding: 12px 16px; border-radius: 12px; border: 0; background: #007369; color: #fff; font-weight: 600; font-size: 13.5px; }
+.fine { font-size: 11.5px; color: #8A9094; }
+.applied { display: none; margin-top: 12px; padding: 12px; border-radius: 12px; background: #E3F1ED; color: #14534D; font-weight: 600; font-size: 13px; }
+.wp.done .applied { display: block; } .wp.done .field { display: none; }
+.wp { min-height: 420px; }
+
+/* 12 social proof */
+.rev { max-width: 500px; padding: 22px; }
+.score { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.score b { font: 700 44px/1 var(--serif); }
+.stars { color: #F2B01E; letter-spacing: 3px; font-size: 16px; }
+.bars { flex: 1; display: grid; gap: 4px; } .bars i { display: block; height: 6px; border-radius: 9px; background: #EBE5D5; position: relative; } .bars i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); background: #171D1C; border-radius: 9px; }
+.rcards { display: grid; gap: 10px; }
+.rc { padding: 12px 14px; border: 1.2px solid #E8E2D2; border-radius: 14px; font-size: 13px; background: #fff; }
+.rc .by { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; color: #6a7370; } .rc .ver { color: #1B6A63; font-weight: 600; }
+.photos { display: flex; gap: 6px; margin-top: 12px; } .photos .sw { flex: 1; height: 60px; width: auto; }
+.ftabs { display: flex; gap: 6px; margin: 0 0 12px; flex-wrap: wrap; } .ftabs span { padding: 6px 11px; border-radius: 99px; background: #F3F0EA; font-size: 12px; font-weight: 600; } .ftabs span:first-child { background: #171D1C; color: #fff; }
+
+/* ---------- cover, index, closing ---------- */
+.cover { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 56px 0 48px; }
+.cover .wrap { display: block; width: min(1240px, calc(100% - 64px)); }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.top img { height: 46px; }
+.top span { font: 700 12px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--mint2); }
+.cover h1 { font-size: clamp(54px, 8.4vw, 124px); color: #fff; line-height: .96; margin: 12vh 0 28px; max-width: 12ch; }
+.cover .lead { font-size: 21px; max-width: 56ch; color: #BFD6D1; }
+.cover .foot { display: flex; flex-wrap: wrap; gap: 28px; padding-top: 18px; border-top: 1px solid #2E5550; color: #9DB8B2; font-size: 14px; }
+.cover .foot b { color: #fff; font-weight: 600; }
+.cover .shape.a { width: 640px; height: 640px; right: -140px; top: 90px; --shape: #1d4a45; }
+.cover .shape.b { width: 260px; height: 260px; right: 380px; bottom: 120px; --shape: #1B6A63; opacity: .7; }
+.cover .btn { margin-top: 28px; }
+
+.index h2 { font-size: clamp(40px, 5vw, 68px); }
+.index .wrap { display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 6px 0 28px; font-size: 14px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; } .legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--teal); } .legend .r i { background: #B9770E; } .legend .c i { background: #5A47A8; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.card { display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 16px; border-radius: 20px; text-decoration: none; background: var(--c); color: var(--ink); min-height: 150px; transition: transform .18s, box-shadow .18s; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 16px 30px -14px rgba(0,0,0,.3); }
+.card .n { font: 900 15px/1 var(--label); letter-spacing: .06em; opacity: .7; }
+.card strong { font: 700 21px/1.1 var(--serif); letter-spacing: -.01em; }
+.card small { font-size: 13px; line-height: 1.4; opacity: .85; }
+.card .st { margin-top: auto; font: 600 11px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
+.card.dk { color: #fff; }
+
+.how .wrap { display: block; }
+.paths { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 26px 0 30px; }
+.path { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 22px; padding: 22px; }
+.path h3 { font-size: 24px; margin-bottom: 8px; color: #fff; } .path p { margin: 0 0 12px; color: #BFD6D1; font-size: 14.5px; line-height: 1.5; }
+.path ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; font-size: 14px; } .path li::before { content: "→ "; color: var(--mint2); }
+.how .cols { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start; }
+.how ol { list-style: none; padding: 0; margin: 0; counter-reset: s; display: grid; gap: 14px; }
+.how ol li { counter-increment: s; position: relative; padding-left: 44px; font-size: 15.5px; color: #D5E5E1; }
+.how ol li b { color: #fff; }
+.how ol li::before { content: counter(s); position: absolute; left: 0; top: -2px; width: 30px; height: 30px; border-radius: 10px; background: var(--mint2); color: var(--deep); font: 900 18px/30px var(--label); text-align: center; }
+.prices { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.prices td { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.18); vertical-align: top; } .prices td:last-child { text-align: right; font-weight: 600; color: #fff; white-space: nowrap; padding-left: 14px; }
+.prices tr:last-child td { border: 0; }
+.fine2 { font-size: 13px; color: #9DB8B2; margin: 10px 0 0; }
+.closer { text-align: left; }
+.closer h2 { color: #fff; font-size: clamp(42px, 6vw, 84px); max-width: 14ch; }
+.closer .row2 { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0; }
+.closer .btn.alt { background: transparent; color: #fff; border: 1.5px solid #fff; }
+.closer small { color: #9DB8B2; }
+
+/* ---------- holiday plan ---------- */
+.t-paper { --bg: #fff; --acc: var(--teal); --shape: #E3F1ED; }
+.hol .wrap { display: block; }
+.hol h2 { font-size: clamp(40px, 5vw, 66px); }
+.hol .lead { max-width: 64ch; margin-bottom: 26px; }
+.phases { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+.phase { background: var(--c); border-radius: 22px; padding: 20px 20px 18px; display: flex; flex-direction: column; gap: 8px; color: var(--ink); }
+.phase .when { font: 700 11px/1.3 var(--sans); letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.phase h3 { font-size: 30px; }
+.phase .job { font-size: 15px; line-height: 1.45; margin: 0; }
+.phase .job b { font-weight: 600; }
+.phase .chips2 { margin-top: auto; padding-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.phase .chips2 a { padding: 6px 10px; border-radius: 99px; background: rgba(255,255,255,.7); font-size: 12px; font-weight: 600; text-decoration: none; color: var(--ink); }
+.phase .chips2 a:hover { background: #fff; }
+.settle { display: grid; grid-template-columns: 190px repeat(3, 1fr); gap: 16px; align-items: start; padding: 18px 22px; border-radius: 22px; background: var(--ink); color: #EEF3F2; }
+.settle h3 { font-size: 24px; color: #fff; line-height: 1.1; }
+.settle b { display: block; font: 700 11px/1.4 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: #B1F2E9; margin-bottom: 4px; }
+.settle p { margin: 0; font-size: 13.5px; line-height: 1.45; color: #C9D5D1; }
+@media screen and (max-width: 980px) { .phases { grid-template-columns: repeat(2, 1fr); } .settle { grid-template-columns: 1fr; } }
+@media screen and (max-width: 520px) { .phases { grid-template-columns: 1fr; } }
+
+/* ---------- nav + shortlist ---------- */
+.nav { position: sticky; top: 0; z-index: 50; background: rgba(15,47,44,.94); backdrop-filter: blur(10px); color: #fff; }
+.nav .in { width: min(1240px, calc(100% - 64px)); margin: 0 auto; display: flex; align-items: center; gap: 22px; height: 56px; }
+.nav img { height: 28px; } .nav .links { display: flex; gap: 4px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+.nav .links a { padding: 7px 11px; border-radius: 99px; text-decoration: none; font-size: 13px; font-weight: 500; color: #CFE0DC; white-space: nowrap; } .nav .links a:hover { background: rgba(255,255,255,.12); color: #fff; }
+.nav .btn { padding: 9px 16px; font-size: 13px; background: var(--mint2); color: var(--deep); white-space: nowrap; }
+.fab { position: fixed; right: 20px; bottom: 20px; z-index: 60; display: none; padding: 14px 20px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 600; font-size: 14.5px; box-shadow: 0 14px 34px rgba(0,0,0,.35); }
+.fab.show { display: inline-flex; }
+
+/* ---------- responsive ---------- */
+@media screen and (max-width: 980px) {
+  .wrap { grid-template-columns: 1fr; gap: 36px; } .flip .copy, .flip .stage { order: initial; }
+  .cards { grid-template-columns: repeat(2,1fr); } .paths, .how .cols { grid-template-columns: 1fr; }
+  .pg { padding: 64px 0; } .nav .links { display: none; }
+  .phones { flex-direction: column; align-items: center; } .phone.two { margin-top: 0; }
+}
+@media screen and (max-width: 520px) { .cards { grid-template-columns: 1fr; } .wrap { width: calc(100% - 40px); } .trio .tile strong { font-size: 11.5px; } }
+
+/* ---------- print: one section per page ---------- */
+@page { size: 1440px 1020px; margin: 0; }
+@media print {
+  body { background: #fff; width: 1440px; }
+  .nav, .fab, .pick, .demo-note { display: none !important; }
+  .pg { height: 1020px; padding: 52px 0; break-after: page; page-break-after: always; display: flex; align-items: center; }
+  .pg .wrap { width: 1280px; }
+  .pg:last-of-type { break-after: auto; }
+  .cover { height: 1020px; min-height: 0; padding: 48px 0; display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; }
+  .cover h1 { margin: 70px 0 24px; font-size: 118px; }
+  .cards { grid-template-columns: repeat(4,1fr); }
+  .card { min-height: 142px; }
+  a.btn, .btn { box-shadow: none; }
+  .log { height: 500px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="s-flower" viewBox="0 0 100 100"><path d="M50.0 1.0L52.1 1.2L54.2 1.9L56.2 3.0L58.0 4.6L59.6 6.5L60.9 9.2L62.0 11.9L63.1 14.0L64.2 15.7L65.3 17.2L66.5 18.4L67.7 19.3L69.2 19.9L70.8 20.3L72.6 20.6L74.7 20.6L77.0 20.5L79.9 20.1L82.8 19.9L85.3 20.4L87.6 21.2L89.5 22.3L91.2 23.8L92.4 25.5L93.3 27.5L93.7 29.6L93.8 31.9L93.3 34.2L92.5 36.6L90.8 39.1L89.0 41.4L87.8 43.3L86.8 45.2L86.1 46.8L85.6 48.4L85.5 50.0L85.6 51.6L86.1 53.2L86.8 54.8L87.8 56.7L89.0 58.6L90.8 60.9L92.5 63.4L93.3 65.8L93.8 68.1L93.7 70.4L93.3 72.5L92.4 74.5L91.2 76.2L89.5 77.7L87.6 78.8L85.3 79.6L82.8 80.1L79.9 79.9L77.0 79.5L74.7 79.4L72.6 79.4L70.8 79.7L69.2 80.1L67.7 80.7L66.5 81.6L65.3 82.8L64.2 84.3L63.1 86.0L62.0 88.1L60.9 90.8L59.6 93.5L58.0 95.4L56.2 97.0L54.2 98.1L52.1 98.8L50.0 99.0L47.9 98.8L45.8 98.1L43.8 97.0L42.0 95.4L40.4 93.5L39.1 90.8L38.0 88.1L36.9 86.0L35.8 84.3L34.7 82.8L33.5 81.6L32.3 80.7L30.8 80.1L29.2 79.7L27.4 79.4L25.3 79.4L23.0 79.5L20.1 79.9L17.2 80.1L14.7 79.6L12.4 78.8L10.5 77.7L8.8 76.2L7.6 74.5L6.7 72.5L6.3 70.4L6.2 68.1L6.7 65.8L7.5 63.4L9.2 60.9L11.0 58.6L12.2 56.7L13.2 54.8L13.9 53.2L14.4 51.6L14.5 50.0L14.4 48.4L13.9 46.8L13.2 45.2L12.2 43.3L11.0 41.4L9.2 39.1L7.5 36.6L6.7 34.2L6.2 31.9L6.3 29.6L6.7 27.5L7.6 25.5L8.8 23.8L10.5 22.3L12.4 21.2L14.7 20.4L17.2 19.9L20.1 20.1L23.0 20.5L25.3 20.6L27.4 20.6L29.2 20.3L30.8 19.9L32.3 19.3L33.5 18.4L34.7 17.2L35.8 15.7L36.9 14.0L38.0 11.9L39.1 9.2L40.4 6.5L42.0 4.6L43.8 3.0L45.8 1.9L47.9 1.2Z"/></symbol><symbol id="s-burst" viewBox="0 0 100 100"><path d="M50.0 1.0L52.1 1.4L54.1 2.6L56.0 4.2L57.8 5.8L59.5 7.2L61.2 8.0L63.2 8.2L65.3 7.9L67.7 7.3L70.1 6.8L72.5 6.9L74.5 7.6L76.1 9.0L77.3 11.0L78.1 13.3L78.8 15.7L79.6 17.7L80.7 19.3L82.3 20.4L84.3 21.2L86.7 21.9L89.0 22.7L91.0 23.9L92.4 25.5L93.1 27.5L93.2 29.9L92.7 32.3L92.1 34.7L91.8 36.8L92.0 38.8L92.8 40.5L94.2 42.2L95.8 44.0L97.4 45.9L98.6 47.9L99.0 50.0L98.6 52.1L97.4 54.1L95.8 56.0L94.2 57.8L92.8 59.5L92.0 61.2L91.8 63.2L92.1 65.3L92.7 67.7L93.2 70.1L93.1 72.5L92.4 74.5L91.0 76.1L89.0 77.3L86.7 78.1L84.3 78.8L82.3 79.6L80.7 80.7L79.6 82.3L78.8 84.3L78.1 86.7L77.3 89.0L76.1 91.0L74.5 92.4L72.5 93.1L70.1 93.2L67.7 92.7L65.3 92.1L63.2 91.8L61.2 92.0L59.5 92.8L57.8 94.2L56.0 95.8L54.1 97.4L52.1 98.6L50.0 99.0L47.9 98.6L45.9 97.4L44.0 95.8L42.2 94.2L40.5 92.8L38.8 92.0L36.8 91.8L34.7 92.1L32.3 92.7L29.9 93.2L27.5 93.1L25.5 92.4L23.9 91.0L22.7 89.0L21.9 86.7L21.2 84.3L20.4 82.3L19.3 80.7L17.7 79.6L15.7 78.8L13.3 78.1L11.0 77.3L9.0 76.1L7.6 74.5L6.9 72.5L6.8 70.1L7.3 67.7L7.9 65.3L8.2 63.2L8.0 61.2L7.2 59.5L5.8 57.8L4.2 56.0L2.6 54.1L1.4 52.1L1.0 50.0L1.4 47.9L2.6 45.9L4.2 44.0L5.8 42.2L7.2 40.5L8.0 38.8L8.2 36.8L7.9 34.7L7.3 32.3L6.8 29.9L6.9 27.5L7.6 25.5L9.0 23.9L11.0 22.7L13.3 21.9L15.7 21.2L17.7 20.4L19.3 19.3L20.4 17.7L21.2 15.7L21.9 13.3L22.7 11.0L23.9 9.0L25.5 7.6L27.5 6.9L29.9 6.8L32.3 7.3L34.7 7.9L36.8 8.2L38.8 8.0L40.5 7.2L42.2 5.8L44.0 4.2L45.9 2.6L47.9 1.4Z"/></symbol><symbol id="s-clover" viewBox="0 0 100 100"><path d="M50.0 1.0L52.1 1.1L54.2 1.6L56.3 2.3L58.2 3.3L60.1 4.6L61.7 6.2L63.2 8.0L64.5 10.3L65.1 13.5L65.5 16.7L66.2 18.9L66.8 20.8L67.5 22.5L68.2 24.1L68.8 25.5L69.6 26.7L70.4 27.8L71.2 28.8L72.2 29.6L73.3 30.4L74.5 31.2L75.9 31.8L77.5 32.5L79.2 33.2L81.1 33.8L83.3 34.5L86.5 34.9L89.7 35.5L92.0 36.8L93.8 38.3L95.4 39.9L96.7 41.8L97.7 43.7L98.4 45.8L98.9 47.9L99.0 50.0L98.9 52.1L98.4 54.2L97.7 56.3L96.7 58.2L95.4 60.1L93.8 61.7L92.0 63.2L89.7 64.5L86.5 65.1L83.3 65.5L81.1 66.2L79.2 66.8L77.5 67.5L75.9 68.2L74.5 68.8L73.3 69.6L72.2 70.4L71.2 71.2L70.4 72.2L69.6 73.3L68.8 74.5L68.2 75.9L67.5 77.5L66.8 79.2L66.2 81.1L65.5 83.3L65.1 86.5L64.5 89.7L63.2 92.0L61.7 93.8L60.1 95.4L58.2 96.7L56.3 97.7L54.2 98.4L52.1 98.9L50.0 99.0L47.9 98.9L45.8 98.4L43.7 97.7L41.8 96.7L39.9 95.4L38.3 93.8L36.8 92.0L35.5 89.7L34.9 86.5L34.5 83.3L33.8 81.1L33.2 79.2L32.5 77.5L31.8 75.9L31.2 74.5L30.4 73.3L29.6 72.2L28.8 71.2L27.8 70.4L26.7 69.6L25.5 68.8L24.1 68.2L22.5 67.5L20.8 66.8L18.9 66.2L16.7 65.5L13.5 65.1L10.3 64.5L8.0 63.2L6.2 61.7L4.6 60.1L3.3 58.2L2.3 56.3L1.6 54.2L1.1 52.1L1.0 50.0L1.1 47.9L1.6 45.8L2.3 43.7L3.3 41.8L4.6 39.9L6.2 38.3L8.0 36.8L10.3 35.5L13.5 34.9L16.7 34.5L18.9 33.8L20.8 33.2L22.5 32.5L24.1 31.8L25.5 31.2L26.7 30.4L27.8 29.6L28.8 28.8L29.6 27.8L30.4 26.7L31.2 25.5L31.8 24.1L32.5 22.5L33.2 20.8L33.8 18.9L34.5 16.7L34.9 13.5L35.5 10.3L36.8 8.0L38.3 6.2L39.9 4.6L41.8 3.3L43.7 2.3L45.8 1.6L47.9 1.1Z"/></symbol><symbol id="s-cookie" viewBox="0 0 100 100"><path d="M50.0 1.0L52.1 1.3L54.2 2.2L56.1 3.6L57.9 5.3L59.5 7.1L61.1 8.7L62.6 9.9L64.3 10.8L66.1 11.2L68.1 11.2L70.3 11.0L72.7 10.7L75.1 10.6L77.5 10.7L79.7 11.3L81.5 12.5L82.9 14.1L83.9 16.1L84.5 18.4L84.8 20.8L84.9 23.2L85.1 25.4L85.4 27.4L86.1 29.1L87.3 30.6L88.8 31.9L90.6 33.2L92.6 34.5L94.6 35.9L96.3 37.6L97.6 39.5L98.3 41.5L98.3 43.6L97.8 45.8L96.7 48.0L95.4 50.0L93.9 51.9L92.6 53.7L91.7 55.5L91.1 57.2L91.0 59.1L91.3 61.1L91.9 63.2L92.6 65.5L93.2 67.9L93.4 70.3L93.2 72.5L92.4 74.5L91.1 76.2L89.3 77.5L87.1 78.5L84.8 79.2L82.4 79.7L80.3 80.3L78.4 81.0L76.8 82.0L75.6 83.3L74.6 85.1L73.6 87.1L72.7 89.3L71.6 91.5L70.3 93.4L68.6 95.0L66.8 96.0L64.7 96.5L62.4 96.3L60.1 95.7L57.9 94.7L55.7 93.6L53.7 92.6L51.8 92.0L50.0 91.7L48.2 92.0L46.3 92.6L44.3 93.6L42.1 94.7L39.9 95.7L37.6 96.3L35.3 96.5L33.2 96.0L31.4 95.0L29.7 93.4L28.4 91.5L27.3 89.3L26.4 87.1L25.4 85.1L24.4 83.3L23.2 82.0L21.6 81.0L19.7 80.3L17.6 79.7L15.2 79.2L12.9 78.5L10.7 77.5L8.9 76.2L7.6 74.5L6.8 72.5L6.6 70.3L6.8 67.9L7.4 65.5L8.1 63.2L8.7 61.1L9.0 59.1L8.9 57.2L8.3 55.5L7.4 53.7L6.1 51.9L4.6 50.0L3.3 48.0L2.2 45.8L1.7 43.6L1.7 41.5L2.4 39.5L3.7 37.6L5.4 35.9L7.4 34.5L9.4 33.2L11.2 31.9L12.7 30.6L13.9 29.1L14.6 27.4L14.9 25.4L15.1 23.2L15.2 20.8L15.5 18.4L16.1 16.1L17.1 14.1L18.5 12.5L20.3 11.3L22.5 10.7L24.9 10.6L27.3 10.7L29.7 11.0L31.9 11.2L33.9 11.2L35.7 10.8L37.4 9.9L38.9 8.7L40.5 7.1L42.1 5.3L43.9 3.6L45.8 2.2L47.9 1.3Z"/></symbol></svg>
+
+<nav class="nav" aria-label="Sections">
+  <div class="in">
+    <img src="../brand/ovxs-logo-white.svg" alt="Studio OVXS">
+    <div class="links">
+      <a href="#holiday">Holiday plan</a><a href="#ovi">AI assistant</a><a href="#rewards">Rewards drawer</a><a href="#addons">Cart add-ons</a><a href="#fbt">Bought together</a><a href="#bundle">Bundle builder</a><a href="#subscribe">Subscribe</a><a href="#quiz">Quiz</a><a href="#post">Post-purchase</a><a href="#checkout">Checkout</a><a href="#delivery">Delivery</a><a href="#welcome">Welcome offer</a><a href="#reviews">Reviews</a>
+    </div>
+    <a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Store%20add-ons%20%E2%80%94%20I%E2%80%99d%20like%20to%20talk">Email us</a>
+  </div>
+</nav>
+
+<!-- ============ COVER ============ -->
+<header class="pg cover t-deep" id="top">
+  <svg class="shape s-flower a" aria-hidden="true"><use href="#s-flower"/></svg><svg class="shape s-cookie b" aria-hidden="true"><use href="#s-cookie"/></svg>
+  <div class="wrap">
+    <div class="top"><img src="../brand/ovxs-logo-white.svg" alt="Studio OVXS"><span>Store add-ons · Holiday 2026</span></div>
+    <h1>Small additions. <em>Bigger orders.</em></h1>
+    <p class="lead">Twelve add-ons we’ve built, or can build, for a Shopify store — from an AI assistant to a cart drawer that rewards a bigger basket. Pick the ones you want for this season. Tell us if one isn’t worth your money.</p>
+    <a class="btn" href="#index">See all twelve →</a>
+  </div>
+  <div class="wrap">
+    <div class="foot"><span><b>Studio OVXS</b> — senior-led Shopify studio</span><span>10+ years on Shopify</span><span>Fixed prices, agreed before we start</span><span>contact@ovxsbusiness.solutions</span></div>
+  </div>
+</header>
+
+<!-- ============ INDEX ============ -->
+<section class="pg index t-sand" id="index">
+  <svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg>
+  <div class="wrap">
+    <p class="eyebrow">What’s inside</p>
+    <h2>Twelve add-ons. <em>Pick what fits.</em></h2>
+    <div class="legend"><span><i></i>Built by us, live or in client stores</span><span class="r"><i></i>Not built yet — we build on request</span><span class="c"><i></i>Set up on a client’s store</span></div>
+    <div class="cards">
+      <a class="card dk" href="#ovi" style="--c:#1B6A63"><span class="n">01</span><strong>AI shopping assistant</strong><small>Answers from your own store knowledge, hands off to a person.</small><span class="st">Live on our own site</span></a>
+      <a class="card" href="#rewards" style="--c:#DDF1EC"><span class="n">02</span><strong>Rewards cart drawer</strong><small>Free shipping and free-gift tiers with a progress bar.</small><span class="st">Built for Just Good Soil</span></a>
+      <a class="card" href="#addons" style="--c:#F6E7A8"><span class="n">03</span><strong>Cart add-ons</strong><small>“Complete the set” offers inside the cart.</small><span class="st">We build on request</span></a>
+      <a class="card" href="#fbt" style="--c:#E2DCF6"><span class="n">04</span><strong>Bought together</strong><small>Pair products on the product page, one click.</small><span class="st">We build on request</span></a>
+      <a class="card" href="#bundle" style="--c:#F8D5C3"><span class="n">05</span><strong>Bundle builder</strong><small>Build your own box with tiered savings.</small><span class="st">Set up on Halm’s store</span></a>
+      <a class="card dk" href="#subscribe" style="--c:#0B3351"><span class="n">06</span><strong>Subscribe &amp; save</strong><small>Repeat orders on a schedule the shopper controls.</small><span class="st">Set up on Halm’s store</span></a>
+      <a class="card" href="#quiz" style="--c:#CFE6FB"><span class="n">07</span><strong>Guided finder</strong><small>A short quiz that ends in the right product.</small><span class="st">Set up on Halm’s store</span></a>
+      <a class="card" href="#post" style="--c:#F2B01E"><span class="n">08</span><strong>Post-purchase offer</strong><small>One-click add-on after the order is paid.</small><span class="st">We build on request</span></a>
+      <a class="card dk" href="#checkout" style="--c:#171D1C"><span class="n">09</span><strong>Checkout add-ons</strong><small>Gift wrap, care plans and notes at checkout.</small><span class="st">We build on request</span></a>
+      <a class="card dk" href="#delivery" style="--c:#3C6284"><span class="n">10</span><strong>Delivery date &amp; sticky buy bar</strong><small>A clear arrival date, and a buy button that stays in reach.</small><span class="st">We build on request</span></a>
+      <a class="card dk" href="#welcome" style="--c:#007369"><span class="n">11</span><strong>Welcome offer</strong><small>A calm first-visit offer that applies itself.</small><span class="st">We build on request</span></a>
+      <a class="card" href="#reviews" style="--c:#fff"><span class="n">12</span><strong>Reviews &amp; photos</strong><small>Proof next to the buy button, not buried below.</small><span class="st">Set up on Halm’s store</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOLIDAY PLAN ============ -->
+<section class="pg hol t-paper" id="holiday">
+  <svg class="shape s-cookie" aria-hidden="true"><use href="#s-cookie"/></svg>
+  <div class="wrap">
+    <p class="eyebrow">Holiday plan</p>
+    <h2>Four phases. <em>One job each.</em></h2>
+    <p class="lead">The stores that do well over the holidays don’t run one big sale. They give every stretch of the season a single job, then pick the add-ons that do it. Here is how the twelve fit together.</p>
+    <div class="phases">
+      <div class="phase" style="--c:#DDF1EC"><span class="when">Early season</span><h3>Acquire</h3><p class="job"><b>Win new customers before costs climb.</b> Ad prices rise as the season fills up, so the early weeks are the cheapest time to bring people in.</p><div class="chips2"><a href="#welcome">11 Welcome offer</a><a href="#ovi">01 AI assistant</a><a href="#reviews">12 Reviews</a></div></div>
+      <div class="phase" style="--c:#F6E7A8"><span class="when">The run-up</span><h3>Grow the cart</h3><p class="job"><b>A free gift, not a discount.</b> With no sale running, the gift is the whole story, and your prices stay where they are.</p><div class="chips2"><a href="#rewards">02 Rewards drawer</a><a href="#addons">03 Cart add-ons</a><a href="#fbt">04 Bought together</a></div></div>
+      <div class="phase" style="--c:#F8D5C3"><span class="when">Peak week</span><h3>Peak</h3><p class="job"><b>Spend more, unlock more.</b> Tiers on the cart bar make every extra item feel like a step towards something.</p><div class="chips2"><a href="#rewards">02 Reward tiers</a><a href="#bundle">05 Bundle builder</a><a href="#post">08 Post-purchase</a></div></div>
+      <div class="phase" style="--c:#E2DCF6"><span class="when">Gift weeks</span><h3>Gift</h3><p class="job"><b>Sell the gift of what comes next.</b> Put the ship-by date in front of everyone, and a digital gift card behind it.</p><div class="chips2"><a href="#delivery">10 Delivery date</a><a href="#quiz">07 Gift finder</a><a href="#checkout">09 Gift wrap</a></div></div>
+    </div>
+    <div class="settle">
+      <h3>Settle these <em style="text-decoration-color:#B1F2E9">first</em></h3>
+      <div><b>Stacking rules</b><p>Decide how a sitewide percentage, a signup code and free-gift tiers combine before anything goes live.</p></div>
+      <div><b>Tier maths</b><p>Do tiers count the cart before or after the discount? Does the top tier include every gift below it?</p></div>
+      <div><b>Stock and quiet days</b><p>Reserve stock for every gift, and keep the days between offers quiet so each one lands.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 OVI ============ -->
+<section class="pg t-teal" id="ovi" data-name="AI shopping assistant (Ovi)">
+  <svg class="shape s-flower" aria-hidden="true"><use href="#s-flower"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-cookie" aria-hidden="true"><use href="#s-cookie"/></svg><b>01</b></div><span class="pill">Live on our own site</span>
+      <p class="eyebrow">AI shopping assistant</p>
+      <h2>A shop assistant that <em>never clocks off.</em></h2>
+      <p class="lead">Ovi is the assistant on our own site. It knows the page you’re on, answers only from a knowledge sheet we write with you, and hands the chat to a person when that’s the better answer.</p>
+      <ul class="ticks">
+        <li>Opens with a line that fits the page — product, collection or cart</li>
+        <li>States only what’s in your knowledge sheet: prices, delivery, returns, sizing</li>
+        <li>Offers WhatsApp or a call when a shopper is stuck or frustrated</li>
+        <li>Saves name and email to Shopify as a lead — no marketing opt-in unless you add one</li>
+        <li>Thumbs on every reply, and a weekly review of real conversations</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Stores with lots of “which one?” questions</div><div><span>Published price</span>$1,500 setup + $199/month</div><div><span>Live in</span>About 2–3 weeks</div></div>
+      <p class="take"><b>Our honest take.</b> It earns its keep on stores with real pre-sale questions. If yours get five a month, a good FAQ page is cheaper — and we’ll say so.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20AI%20shopping%20assistant">Ask about this one</a><button class="pick" data-pick="AI shopping assistant" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock chat">
+        <div class="mhead"><span class="av">O</span><div>Store assistant<small>Answers from your store’s own knowledge sheet</small></div></div>
+        <div class="log" id="chatlog">
+          <div class="msg bot">You’re looking at the Canvas sneaker. Want help with sizing, or a quick answer on delivery?</div>
+          <div class="msg me">I’m between a 8 and a 9. Which one?</div>
+          <div class="msg bot">They run true to size, so go up half a size if you’re between. Here’s the size guide.<a href="#ovi">Canvas sneaker — size guide →</a><div class="thumbs">Helpful · Not helpful</div></div>
+          <div class="msg me">Can I speak to someone about a bulk order?</div>
+          <div class="msg bot">Of course. The team is around now. Pick whichever suits you.<div class="handoff"><span>Message on WhatsApp</span><span>Book a call</span></div></div>
+        </div>
+        <div class="chips" id="chips"><button data-q="Delivery times">Delivery times</button><button data-q="Returns">Returns</button><button data-q="Are they vegan?">Are they vegan?</button></div>
+        <div class="composer"><i>Ask a question…</i><b></b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 REWARDS DRAWER ============ -->
+<section class="pg t-mint flip" id="rewards" data-name="Rewards cart drawer">
+  <svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-burst" aria-hidden="true"><use href="#s-burst"/></svg><b>02</b></div><span class="pill">Built for Just Good Soil</span>
+      <p class="eyebrow">Cart drawer · discounts and gifts</p>
+      <h2>Show shoppers what’s <em>one item away.</em></h2>
+      <p class="lead">A progress bar at the top of the cart drawer turns “free shipping over $75” into a goal. Add a second tier and a free gift appears in the cart the moment it’s earned.</p>
+      <ul class="ticks">
+        <li>Up to five tiers: free shipping, free gift, whatever you choose. Every tier is a reason to add one more item</li>
+        <li>Message updates as the cart changes — “$44 more unlocks your free gift”</li>
+        <li>Free gift appears under the items with an “Add for free” button</li>
+        <li>Tiers can run on dates, so a seasonal tier switches itself on and off</li>
+        <li>Works in the drawer and on the cart page; colours match your store</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Stores with a free-shipping threshold</div><div><span>Typical effort</span>Medium build</div></div>
+      <p class="take"><b>Our honest take.</b> Set the first tier just above your average order. Too high and it feels out of reach; too low and it gives margin away. When no sale is running, a free gift can do the job a discount would, and your prices stay put.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Rewards%20cart%20drawer">Ask about this one</a><button class="pick" data-pick="Rewards cart drawer" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock drawer" id="rwd">
+        <div class="mhead"><span>Your cart</span><small id="rwcount">3 items</small></div>
+        <div class="rw"><p id="rwmsg"></p><div class="track"><span class="fill" id="rwfill"></span><div class="ms" style="left:50%" id="ms1"><i></i><span>Free shipping · $75</span></div><div class="ms" style="left:100%" id="ms2"><i></i><span>Free gift · $150</span></div></div></div>
+        <ul class="lines" id="rwlines"></ul>
+        <div class="giftrow" id="rwgift" hidden><span class="sw soap" style="width:44px;height:44px"></span><div><div class="bd">Free gift unlocked</div><div style="font-size:13px;font-weight:500">Travel soap <s class="muted">$6</s> <b style="color:#2E8B57">Free</b></div></div><button id="giftbtn">Add for free</button></div>
+        <div class="dfoot"><div class="row"><span>Subtotal</span><span id="rwtot">$106</span></div><span class="mbtn">Checkout</span></div>
+        <div class="demo-note">Try it — change a quantity</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 CART ADD-ONS ============ -->
+<section class="pg t-butter" id="addons" data-name="Cart add-ons">
+  <svg class="shape s-burst" aria-hidden="true"><use href="#s-burst"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-flower" aria-hidden="true"><use href="#s-flower"/></svg><b>03</b></div><span class="pill req">We build on request</span>
+      <p class="eyebrow">Cart drawer · cross-sell</p>
+      <h2>The right extra, <em>at the right moment.</em></h2>
+      <p class="lead">Shoppers have already decided to buy. A short “complete the set” row inside the cart lets them add refills, accessories or samples in one tap — no page change, no pop-up.</p>
+      <ul class="ticks">
+        <li>Suggestions based on what’s in the cart, picked by rules you set</li>
+        <li>One-tap add that updates the subtotal straight away</li>
+        <li>Hides anything already in the cart or out of stock</li>
+        <li>Sits quietly under the items — never blocks checkout</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Stores with refills, accessories or small add-ons</div><div><span>Typical effort</span>Quick to medium</div></div>
+      <p class="take"><b>Our honest take.</b> Three offers is plenty. Keep them cheap relative to the cart, and relevant. A random bestseller row only adds noise.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Cart%20add-ons">Ask about this one</a><button class="pick" data-pick="Cart add-ons" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock" id="adr" style="max-width:430px;--mt:#1B6A63">
+        <span class="tag-ex">Example</span>
+        <div class="mhead"><span>Your cart</span><small>1 item</small></div>
+        <ul class="lines"><li><span class="sw shoe"></span><div class="t">Canvas sneaker<small>Size 9 · White</small></div><span class="price">$58</span></li></ul>
+        <div class="sechead">Complete the set</div>
+        <div class="addrow">
+          <div class="addc" data-p="18"><span class="sw spray"></span><strong>Protector spray</strong><small>$18</small><button>+ Add</button></div>
+          <div class="addc" data-p="9"><span class="sw socks"></span><strong>Cotton socks</strong><small>$9</small><button>+ Add</button></div>
+          <div class="addc" data-p="6"><span class="sw laces"></span><strong>Spare laces</strong><small>$6</small><button>+ Add</button></div>
+        </div>
+        <div class="dfoot"><div class="row"><span>Subtotal</span><span id="adtot">$58</span></div><span class="mbtn">Checkout</span></div>
+        <div class="demo-note">Try it — tap “Add”</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 FBT ============ -->
+<section class="pg t-lilac flip" id="fbt" data-name="Bought together">
+  <svg class="shape s-cookie" aria-hidden="true"><use href="#s-cookie"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg><b>04</b></div><span class="pill req">We build on request</span>
+      <p class="eyebrow">Product page · cross-sell</p>
+      <h2>Pair it up, <em>in one click.</em></h2>
+      <p class="lead">Under the buy button, show the two products that go with this one, with a single price for the set. Shoppers untick anything they don’t want, and the total follows.</p>
+      <ul class="ticks">
+        <li>Pairings chosen by you, or by rules like “same collection”</li>
+        <li>Optional set discount, shown as the saving</li>
+        <li>Adds all ticked items to the cart together</li>
+        <li>Variant pickers built in, so a pair never lands in the cart half-chosen</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Products that clearly go together</div><div><span>Typical effort</span>Quick to medium</div></div>
+      <p class="take"><b>Our honest take.</b> An app can do this well for most stores. We build it custom when the pairing rules or the look need to be yours.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Bought%20together">Ask about this one</a><button class="pick" data-pick="Bought together" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock fbt" id="fbtm" style="--mt:#5A47A8">
+        <span class="tag-ex">Example</span>
+        <h4>Frequently bought together</h4>
+        <div class="trio">
+          <label class="tile" data-p="42"><input type="checkbox" checked disabled><span class="sw tote"></span><strong>Linen tote</strong><small>$42</small></label><span class="plus">+</span>
+          <label class="tile" data-p="24"><input type="checkbox" checked><span class="sw mug"></span><strong>Stoneware mug</strong><small>$24</small></label><span class="plus">+</span>
+          <label class="tile" data-p="18"><input type="checkbox" checked><span class="sw soap"></span><strong>Oat soap bar</strong><small>$18</small></label>
+        </div>
+        <div class="fbt-total"><div><s class="muted" id="fbtold">$84</s><b id="fbtnew">$75.60</b><div class="save" id="fbtsave">Save $8.40 on the set</div></div><span class="muted" id="fbtn">3 items</span></div>
+        <span class="mbtn">Add <span id="fbtc">3</span> to cart</span>
+        <div class="demo-note" style="padding-top:12px">Try it — untick an item</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 BUNDLE BUILDER ============ -->
+<section class="pg t-peach" id="bundle" data-name="Bundle builder">
+  <svg class="shape s-flower" aria-hidden="true"><use href="#s-flower"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-burst" aria-hidden="true"><use href="#s-burst"/></svg><b>05</b></div><span class="pill cl">Set up on Halm’s store</span>
+      <p class="eyebrow">Product page · volume savings</p>
+      <h2>Let them build the box, <em>then reward it.</em></h2>
+      <p class="lead">Shoppers choose their own items, and a tier bar shows the saving growing as they add more. It suits anything people like to mix and match: samples, flavours, refills, sets.</p>
+      <ul class="ticks">
+        <li>Choose how many items per box and how many tiers</li>
+        <li>The saving is shown live, so the next tier is always visible</li>
+        <li>Stock-aware: sold-out items can’t be picked</li>
+        <li>Works with a subscription — extras can ride along with every delivery</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Products people buy in sets</div><div><span>Typical effort</span>Medium to bigger build</div></div>
+      <p class="take"><b>Our honest take.</b> Simple “buy 3, save 10%” can be done with an app. We step in when the rules get specific — mixed prices, limits, subscriptions.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Bundle%20builder">Ask about this one</a><button class="pick" data-pick="Bundle builder" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock bb" id="bbm" style="--mt:#A24A1E">
+        <span class="tag-ex">Example tiers</span>
+        <h4 style="margin:0;font-size:17px">Build your soap box</h4><div class="muted" style="font-size:13px">Choose up to 4 bars. Each is $12.</div>
+        <div class="tiers"><div data-n="2">2 items · 5% off</div><div data-n="3">3 items · 10% off</div><div data-n="4">4 items · 15% off</div></div>
+        <div class="grid6" id="bbgrid"></div>
+        <div class="fbt-total"><div><s class="muted" id="bbold"></s><b id="bbnew"></b><div class="save" id="bbsave" style="color:#A24A1E"></div></div><span class="muted" id="bbn"></span></div>
+        <span class="mbtn">Add box to cart</span>
+        <div class="demo-note" style="padding-top:12px">Try it — pick items</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 SUBSCRIBE ============ -->
+<section class="pg t-navy flip" id="subscribe" data-name="Subscribe & save">
+  <svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-flower" aria-hidden="true"><use href="#s-flower"/></svg><b>06</b></div><span class="pill">Set up on Halm’s store</span>
+      <p class="eyebrow">Product page · repeat revenue</p>
+      <h2>Make the second order <em>automatic.</em></h2>
+      <p class="lead">A clear choice between one-time and subscribe, with the saving shown and a delivery schedule the shopper controls. On Halm’s store it powers seasonal deliveries three times a year.</p>
+      <ul class="ticks">
+        <li>One-time or subscribe, side by side, with the price difference visible</li>
+        <li>Delivery rhythm chosen by the shopper — weekly, monthly, seasonal</li>
+        <li>Skip, swap or cancel from the customer account</li>
+        <li>Works with a plan matched to the customer, not just a single product</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Anything people reorder</div><div><span>Typical effort</span>Medium to bigger build</div></div>
+      <p class="take"><b>Our honest take.</b> Subscriptions only work if skipping and cancelling are easy. We design that part first — it’s what keeps people subscribed.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Subscribe%20%26%20save">Ask about this one</a><button class="pick" data-pick="Subscribe & save" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock sub" style="--mt:#0B3351">
+        <span class="tag-ex">Example</span>
+        <div class="pdp"><span class="sw bottle"></span><div><h4>Hand wash refill</h4><div class="muted">500 ml · lemon and cedar</div></div></div>
+        <button class="opt2" data-s="0"><span class="dot"></span><div><b>One-time purchase</b><small>Pay once, no commitment</small></div><span class="p">$24.00</span></button>
+        <div class="freqwrap"></div>
+        <button class="opt2 on" data-s="1"><span class="dot"></span><div><b>Subscribe &amp; save 10%</b><small>Deliver every…</small></div><span class="p">$21.60</span></button>
+        <div class="freqwrap"><div class="freq" id="freq"><button>Every 4 weeks</button><button class="on">Every 8 weeks</button><button>Every 12 weeks</button></div></div>
+        <ul class="perks"><li>Skip, swap or cancel anytime</li><li>Reminder email before every shipment</li><li>Manage it all from your account</li></ul>
+        <span class="mbtn">Subscribe</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 QUIZ ============ -->
+<section class="pg t-sky" id="quiz" data-name="Guided finder quiz">
+  <svg class="shape s-cookie" aria-hidden="true"><use href="#s-cookie"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg><b>07</b></div><span class="pill">Set up on Halm’s store</span>
+      <p class="eyebrow">Product finder · quiz</p>
+      <h2>Three questions. <em>One right answer.</em></h2>
+      <p class="lead">When the range is wide, people stall. A short quiz narrows it down and ends on a product, a kit or a plan. On Halm’s store, a soil test leads to a fertiliser plan matched to each lawn.</p>
+      <ul class="ticks">
+        <li>Three to five questions, one per screen, mobile-first</li>
+        <li>Result page with the matched product and an Add to cart button</li>
+        <li>Answers can be saved to the customer, ready for follow-up emails</li>
+        <li>Your logic, not a template — the quiz knows your range</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Wide ranges, skin, soil, size, fit</div><div><span>Typical effort</span>Medium build</div></div>
+      <p class="take"><b>Our honest take.</b> Don’t ask more than you use. Every extra question loses people; we write the logic first, then the questions.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Guided%20finder%20quiz">Ask about this one</a><button class="pick" data-pick="Guided finder quiz" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock quiz" id="qz" style="--mt:#244A6A">
+        <span class="tag-ex">Example</span>
+        <div class="dots" id="qdots"><i class="on"></i><i class="on"></i><i></i></div>
+        <div id="qbody"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 POST-PURCHASE ============ -->
+<section class="pg t-yellow flip" id="post" data-name="Post-purchase offer">
+  <svg class="shape s-burst" aria-hidden="true"><use href="#s-burst"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-flower" style="fill:var(--ink)" aria-hidden="true"><use href="#s-flower"/></svg><b style="color:var(--yellow)">08</b></div><span class="pill req">We build on request</span>
+      <p class="eyebrow">After checkout · one-click offer</p>
+      <h2>The order is paid. <em>One more chance.</em></h2>
+      <p class="lead">Right after payment, the confirmation page offers one relevant add-on. One click adds it to the same order, with no card details to re-enter and no risk to the sale already made.</p>
+      <ul class="ticks">
+        <li>Shown only after the order succeeds, so it can never hurt checkout</li>
+        <li>One product, one button, one honest “No thanks”</li>
+        <li>Added to the same order and the same shipment</li>
+        <li>Offer chosen by what was bought</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Stores with a natural second product</div><div><span>Typical effort</span>Medium build</div></div>
+      <p class="take"><b>Our honest take.</b> One offer, not a funnel. Three screens of upsells annoys people and invites refunds.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Post-purchase%20offer">Ask about this one</a><button class="pick" data-pick="Post-purchase offer" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock thanks" id="pp" style="--mt:#171D1C">
+        <span class="tag-ex">Example</span>
+        <div class="top"><span class="check"></span><div><b style="font-size:16px">Thank you — your order is confirmed</b><div class="muted">Order #1042 · confirmation sent to your email</div></div></div>
+        <div class="offer" id="ppo">
+          <div class="lbl">Add to your order</div>
+          <div class="row"><span class="sw spray"></span><div><b>Protector spray</b><div class="muted" style="font-size:13px">Keeps your new sneakers clean. Ships with your order, nothing to re-enter.</div><div style="margin-top:6px"><s>$24</s> <b>$18</b></div></div></div>
+          <span class="mbtn" id="ppadd" role="button" tabindex="0">Add to my order — $18</span>
+          <div class="later" id="ppno">No thanks</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 CHECKOUT ============ -->
+<section class="pg t-ink" id="checkout" data-name="Checkout add-ons">
+  <svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-cookie" aria-hidden="true"><use href="#s-cookie"/></svg><b>09</b></div><span class="pill req">We build on request</span>
+      <p class="eyebrow">Checkout · extensions</p>
+      <h2>Offer the small things <em>where they’re needed.</em></h2>
+      <p class="lead">Gift wrap, a care plan, a handwritten note, a donation. Tick-box add-ons inside checkout itself, built on Shopify’s checkout tools so they stay fast and secure.</p>
+      <ul class="ticks">
+        <li>Appears in the order summary, with the price and a plain description</li>
+        <li>Adds a real line item, so reports, tax and fulfilment stay correct</li>
+        <li>Can be free (a gift note) or paid (gift wrap, protection)</li>
+        <li>Built with Shopify’s own checkout extensions, no workarounds</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Gifting, personalisation, protection plans</div><div><span>Typical effort</span>Medium build</div></div>
+      <p class="take"><b>Our honest take.</b> Checkout is the wrong place for anything that makes people think. Keep it to tick-boxes with obvious value.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Checkout%20add-ons">Ask about this one</a><button class="pick" data-pick="Checkout add-ons" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock co" id="cko" style="--mt:#0F2F2C">
+        <span class="tag-ex">Example</span>
+        <div class="mhead"><span>Order summary</span><small>1 item</small></div>
+        <ul class="lines"><li><span class="sw shoe"></span><div class="t">Canvas sneaker<small>Size 9 · White</small></div><span class="price">$58.00</span></li></ul>
+        <div class="sechead">Make it special</div>
+        <button class="chk on" data-p="4"><span class="bx"></span><div>Gift wrap<small>Recycled paper, hand-tied</small></div><span class="price">+$4.00</span></button>
+        <button class="chk" data-p="9"><span class="bx"></span><div>Extended care plan<small>Repair or replace within 12 months</small></div><span class="price">+$9.00</span></button>
+        <button class="chk on" data-p="0"><span class="bx"></span><div>Handwritten note<small>Add your message at the next step</small></div><span class="price">Free</span></button>
+        <div class="tot"><div class="row"><span>Subtotal</span><span id="cksub">$58.00</span></div><div class="row"><span>Shipping</span><span>Calculated next</span></div><div class="row big"><span>Total</span><span id="cktot">$58.00</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 DELIVERY + STICKY ============ -->
+<section class="pg t-steel flip" id="delivery" data-name="Delivery date and sticky buy bar">
+  <svg class="shape s-flower" aria-hidden="true"><use href="#s-flower"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-burst" aria-hidden="true"><use href="#s-burst"/></svg><b>10</b></div><span class="pill req">We build on request</span>
+      <p class="eyebrow">Product page · mobile</p>
+      <h2>Say when it arrives. <em>Keep the button close.</em></h2>
+      <p class="lead">Two small things that remove hesitation on a phone: a plain delivery date, worked out from your real cut-off time, and a buy bar that appears once the main button scrolls out of view.</p>
+      <ul class="ticks">
+        <li>“Order within 2h 14m for delivery by Thu 10 Dec” — from your cut-off and carrier times</li>
+        <li>Holiday cut-offs are easy to switch on for the season</li>
+        <li>After the last ship-by date, the same spot switches to digital gift cards</li>
+        <li>Sticky buy bar shows the product, price and variant, then adds to cart</li>
+        <li>Small, fast and light — no extra app scripts on the page</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Seasonal and gifting traffic on mobile</div><div><span>Typical effort</span>Quick build</div></div>
+      <p class="take"><b>Our honest take.</b> The date must be true. If your carrier times aren’t reliable, we’ll suggest a softer line like “ships within 2 working days” instead.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Delivery%20date%20and%20sticky%20buy%20bar">Ask about this one</a><button class="pick" data-pick="Delivery date and sticky buy bar" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="phones">
+        <div class="phone">
+          <div class="scr"><div class="hero sw shoe" style="width:auto;background-size:auto 80%"></div><h4>Canvas sneaker</h4><div class="rate">★★★★★</div><div style="font-weight:600;margin-top:4px">$58.00</div>
+            <div class="eta">Order within <b id="eta">02:14:09</b> for delivery by <b>Thu 10 Dec</b></div>
+            <span class="mbtn" style="--mt:#244A6A;font-size:13.5px">Add to cart</span></div>
+          <div class="stick"><span class="sw shoe"></span><div><strong>Canvas sneaker</strong><small>$58.00</small></div><button>Add to cart</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 WELCOME OFFER ============ -->
+<section class="pg t-bright" id="welcome" data-name="Welcome offer">
+  <svg class="shape s-cookie" aria-hidden="true"><use href="#s-cookie"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg><b>11</b></div><span class="pill req">We build on request</span>
+      <p class="eyebrow">First visit · email capture</p>
+      <h2>A welcome offer <em>that behaves itself.</em></h2>
+      <p class="lead">A single, calm offer for new visitors, timed after they’ve had a look around. Enter an email and the discount applies itself at checkout, with no code to copy and lose.</p>
+      <ul class="ticks">
+        <li>Appears after a delay or scroll — never the instant the page loads</li>
+        <li>Auto-applied discount, so nobody abandons over a missing code</li>
+        <li>Email goes straight into your email tool, with consent handled properly</li>
+        <li>Won’t show to returning customers or to anyone who closed it</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Stores growing an email list</div><div><span>Typical effort</span>Quick to medium</div></div>
+      <p class="take"><b>Our honest take.</b> A discount trains people to wait for one. We’d usually pair it with a clear reason — first order, or a starter kit — rather than an always-on pop-up.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Welcome%20offer">Ask about this one</a><button class="pick" data-pick="Welcome offer" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock wp" id="wpm" style="--mt:#007369">
+        <span class="tag-ex">Example</span>
+        <div class="bgpage"><div class="nav"></div><div class="big"></div><div class="three"><i class="sw shoe"></i><i class="sw soap"></i><i class="sw candle"></i></div></div>
+        <div class="modal"><div class="pic"></div><div class="in"><h4>Take 10% off <em>your first order</em></h4><div class="muted" style="font-size:13.5px">Leave your email and we’ll apply it at checkout. No code needed.</div>
+          <form class="field" id="wpf"><input type="email" placeholder="you@example.com" aria-label="Email" required><button type="submit">Get the offer</button></form>
+          <div class="applied">Done — 10% will be applied automatically at checkout.</div><div class="fine">No thanks · We’ll only email you about your order and the occasional update</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 REVIEWS ============ -->
+<section class="pg t-sand flip" id="reviews" data-name="Reviews and photos">
+  <svg class="shape s-flower" aria-hidden="true"><use href="#s-flower"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <div class="num"><svg class="shape s-burst" aria-hidden="true"><use href="#s-burst"/></svg><b>12</b></div><span class="pill">Set up on Halm’s store</span>
+      <p class="eyebrow">Social proof · reviews and photos</p>
+      <h2>Proof, right <em>next to the buy button.</em></h2>
+      <p class="lead">Reviews work hardest where the decision happens. A slider and summary near the buy button, with photo reviews and filters, instead of a block buried at the bottom of the page. Halm’s store holds a 4.8 star average from 400+ customer reviews.</p>
+      <ul class="ticks">
+        <li>Star summary under the product title, linked to the full list</li>
+        <li>Review slider on the home page and product pages</li>
+        <li>Photo reviews and filters by rating or topic</li>
+        <li>Works with the review app you already use</li>
+      </ul>
+      <div class="meta"><div><span>Best for</span>Any store with real reviews</div><div><span>Typical effort</span>Quick build</div></div>
+      <p class="take"><b>Our honest take.</b> Real, mixed reviews convert better than perfect ones, and we never invent them. If you have few reviews, start with collecting more.</p>
+      <div class="cta"><a class="btn" href="mailto:contact@ovxsbusiness.solutions?subject=Add-on%20interest%3A%20Reviews%20and%20photos">Ask about this one</a><button class="pick" data-pick="Reviews and photos" aria-pressed="false">Add to shortlist</button></div>
+    </div>
+    <div class="stage">
+      <div class="mock rev" style="--mt:#171D1C">
+        <span class="tag-ex">Layout example</span>
+        <div class="score"><b>4.8</b><div><div class="stars">★★★★★</div><div class="muted" style="font-size:12.5px">Based on customer reviews</div></div><div class="bars"><i style="--w:88%"></i><i style="--w:8%"></i><i style="--w:3%"></i></div></div>
+        <div class="ftabs"><span>All</span><span>With photos</span><span>5 star</span><span>Most recent</span></div>
+        <div class="rcards">
+          <div class="rc"><div class="by"><span class="stars" style="font-size:12px">★★★★★</span><span class="ver">Verified buyer</span></div>Fits true to size and comfortable from the first day. Example review.</div>
+          <div class="rc"><div class="by"><span class="stars" style="font-size:12px">★★★★★</span><span class="ver">Verified buyer</span></div>The soap smells great and lasts for weeks. Example review.</div>
+        </div>
+        <div class="photos"><span class="sw shoe"></span><span class="sw candle"></span><span class="sw soap"></span><span class="sw tote"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="pg how t-deep" id="how">
+  <svg class="shape s-clover" aria-hidden="true"><use href="#s-clover"/></svg>
+  <div class="wrap">
+    <p class="eyebrow">Where to start</p>
+    <h2 style="color:#fff">Pick a goal. <em>We’ll pick the add-ons.</em></h2>
+    <div class="paths">
+      <div class="path"><h3>Bigger orders</h3><p>For stores with a free-shipping threshold or accessories.</p><ul><li>02 Rewards cart drawer</li><li>03 Cart add-ons</li><li>04 Bought together</li></ul></div>
+      <div class="path"><h3>Easier choices</h3><p>For wide ranges and shoppers who ask questions first.</p><ul><li>01 AI shopping assistant</li><li>07 Guided finder</li><li>12 Reviews &amp; photos</li></ul></div>
+      <div class="path"><h3>More repeat sales</h3><p>For stores people come back to, and gifting season.</p><ul><li>06 Subscribe &amp; save</li><li>08 Post-purchase offer</li><li>11 Welcome offer</li></ul></div>
+    </div>
+    <div class="cols">
+      <div>
+        <ol>
+          <li><b>Reply with your shortlist.</b> Use the buttons on any page, or just tell us which numbers.</li>
+          <li><b>We look at your store.</b> We’ll say which are worth doing, and which an app or a theme setting already covers.</li>
+          <li><b>One fixed price.</b> Agreed once the scope is clear. New requests are quoted separately, never added silently.</li>
+          <li><b>Built, tested, handed over.</b> On your theme, checked on mobile, with a short walkthrough.</li>
+        </ol>
+      </div>
+      <div>
+        <table class="prices">
+          <tr><td>AI assistant, like Ovi — one-time setup</td><td>$1,500</td></tr>
+          <tr><td>AI assistant — hosting, weekly review, updates (up to 1,000 conversations)</td><td>$199/month</td></tr>
+          <tr><td>Custom section on a live store (about 3 days)</td><td>from $250</td></tr>
+          <tr><td>Store tweaks (about 3 days)</td><td>from $300</td></tr>
+          <tr><td>Development day — half / full (7 hours)</td><td>$650 / $1,200</td></tr>
+        </table>
+        <p class="fine2">Larger add-ons are quoted after a short look at your store. Shopify subscriptions and paid apps are billed to you directly by Shopify and the app makers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSER ============ -->
+<section class="pg closer t-teal" id="contact">
+  <svg class="shape s-flower" aria-hidden="true"><use href="#s-flower"/></svg>
+  <div class="wrap" style="display:block">
+    <p class="eyebrow">Next step</p>
+    <h2>Want one of these <em>on your store?</em></h2>
+    <p class="lead" style="color:#CDEBE5">Email us the numbers you’re interested in. A senior person replies, usually within one working day, with an honest view on each.</p>
+    <div class="row2">
+      <a class="btn" id="mailall" href="mailto:contact@ovxsbusiness.solutions?subject=Store%20add-ons%20%E2%80%94%20I%E2%80%99d%20like%20to%20talk">Email contact@ovxsbusiness.solutions</a>
+      <a class="btn alt" href="mailto:contact@ovxsbusiness.solutions?subject=Video%20audit%20%E2%80%94%20%2499">Start with the $99 video audit</a>
+    </div>
+    <small>The $99 audit is a 10–15 minute recorded walkthrough of your public site, with three ranked fixes. It’s credited in full against any project started within 60 days. Or ask for a free 30-minute intro call.</small>
+  </div>
+</section>
+
+<a class="fab" id="fab" href="#">Email my shortlist</a>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var fmt = function (n) { return '$' + (Math.round(n * 100) / 100).toFixed(n % 1 ? 2 : 0); };
+  var fmt0 = function (n) { return '$' + Math.round(n); };
+
+  /* shortlist -> mailto */
+  var picks = [];
+  var MAIL = 'contact@ovxsbusiness.solutions';
+  function mailHref() {
+    var subject = 'Store add-ons — I’d like: ' + picks.join(', ');
+    var body = 'Hi Studio OVXS,\n\nI’m interested in these add-ons for my store:\n\n' + picks.map(function (p) { return '– ' + p; }).join('\n') + '\n\nMy store: \n\nThanks,';
+    return 'mailto:' + MAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+  function sync() {
+    var fab = $('#fab');
+    fab.classList.toggle('show', picks.length > 0);
+    fab.textContent = 'Email my shortlist (' + picks.length + ')';
+    fab.href = picks.length ? mailHref() : '#';
+    if (picks.length) $('#mailall').href = mailHref();
+  }
+  $$('.pick').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var n = b.dataset.pick, i = picks.indexOf(n);
+      if (i < 0) picks.push(n); else picks.splice(i, 1);
+      b.setAttribute('aria-pressed', i < 0);
+      b.textContent = i < 0 ? 'On your shortlist ✓' : 'Add to shortlist';
+      sync();
+    });
+  });
+
+  /* 01 chat */
+  var answers = {
+    'Delivery times': 'Orders placed before 2pm leave the same working day. Standard delivery is usually 2–4 working days.',
+    'Returns': 'You can return unused items within 30 days. Here is the returns page for the full steps.',
+    'Are they vegan?': 'Yes. Every material is listed on the product page, and I can pass you to the team for anything specific.'
+  };
+  var log = $('#chatlog');
+  $$('#chips button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var me = document.createElement('div'); me.className = 'msg me'; me.textContent = b.dataset.q; log.appendChild(me);
+      var bot = document.createElement('div'); bot.className = 'msg bot'; bot.textContent = answers[b.dataset.q]; log.appendChild(bot);
+      while (log.scrollHeight > log.clientHeight + 1 && log.children.length > 2) log.removeChild(log.firstElementChild);
+    });
+  });
+
+  /* 02 rewards */
+  var items = [{ n: 'Canvas sneaker', s: 'Size 9 · White', p: 58, q: 1, c: 'shoe' }, { n: 'Oat &amp; honey soap', s: '120 g bar', p: 14, q: 1, c: 'soap' }, { n: 'Cedar soy candle', s: '220 g jar', p: 34, q: 1, c: 'candle' }];
+  var giftAdded = false;
+  function drawRw() {
+    var total = items.reduce(function (t, i) { return t + i.p * i.q; }, 0);
+    var count = items.reduce(function (t, i) { return t + i.q; }, 0);
+    var lines = $('#rwlines'); lines.innerHTML = '';
+    items.forEach(function (it, idx) {
+      if (!it.q) return;
+      var li = document.createElement('li');
+      li.innerHTML = '<span class="sw ' + it.c + '"></span><div class="t">' + it.n + '<small>' + it.s + '</small></div><div class="step"><button aria-label="Less">−</button><output>' + it.q + '</output><button aria-label="More">+</button></div><span class="price" style="min-width:42px;text-align:right">' + fmt0(it.p * it.q) + '</span>';
+      var bs = li.querySelectorAll('button');
+      bs[0].onclick = function () { it.q = Math.max(0, it.q - 1); drawRw(); };
+      bs[1].onclick = function () { it.q += 1; drawRw(); };
+      lines.appendChild(li);
+    });
+    var prog = total < 75 ? total / 75 * 50 : total < 150 ? 50 + (total - 75) / 75 * 50 : 100;
+    $('#rwfill').style.width = prog + '%';
+    $('#ms1').classList.toggle('on', total >= 75); $('#ms2').classList.toggle('on', total >= 150);
+    $('#rwmsg').innerHTML = total < 75 ? '<b>' + fmt0(75 - total) + '</b> more unlocks <b>free shipping</b>'
+      : total < 150 ? 'Free shipping unlocked. <b>' + fmt0(150 - total) + '</b> more unlocks your <b>free gift</b>'
+      : 'You’ve unlocked <b>free shipping</b> and a <b>free gift</b>';
+    $('#rwtot').textContent = fmt0(total);
+    $('#rwcount').textContent = count + (count === 1 ? ' item' : ' items');
+    $('#rwgift').hidden = total < 150;
+    var gb = $('#giftbtn'); gb.textContent = giftAdded ? 'Added' : 'Add for free';
+  }
+  $('#giftbtn').onclick = function () { giftAdded = !giftAdded; drawRw(); };
+  drawRw();
+
+  /* 03 add-ons */
+  $$('#adr .addc').forEach(function (c) {
+    c.querySelector('button').onclick = function () {
+      c.classList.toggle('on'); c.querySelector('button').textContent = c.classList.contains('on') ? 'Added ✓' : '+ Add';
+      var t = 58; $$('#adr .addc.on').forEach(function (a) { t += +a.dataset.p; });
+      $('#adtot').textContent = fmt0(t);
+    };
+  });
+
+  /* 04 FBT */
+  function fbt() {
+    var tiles = $$('#fbtm .tile'), sum = 0, n = 0;
+    tiles.forEach(function (t) { var on = t.querySelector('input').checked; t.classList.toggle('off', !on); if (on) { sum += +t.dataset.p; n++; } });
+    var disc = n === 3 ? .1 : 0, now = sum * (1 - disc);
+    $('#fbtold').textContent = disc ? fmt(sum) : ''; $('#fbtnew').textContent = fmt(now);
+    $('#fbtsave').textContent = disc ? 'Save ' + fmt(sum - now) + ' on the set' : 'Tick all three to save 10%';
+    $('#fbtn').textContent = n + (n === 1 ? ' item' : ' items'); $('#fbtc').textContent = n;
+  }
+  $$('#fbtm input').forEach(function (i) { i.addEventListener('change', fbt); }); fbt();
+
+  /* 05 bundle */
+  var opts = [['Oat &amp; honey', 'soap'], ['Lemon', 'soap v2'], ['Lavender', 'soap v3'], ['Rose', 'soap v4'], ['Sea salt', 'soap v5'], ['Cedar', 'soap v6']], sel = [0, 3];
+  function bb() {
+    var g = $('#bbgrid'); g.innerHTML = '';
+    opts.forEach(function (o, i) {
+      var d = document.createElement('button'); d.className = 'opt' + (sel.indexOf(i) > -1 ? ' on' : ''); d.style.cssText = 'font:inherit;cursor:pointer';
+      d.innerHTML = '<span class="sw ' + o[1] + '"></span><strong>' + o[0] + '</strong><small>$12</small>';
+      d.onclick = function () { var k = sel.indexOf(i); if (k > -1) sel.splice(k, 1); else if (sel.length < 4) sel.push(i); bb(); };
+      g.appendChild(d);
+    });
+    var n = sel.length, sum = n * 12, pct = n >= 4 ? .15 : n === 3 ? .10 : n === 2 ? .05 : 0, now = sum * (1 - pct);
+    $$('#bbm .tiers div').forEach(function (t) { t.classList.toggle('on', n >= +t.dataset.n); });
+    $('#bbold').textContent = pct ? fmt(sum) : ''; $('#bbnew').textContent = fmt(now);
+    $('#bbsave').textContent = pct ? 'You save ' + fmt(sum - now) : n ? 'Add one more to start saving' : 'Choose your first item';
+    $('#bbn').textContent = n + ' of 4 chosen';
+  }
+  bb();
+
+  /* 06 subscribe */
+  $$('.sub .opt2').forEach(function (b) { b.onclick = function () { $$('.sub .opt2').forEach(function (x) { x.classList.toggle('on', x === b); }); }; });
+  $$('#freq button').forEach(function (b) { b.onclick = function () { $$('#freq button').forEach(function (x) { x.classList.toggle('on', x === b); }); }; });
+
+  /* 07 quiz */
+  var steps = [
+    { q: 'What are you looking for?', o: ['Everyday shoes', 'A gift for someone', 'Something for the home'] },
+    { q: 'How will you wear them?', o: ['Every day', 'Now and then', 'Mostly travelling'] },
+    { q: 'What suits your style?', o: ['Clean and minimal', 'Bold and colourful', 'Classic'] }
+  ];
+  var qi = 1;
+  function quiz() {
+    var d = $$('#qdots i'); d.forEach(function (x, i) { x.classList.toggle('on', i <= qi); });
+    var b = $('#qbody');
+    if (qi >= steps.length) {
+      d.forEach(function (x) { x.classList.add('on'); });
+      b.innerHTML = '<div class="muted" style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600">Your match</div><h4 style="margin-top:6px">The everyday sneaker</h4><div class="qres"><span class="sw shoe"></span><div><b>Canvas sneaker</b><div class="muted" style="font-size:13px">Clean, minimal and comfortable from day one.</div><b style="display:block;margin-top:4px">$58</b></div></div><span class="mbtn">Add to cart</span><button class="reset" id="qreset">← Start again</button>';
+      $('#qreset').onclick = function () { qi = 0; quiz(); }; return;
+    }
+    var s = steps[qi];
+    b.innerHTML = '<div class="muted" style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600">Question ' + (qi + 1) + ' of 3</div><h4 style="margin-top:6px">' + s.q + '</h4>' + s.o.map(function (o, i) { return '<button class="qopt' + (qi === 1 && i === 1 ? ' on' : '') + '">' + o + '</button>'; }).join('');
+    $$('.qopt', b).forEach(function (x) { x.onclick = function () { qi++; quiz(); }; });
+  }
+  quiz();
+
+  /* 08 post-purchase */
+  $('#ppadd').onclick = function () {
+    $('#ppo').innerHTML = '<div class="lbl" style="color:#1B6A63">Added to your order</div><div class="row"><span class="sw spray"></span><div><b>Protector spray</b><div class="muted" style="font-size:13px">Now part of order #1042. It ships together with the rest.</div></div></div><div class="later" style="margin-top:0">Total charged today: $18 more</div>';
+  };
+  $('#ppno').onclick = function () { $('#ppo').innerHTML = '<div class="later" style="padding:14px">No problem. Your order is on its way.</div>'; };
+
+  /* 09 checkout */
+  function ck() {
+    var t = 58; $$('#cko .chk.on').forEach(function (c) { t += +c.dataset.p; });
+    $('#cksub').textContent = fmt(t) + (t % 1 ? '' : '.00'); $('#cktot').textContent = fmt(t) + (t % 1 ? '' : '.00');
+  }
+  $$('#cko .chk').forEach(function (c) { c.onclick = function () { c.classList.toggle('on'); ck(); }; }); ck();
+
+  /* 10 countdown */
+  var left = 2 * 3600 + 14 * 60 + 9;
+  setInterval(function () { left = left > 0 ? left - 1 : 0; var h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60), s = left % 60; var e = $('#eta'); if (e) e.textContent = [h, m, s].map(function (v) { return String(v).padStart(2, '0'); }).join(':'); }, 1000);
+
+  /* 11 welcome */
+  $('#wpf').addEventListener('submit', function (e) { e.preventDefault(); $('#wpm').classList.add('done'); });
+})();
+</script>
+</body>
+</html>
