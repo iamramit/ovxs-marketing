@@ -1,27 +1,5 @@
 [
   {
-    "file": "li.jpg",
-    "source": "Unsplash",
-    "id": "bKrmXTShj7k",
-    "photographer": "Ana Tavares",
-    "photographer_url": "https://unsplash.com/@ana_tavares?utm_source=ovxs_studio&utm_medium=referral",
-    "page": "https://unsplash.com/photos/woman-sitting-on-carpet-leaning-on-couch-bKrmXTShj7k",
-    "alt": "woman sitting on carpet leaning on couch",
-    "license": "https://unsplash.com/license",
-    "downloaded_at": "2026-11-17T12:31:23.563Z"
-  },
-  {
-    "file": "cover.jpg",
-    "source": "Unsplash",
-    "id": "3wacD2E3b-I",
-    "photographer": "Indu Pandey",
-    "photographer_url": "https://unsplash.com/@indupandey?utm_source=ovxs_studio&utm_medium=referral",
-    "page": "https://unsplash.com/photos/woman-in-pink-long-sleeve-shirt-sitting-on-brown-sofa-chair-3wacD2E3b-I",
-    "alt": "woman in pink long sleeve shirt sitting on brown sofa chair",
-    "license": "https://unsplash.com/license",
-    "downloaded_at": "2026-11-17T12:31:24.949Z"
-  },
-  {
     "file": "where.jpg",
     "source": "Unsplash",
     "id": "h0xEUQXzU38",
@@ -44,14 +22,36 @@
     "downloaded_at": "2026-11-17T12:31:47.374Z"
   },
   {
-    "file": "easy.jpg",
+    "file": "li-2.jpg",
     "source": "Unsplash",
-    "id": "x1i9rVh_klk",
-    "photographer": "Sincerely Media",
-    "photographer_url": "https://unsplash.com/@sincerelymedia?utm_source=ovxs_studio&utm_medium=referral",
-    "page": "https://unsplash.com/photos/woman-sitting-on-bed-and-using-laptop-x1i9rVh_klk",
-    "alt": "woman sitting on bed and using laptop",
+    "id": "ZRnoZG6WIUQ",
+    "photographer": "Yoshua Giri",
+    "photographer_url": "https://unsplash.com/@yoshuagp?utm_source=ovxs_studio&utm_medium=referral",
+    "page": "https://unsplash.com/photos/woman-sitting-on-gray-bench-crossing-legs-ZRnoZG6WIUQ",
+    "alt": "woman sitting on gray bench crossing legs",
     "license": "https://unsplash.com/license",
-    "downloaded_at": "2026-11-17T12:31:52.213Z"
+    "downloaded_at": "2026-11-17T12:49:07.987Z"
+  },
+  {
+    "file": "cover-2.jpg",
+    "source": "Unsplash",
+    "id": "N1YOSWrXQJE",
+    "photographer": "Windows",
+    "photographer_url": "https://unsplash.com/@windows?utm_source=ovxs_studio&utm_medium=referral",
+    "page": "https://unsplash.com/photos/woman-in-red-and-white-plaid-dress-shirt-using-microsoft-surface-laptop-N1YOSWrXQJE",
+    "alt": "woman in red and white plaid dress shirt using microsoft surface laptop ",
+    "license": "https://unsplash.com/license",
+    "downloaded_at": "2026-11-17T12:49:10.006Z"
+  },
+  {
+    "file": "easy-2.jpg",
+    "source": "Unsplash",
+    "id": "pcYi8xuRzmE",
+    "photographer": "Vladyslav Tobolenko",
+    "photographer_url": "https://unsplash.com/@tobolenkoph?utm_source=ovxs_studio&utm_medium=referral",
+    "page": "https://unsplash.com/photos/a-person-sitting-at-a-table-using-a-laptop-computer-pcYi8xuRzmE",
+    "alt": "a person sitting at a table using a laptop computer",
+    "license": "https://unsplash.com/license",
+    "downloaded_at": "2026-11-17T12:49:11.450Z"
   }
 ]
