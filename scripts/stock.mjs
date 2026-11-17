@@ -17,7 +17,8 @@ function loadEnv() {
 function usage() {
   console.log(`Usage:
   node scripts/stock.mjs search "<query>" [--source pexels|unsplash|both] [--n 6] [--orientation portrait|landscape|square]
-  node scripts/stock.mjs get <pexels|unsplash> <id> --out topics/<folder>/assets [--name cover]`);
+  node scripts/stock.mjs get <pexels|unsplash> <id> --out topics/<folder>/assets [--name cover]
+  node scripts/stock.mjs url <pexels|unsplash> <id>      (image URL for a preview render; no download tracked)`);
   process.exit(1);
 }
 
@@ -101,6 +102,18 @@ async function main() {
       catch (e) { console.error(`${s}: ${e.message}`); }
     }
     console.log(JSON.stringify(results, null, 2));
+    return;
+  }
+  if (cmd === "url") {
+    const [source, id] = a._;
+    if (!sources[source] || !id) usage();
+    if (source === "unsplash") {
+      const p = await json(`https://api.unsplash.com/photos/${encodeURIComponent(id)}`, { Authorization: `Client-ID ${keyFor("unsplash")}`, "Accept-Version": "v1" });
+      console.log(JSON.stringify({ image: `${p.urls.raw}&w=1080&fm=jpg&q=80` }));
+    } else {
+      const p = await json(`https://api.pexels.com/v1/photos/${encodeURIComponent(id)}`, { Authorization: keyFor("pexels") });
+      console.log(JSON.stringify({ image: p.src.large2x }));
+    }
     return;
   }
   if (cmd === "get") {

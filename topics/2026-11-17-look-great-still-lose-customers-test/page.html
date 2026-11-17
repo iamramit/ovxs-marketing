@@ -279,8 +279,7 @@ if(q){
   const el=document.getElementById(q);
   document.body.className="export";
   document.body.replaceChildren(el);
-  const ph=new URLSearchParams(location.search).get("photo");
-  if(ph&&/^(https:\/\/images\.(unsplash|pexels)\.com\/[^"'()\s]+|assets\/[\w.-]+)$/.test(ph))el.querySelectorAll(".ph").forEach(p=>p.style.backgroundImage=`url("${ph}")`);
+  if(window.OVXSKit)OVXSKit.apply(el,q,typeof slides!=="undefined"?slides:null);
 }else{
   const fit=()=>document.querySelectorAll(".frame").forEach(f=>{const b=f.firstElementChild;b.style.transform=`scale(${f.clientWidth/1080})`});
   new ResizeObserver(fit).observe(document.body);fit();

@@ -24,11 +24,15 @@ Use the Studio OVXS Design System (artifact `https://claude.ai/artifact/B8eCw13j
 - Right: the 4:5 graphic, 1080×1350 scaled to fit, with `id="li-graphic"`. Photo on top about 55%. Below it a primary panel with the eyebrow, the headline with its `<em>` payoff, a one-line subline and the CTA pill.
 - Below both: "First comment" with the link.
 
-**IG carousel.**
-- A grid of 8 slides, 4 per row on desktop and 2 on phones. Each slide is a 1080×1350 artboard scaled down, with `id="slide-1"` … `id="slide-8"`.
-- Rotate slide backgrounds across primary, surface, dark panel and primary-container.
-- Big IvyPresto headlines with the `<em>` payoff, a numbered index badge on slides 3–7, and the logo plus "ovxs.studio" in small type on every slide.
-- Photos go on the cover and the problem slides.
+**IG carousel.** Every carousel should look like it was designed for its topic, not filled into the same template.
+- A grid of slides, 4 per row on desktop and 2 on phones. Each slide is a 1080×1350 artboard scaled down, with `id="slide-1"` … `id="slide-N"`.
+- **Slide count fits the content: 5 to 10.** A sharp point is 5–6 slides; a checklist can run to 10. Never default to 8.
+- Slides come from one `slides` array: `{bg, ph, n, ey, hd, sb, src, cta, lay, stat}`. `bg` is `primary`, `surface`, `dark` or `container` (the Evergreen look); the kit restyles it for other styles.
+- **Layouts (`lay`)** come from `brand/carousel-kit.js`: none (photo on top or plain panel), `"type"` (no photo, huge headline), `"stat"` (giant figure in `stat`, short headline under it), `"quote"` (pull quote with big quote mark), `"split"` (photo on the left half). Use at least 3 different layouts per carousel.
+- **The cover changes every time.** Pick from photo-led, type-only, big stat or quote, and not the same cover layout or style as the previous carousel (check the last topic's `page.html` and Desk doc).
+- **Vary the words.** Mix punchy 3–6 word headlines (some slides headline only, no `sb`) with fuller slides up to 12 words plus a one-line `sb`. Don't give every slide the same rhythm.
+- Big IvyPresto headlines with the `<em>` payoff, numbered `n` badges on step slides, and the logo plus "ovxs.studio · i/total" on every slide, using `slides.length` (never a fixed /8).
+- Photos go on the cover and the problem slides, never on more than half the slides.
 - Caption below the grid.
 
 **Newsletter.** An email-width card (600px) with subject and preview at the top, then the body and one CTA button.
@@ -39,11 +43,19 @@ Use the Studio OVXS Design System (artifact `https://claude.ai/artifact/B8eCw13j
 
 **LinkedIn video.** Two columns: the script with a timestamp per line, and the shot list.
 
+## Carousel kit
+Load `<script src="../../brand/carousel-kit.js"></script>` in `<head>`. In export mode, after `document.body.replaceChildren(el)`, call `if(window.OVXSKit)OVXSKit.apply(el,q,slides);`. The kit handles, from the URL:
+- `order=3,1,2…` slide order (left-out slides dropped) and renumbers the footer and step badges;
+- `style=evergreen|night|editorial|neon|grid` and `accent=teal|mint|magenta|green|blue|red`, all from the Studio OVXS design system;
+- `photo=<unsplash/pexels URL or assets/file>` for that graphic.
+The Desk uses these through the photo helper (`render_slide`) to reorder, leave out and restyle slides instantly.
+
 ## Export mode
-When the URL has `?export=<id>` (`li-graphic`, `slide-1` … `slide-8`):
+When the URL has `?export=<id>` (`li-graphic`, `slide-1` … `slide-N`):
 - Render only that element at exactly 1080×1350.
 - No scaling and no page chrome, body margin 0.
 - Wait for fonts with `document.fonts.ready`.
+- Add `&style=<style>&accent=<accent>` from the Desk doc so the exported images match the chosen look.
 - `&photo=<url or path>` replaces the photo on that graphic only (used to render backup photos for the Desk's **Swap photo**). Ignore any value that isn't an `https://images.unsplash.com/`, `https://images.pexels.com/` or `assets/` path.
 
 Headless Chrome screenshots it at `--window-size=1080,1350`.
