@@ -66,12 +66,14 @@ No request from Ramit. Picked by the weekly run on 2026-11-12: no new Desk reque
 - Drafted 2026-11-14 in an interactive session (the scheduled daily run was cancelled). Preview: https://claude.ai/artifact/Dbh5KEYGtPEojQiZRKnK64
 - 2026-11-14: Ramit asked for fresh photos. Brief 1 photos replaced with three new Unsplash picks (see Photos); only the four photo images were re-rendered and re-uploaded.
 - 2026-11-18: LinkedIn graphic photo: Andrew Neel (QLqNalPe0RA), swapped on the Desk. Downloaded with credit; all nine graphics re-rendered as PNGs in the Studio Notes scheme with the Desk's designs.
+- 2026-11-20: Slide 1 photo: Andrew Neel (ute2XAFQU2I), swapped on the Desk. Downloaded with credit as assets/slide1-cover.jpg; slide 1 re-rendered as PNG and uploaded; preview republished. The previous slide 1 photo (cover.jpg) stays in assets/ as the Desk backup.
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
 | assets/li-cover.jpg | Unsplash QLqNalPe0RA | Andrew Neel | LinkedIn graphic (Desk pick 2026-11-18) |
-| assets/cover.jpg | Unsplash ag5H7Nqbf9U | Filipp Romanovski | slide 1 |
+| assets/slide1-cover.jpg | Unsplash ute2XAFQU2I | Andrew Neel | slide 1 (Desk pick 2026-11-20) |
+| assets/cover.jpg | Unsplash ag5H7Nqbf9U | Filipp Romanovski | slide 1 backup on the Desk (not in use) |
 | assets/notes.jpg | Unsplash 1rm4_SojyNM | Jakub Żerdzicki | slide 4 |
 | assets/code.jpg | Unsplash _4HiCxdOBLU | Tracy Adams | slide 6 |
 
