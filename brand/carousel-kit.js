@@ -59,6 +59,7 @@
 .sch-ever.bg-primary{background:radial-gradient(circle at 88% 8%,rgba(205,235,229,.22),transparent 45%),#1B6A63}
 .sch-ever.bg-dark{background:radial-gradient(circle at 12% 92%,rgba(127,200,188,.16),transparent 50%),#0F2F2C}
 .board.sch-ever .badge{border-radius:50%;-webkit-mask:none;mask:none}
+.sch-ever .hd{line-height:1.12}
 /* cover: photo inset in a rounded frame */
 .sch-ever.ph-on.pos-cover .ph{margin:56px 56px 0;border-radius:28px;flex-basis:46%!important}
 /* split: photo down the left half */
@@ -91,10 +92,10 @@
 .sch-notes.ph-on.pos-b .ph,.sch-notes.ph-on.pos-d .ph{position:absolute;top:70px;right:70px;width:430px;height:520px;margin:0;flex:none;transform:rotate(4deg);border-width:16px 16px 70px}
 .sch-notes.ph-on.pos-b .k-tape,.sch-notes.ph-on.pos-d .k-tape{left:auto;right:225px;top:52px;transform:rotate(6deg)}
 .sch-notes.ph-on.pos-b .pn,.sch-notes.ph-on.pos-d .pn{margin:520px 64px 150px 64px}
-.sch-notes .hd{font-family:"Romie",Georgia,serif;font-weight:400;letter-spacing:-.025em;line-height:1.02;font-size:88px;color:#171D1C}
+.sch-notes .hd{font-family:"Romie",Georgia,serif;font-weight:400;letter-spacing:-.025em;line-height:1.16;font-size:88px;color:#171D1C}
 .sch-notes.full .hd{font-size:104px}.sch-notes.ph-on .hd{font-size:76px}
-.sch-notes .hd em{font-style:normal;text-decoration-color:#007369;text-decoration-thickness:4px}
-.sch-notes .ey{font:900 30px/1 "Elza Condensed","Arial Narrow",sans-serif;letter-spacing:.07em;color:#007369}
+.sch-notes .hd em{font-family:"Caveat",cursive;font-weight:700;font-style:normal;font-size:1.18em;line-height:.9;color:#007369;text-decoration-color:#007369;text-decoration-thickness:3px;text-underline-offset:.14em}
+.sch-notes .ey{font:600 48px/1 "Caveat",cursive;letter-spacing:0;text-transform:none;color:#007369;margin-bottom:18px}
 .sch-notes .sb{font-size:31px;color:#3A4542;margin-top:28px}.sch-notes .src{color:#3A4542}
 .sch-notes .badge{background:#007369;color:#fff;width:132px;height:132px;top:70px;right:84px}
 .sch-notes.ph-on .badge{top:calc(40% + 30px);right:72px;transform:rotate(8deg)}
@@ -102,7 +103,7 @@
 .sch-notes .cta{background:#171D1C;color:#F7F2E8}
 .sch-notes .ft{color:#3A4542}
 .sch-notes .k-glyph{font-size:64px;color:#007369;top:-34px;right:40px;width:96px;height:96px;display:grid;place-items:center;background:#fff;border-radius:50%;box-shadow:0 6px 16px rgba(23,29,28,.12);transform:rotate(-8deg)}
-.sch-notes.pos-last .hd,.sch-notes.pos-last .sb,.sch-notes.pos-last .src{color:#fff}.sch-notes.pos-last .ey{color:#B1F2E9}
+.sch-notes.pos-last .hd,.sch-notes.pos-last .sb,.sch-notes.pos-last .src{color:#fff}.sch-notes.pos-last .ey{color:#B1F2E9}.sch-notes.pos-last .hd em{color:#F6E7A8}
 .sch-notes.pos-last .hd em{text-decoration-color:#F6E7A8}.sch-notes.pos-last .cta{background:#F6E7A8;color:#171D1C}
 
 /* ================= Deep Field (navy) ================= */
@@ -122,7 +123,7 @@
 .sch-field.ph-on.pos-b .badge,.sch-field.ph-on.pos-d .badge{top:72px!important;left:84px;right:auto}
 .sch-field .pn{padding:40px 84px 0}
 .sch-field.full .pn{padding:0 84px 160px}
-.sch-field .hd{font:700 104px/.98 "IvyPresto Display",Georgia,serif;letter-spacing:-.035em;color:#F4F8FC}
+.sch-field .hd{font:700 104px/1.1 "IvyPresto Display",Georgia,serif;letter-spacing:-.035em;color:#F4F8FC}
 .sch-field.full .hd{font-size:128px}.sch-field.ph-on .hd{font-size:86px}
 .sch-field .hd em{color:#E2DCF6;text-decoration-color:#AACBEA}
 .sch-field .ey{font:700 24px/1 Inter,system-ui,sans-serif;letter-spacing:.24em;color:#AACBEA}
@@ -151,9 +152,9 @@
 .sch-poster.ph-on.pos-cover .badge,.sch-poster.ph-on.pos-b .badge,.sch-poster.ph-on.pos-d .badge{top:72px!important;left:72px;right:auto}
 .sch-poster .pn{padding:56px 72px 0}
 .sch-poster.full .pn{padding:0 72px 170px;justify-content:flex-end}
-.sch-poster .hd{font:900 140px/.88 "Elza Condensed","Arial Narrow",sans-serif;letter-spacing:.005em;text-transform:uppercase;max-width:940px}
+.sch-poster .hd{font:900 140px/1.08 "Elza Condensed","Arial Narrow",sans-serif;letter-spacing:.005em;text-transform:uppercase;max-width:940px}
 .sch-poster.full .hd{font-size:176px}.sch-poster.ph-on .hd{font-size:112px}
-.sch-poster .hd em{font-style:normal;text-decoration:underline wavy #171D1C;text-decoration-thickness:6px;text-underline-offset:.12em}
+.sch-poster .hd em{font-style:normal;text-decoration:underline wavy #171D1C;text-decoration-thickness:5px;text-underline-offset:.08em}
 .sch-poster.pos-a .hd em,.sch-poster.pos-c .hd em,.sch-poster.pos-last .hd em{text-decoration-color:#F2B01E}
 .sch-poster .ey{font:700 italic 46px/1 "IvyPresto Display",Georgia,serif;letter-spacing:-.01em;text-transform:none;margin-bottom:22px;color:inherit;opacity:.9}
 .sch-poster .sb{font-weight:600;font-size:32px;max-width:860px}
@@ -181,7 +182,7 @@
 .sch-coast.ph-on.pos-b .ft,.sch-coast.ph-on.pos-d .ft{bottom:72px;color:#fff;left:96px;right:96px}
 .sch-coast.ph-on.pos-b .badge,.sch-coast.ph-on.pos-d .badge{top:96px!important}
 .sch-coast.full .pn{justify-content:center;padding:64px 64px 170px}
-.sch-coast .hd{font:700 90px/1.02 "IvyPresto Display",Georgia,serif;letter-spacing:-.025em;color:#171D1C}
+.sch-coast .hd{font:700 90px/1.14 "IvyPresto Display",Georgia,serif;letter-spacing:-.025em;color:#171D1C}
 .sch-coast.full .hd{font-size:108px}.sch-coast.ph-on .hd{font-size:76px}
 .sch-coast .hd em{text-decoration-color:#007369}
 .sch-coast .ey{color:#3C6284;font:700 24px/1 Inter,system-ui,sans-serif;letter-spacing:.16em;padding-bottom:26px;background:${wave("#3C6284")} left bottom/96px 14px no-repeat;display:flex;align-items:center;gap:14px}
@@ -222,6 +223,10 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
     l.rel = "stylesheet";
     l.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&display=block";
     document.head.appendChild(l);
+    const c = document.createElement("link");
+    c.rel = "stylesheet";
+    c.href = "https://fonts.googleapis.com/css2?family=Caveat:wght@500..700&display=block";
+    document.head.appendChild(c);
   }
 
   // style=evergreen given on purpose → the Evergreen scheme; no style at all → the page exactly as written.
@@ -239,9 +244,22 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
   }
 
   // el: the exported board; id: "li-graphic" or "slide-N"; slides: the page's slides array (optional).
+  // Pillars are for our own planning, never shown on a slide.
+  const PILLARS = /^(honest advice|proof|shopify know-how|shopify know how|behind the studio|founder pov)$/i;
+  function stripPillar(el) {
+    const ey = el.querySelector(".ey");
+    if (!ey) return;
+    const parts = ey.textContent.split("·").map((t) => t.trim()).filter(Boolean);
+    const kept = parts.filter((t) => !PILLARS.test(t));
+    if (kept.length === parts.length) return;
+    if (kept.length) ey.textContent = kept.join(" · ");
+    else ey.remove();
+  }
+
   function apply(el, id, slides, photoOverride, lookOverride) {
     if (!el) return;
     injectCss();
+    stripPillar(el);
     const { order, style, photo: urlPhoto, look: urlLook } = params();
     const look = lookOverride !== undefined ? (LOOKS.includes(lookOverride) ? lookOverride : "") : urlLook;
     const photo = photoOverride !== undefined ? photoOverride : urlPhoto;
@@ -304,8 +322,17 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
     if (!hd || !pn) return;
     const limit = () => (ft ? ft.getBoundingClientRect().top - 28 : el.getBoundingClientRect().bottom - 40);
     const bottom = () => Math.max(...[...pn.children].filter((c) => !c.classList.contains("k-glyph")).map((c) => c.getBoundingClientRect().bottom), pn.scrollHeight > pn.clientHeight + 2 ? 99999 : 0);
+    // A photo floating over the panel (shape-cut or polaroid) must not touch the headline.
+    const ph = el.querySelector(".ph"), br = el.getBoundingClientRect();
+    const floating = ph && getComputedStyle(ph).position === "absolute" && ph.getBoundingClientRect().width < br.width * 0.9;
+    const hits = () => {
+      if (!floating) return false;
+      const a = ph.getBoundingClientRect(), r = document.createRange();
+      r.selectNodeContents(hd);
+      return [...r.getClientRects()].some((b) => b.right > a.left + 20 && b.left < a.right - 20 && b.bottom > a.top + 20 && b.top < a.bottom - 12);
+    };
     let size = parseFloat(getComputedStyle(hd).fontSize);
-    for (let i = 0; i < 16 && bottom() > limit(); i++) { size *= 0.93; hd.style.fontSize = size + "px"; }
+    for (let i = 0; i < 16 && (bottom() > limit() || hits()); i++) { size *= 0.93; hd.style.fontSize = size + "px"; }
   }
 
   // PDF mode: switch the page to its normal render, then lay the chosen graphics out as pages.
