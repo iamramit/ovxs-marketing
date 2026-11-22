@@ -85,6 +85,7 @@ Good UX makes buying easier.
 - Approved 2026-11-17 (scheduling off, Publish now). Post files prepped in export/ (draft-only). TEST — never posted; close with “Test done” on the Desk.
 - Desk restyle synced (daily run 2026-11-18): Ramit set the Poster scheme, slide order 2,1,4,5,6,3,7,8 and per-slide looks on the Desk. export/ PNGs re-rendered in posting order and uploaded to the Desk in place of the helper JPEGs. No new photos. page.html keeps its original slide numbering, because the Desk's order, looks and export slots point at it.
 - Desk looks synced (daily run 2026-11-20): Ramit changed per-slide designs on the Desk (Poster scheme, order 2,1,4,5,6,3,7,8 unchanged). All 9 graphics re-rendered from page.html with the Desk's looks and uploaded as PNGs in place of the helper JPEGs; posting slides 2 and 3 changed. No new photos.
+- 2026-11-22 (daily run): the Desk re-rendered all 9 graphics as helper JPEGs on 2026-11-21 (after the carousel kit update). No new photos; Poster scheme, order and looks unchanged. All 9 re-rendered from page.html with the new kit and uploaded as PNGs in place of the JPEGs; old JPEGs removed from the Desk.
 
 ## Photos
 | File | Source | Photographer | Page |
