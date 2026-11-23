@@ -10,6 +10,7 @@
  *   photo=<https://images.unsplash.com/… | https://images.pexels.com/… | assets/file.jpg>  photo for this graphic.
  * PDF mode (?export=pdf&pages=li-graphic,slide-1,…) lays the chosen graphics out as 1080×1350 pages for printing to
  * PDF (Adobe Express import). Per-graphic photos come as ph.<id>=<url>.
+ * layerPlan / layerShow split a graphic into parts (background, photo, headline lines, underlines…) for motion video.
  * Each slide gets a Material Symbols Rounded glyph: the slide's own `icon` field if set, otherwise one picked from its words.
  * New pages may give a slide `lay`: "type", "stat" (figure in s.stat), "quote" or "split". See page-spec.md.
  */
@@ -405,5 +406,127 @@ body.k-pdf .board,body.k-pdf .board *{box-shadow:none!important;filter:none!impo
     }
   }
 
-  window.OVXSKit = { apply, STYLES };
+  // ---- Layers, for the Desk's motion video (helper tool render_layers).
+  // layerPlan(H) lists the graphic's parts bottom to top; layerShow(i) leaves only part i visible, on transparency.
+  // H 1350 = 4:5. H 1920 = Reel: the 4:5 design stays centred and the background and edge photos run to the full frame.
+  let layers = [], board = null, frameH = 1350;
+  function layerPlan(H) {
+    board = document.querySelector("body > .board");
+    frameH = H;
+    const off = (H - 1350) / 2;
+    const st = document.createElement("style");
+    st.textContent = `html,body,body.export{background:transparent!important;margin:0;height:${H}px;overflow:hidden}
+body>.board{margin-top:${off}px;${off ? "overflow:visible!important" : ""}}
+.k-iso,.k-iso *,.k-iso *::before,.k-iso *::after,.k-iso::before,.k-iso::after{visibility:hidden!important}
+.k-iso.k-on,.k-iso .k-on,.k-iso .k-on.k-tree *,.k-iso .k-on.k-tree::before,.k-iso .k-on.k-tree::after,.k-iso .k-on.k-tree *::before,.k-iso .k-on.k-tree *::after{visibility:visible!important}
+.k-iso.k-shade::before{visibility:visible!important}
+.k-iso .k-mark::before{visibility:visible!important}
+body>.board.k-tall{height:${H}px!important;margin-top:0!important}
+.k-iso .hd.k-ink em,.k-iso .hd.k-ink .kw{text-decoration-color:transparent!important}
+.k-iso .hd.k-line,.k-iso .hd.k-line *{-webkit-text-fill-color:transparent!important}`;
+    document.head.appendChild(st);
+    for (const w of board.querySelectorAll(".k-wave")) w.style.bottom = -off + "px";
+
+    // Headline words, so each line is its own part.
+    const hd = board.querySelector(".hd");
+    const words = [];
+    if (hd) {
+      for (const em of hd.querySelectorAll("em")) em.style.textDecorationColor = getComputedStyle(em).textDecorationColor;
+      const walk = document.createTreeWalker(hd, NodeFilter.SHOW_TEXT), texts = [];
+      while (walk.nextNode()) texts.push(walk.currentNode);
+      for (const t of texts) {
+        const frag = document.createDocumentFragment();
+        for (const part of t.textContent.split(/(?<=\s)/)) { const sp = document.createElement("span"); sp.className = "kw"; sp.textContent = part; frag.appendChild(sp); if (part.trim()) words.push(sp); }
+        t.replaceWith(frag);
+      }
+    }
+    const rectOf = (nodes) => { const rs = nodes.map((n) => n.getBoundingClientRect()).filter((r) => r.width && r.height); return rs.length ? { x: Math.min(...rs.map((r) => r.left)), y: Math.min(...rs.map((r) => r.top)), r: Math.max(...rs.map((r) => r.right)), b: Math.max(...rs.map((r) => r.bottom)) } : null; };
+    const clipOf = (r, pad) => { const x = Math.max(0, Math.floor(r.x - pad)), y = Math.max(0, Math.floor(r.y - pad)); return { x, y, w: Math.min(1080, Math.ceil(r.r + pad)) - x, h: Math.min(H, Math.ceil(r.b + pad)) - y }; };
+    const full = { x: 0, y: 0, w: 1080, h: H };
+    layers = [];
+    const add = (kind, nodes, o = {}) => { const list = nodes.filter(Boolean); if (!list.length) return; const r = rectOf(list); if (!r) return; const clip = clipOf(r, o.pad ?? 20); if (clip.w < 2 || clip.h < 2) return; layers.push({ kind, nodes: list, clip, tree: o.tree !== false, cls: o.cls || "", meta: o.meta || {}, text: o.text }); };
+    const q = (s) => board.querySelector(s);
+    layers.push({ kind: "bg", nodes: [board], clip: full, tall: true, tree: false, cls: "", meta: {} });
+    add("deco", [q(".k-blob")], { pad: 0 });
+    const ph = q(".ph");
+    if (ph) {
+      const cs = getComputedStyle(ph), r = ph.getBoundingClientRect(), w = ph.offsetWidth, h = ph.offsetHeight;
+      const rot = cs.transform && cs.transform !== "none" ? Math.atan2(new DOMMatrix(cs.transform).b, new DOMMatrix(cs.transform).a) : 0;
+      const mask = cs.webkitMaskImage || cs.maskImage || "none";
+      const meta = { cx: (r.left + r.right) / 2, cy: (r.top + r.bottom) / 2, w, h, rot,
+        border: [cs.borderTopWidth, cs.borderRightWidth, cs.borderBottomWidth, cs.borderLeftWidth].map(parseFloat),
+        radius: [cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomRightRadius, cs.borderBottomLeftRadius].map(parseFloat),
+        mask: mask.includes("svg") ? "shape" : mask.includes("gradient") ? "soft" : "" };
+      const br = board.getBoundingClientRect();
+      let clip = clipOf({ x: r.left, y: r.top, r: r.right, b: r.bottom }, rot ? 70 : 0), ext = null;
+      if (off && !rot) {
+        const top = r.top <= br.top + 1 ? off : 0, bot = r.bottom >= br.bottom - 1 ? off : 0;
+        if (top || bot) { ext = { l: r.left, t: r.top - br.top - top, w, h: h + top + bot }; meta.h = ext.h; meta.cy = (r.top - top + r.bottom + bot) / 2; clip = { x: clip.x, y: Math.max(0, Math.floor(r.top - top)), w: clip.w, h: Math.ceil(h + top + bot) }; clip.h = Math.min(clip.h, H - clip.y); }
+      }
+      layers.push({ kind: "photo", nodes: [ph], clip, tree: true, cls: "", meta, ext });
+      if (board.classList.contains("sch-field") && board.classList.contains("pos-cover") && board.classList.contains("ph-on")) layers.push({ kind: "shade", nodes: [], clip: full, tall: true, cls: "k-shade", meta: {} });
+    }
+    const pn = q(".pn"), pcs = pn && getComputedStyle(pn);
+    if (pn && pcs.backgroundColor !== "rgba(0, 0, 0, 0)") add("panel", [pn], { tree: false, pad: 40, meta: { rot: pcs.transform !== "none" } });
+    add("tape", [q(".k-tape")]);
+    add("wave", [q(".k-wave")], { pad: 0 });
+    add("badge", [q(".badge")]);
+    add("glyph", [...board.querySelectorAll(".k-glyph")].filter((g) => !g.closest(".ey")), { pad: 24 });
+    add("ey", [q(".ey")]);
+    add("stat", [q(".stat")], { pad: 30 });
+    if (hd && getComputedStyle(hd, "::before").content !== "none") layers.push({ kind: "mark", nodes: [], clip: clipOf({ x: hd.getBoundingClientRect().left, y: hd.getBoundingClientRect().top, r: hd.getBoundingClientRect().right, b: hd.getBoundingClientRect().bottom }, 40), cls: "", meta: {}, mark: hd });
+    const lines = [];
+    for (const w of words) { const r = w.getClientRects()[0]; if (!r) continue; const mid = (r.top + r.bottom) / 2; const ln = lines.find((l) => Math.abs(l.mid - mid) < r.height * 0.45); ln ? ln.words.push(w) : lines.push({ mid, words: [w] }); }
+    const numRe = /^[^\d]{0,2}(\d{2,5})(%|\+|×|x)?[.,?!]?$/;
+    const numEl = words.find((w) => { const m = numRe.exec(w.textContent.trim()); return m && !/^(19|20)\d\d$/.test(m[1]) && !/^0/.test(m[1]); });
+    lines.forEach((ln, i) => {
+      const fs = parseFloat(getComputedStyle(hd).fontSize), pad = Math.round(fs * 0.34);
+      const plain = ln.words.filter((w) => w !== numEl);
+      if (plain.length) add("line", plain, { tree: false, pad, cls: "ink", meta: { i } });
+      if (numEl && ln.words.includes(numEl)) add("num", [numEl], { tree: false, pad, cls: "ink", meta: { i } });
+      const em = ln.words.filter((w) => w.closest("em") && !/none/.test(getComputedStyle(w.closest("em")).textDecorationLine));
+      if (em.length) add("under", em, { tree: false, pad, cls: "line", meta: { i } });
+    });
+    const stat = q(".stat"), target = numEl || (stat && !stat.children.length && /\d/.test(stat.textContent) ? stat : null);
+    if (target) {
+      const m = /\d[\d,]*/.exec(target.textContent), final = m ? Number(m[0].replace(/,/g, "")) : 0;
+      if (m && final >= 10 && !/[–-]\s*\d/.test(target.textContent)) {
+        const base = layers.find((l) => l.nodes[0] === target);
+        for (const f of [0.12, 0.34, 0.55, 0.74, 0.9]) {
+          const val = Math.round(final * f);
+          layers.push({ kind: "count", nodes: [target], clip: base.clip, tree: false, cls: "ink", meta: { of: base.kind }, text: target.textContent.replace(m[0], m[0].includes(",") ? val.toLocaleString("en-US") : String(val)) });
+        }
+      }
+    }
+    add("sub", [q(".sb"), q(".src")]);
+    add("cta", [q(".cta")]);
+    add("foot", [q(".ft")]);
+    // Counting frames go last: they change the text.
+    layers = [...layers.filter((l) => l.kind !== "count"), ...layers.filter((l) => l.kind === "count")];
+    board.classList.add("k-iso");
+    return layers.map(({ kind, clip, meta }) => ({ kind, clip, meta }));
+  }
+  function layerShow(i) {
+    const l = layers[i], hd = board.querySelector(".hd"), ph = board.querySelector(".ph");
+    for (const n of [board, ...board.querySelectorAll(".k-on")]) n.classList.remove("k-on", "k-tree", "k-tall", "k-shade");
+    for (const n of board.querySelectorAll(".k-mark")) n.classList.remove("k-mark");
+    if (hd) hd.classList.remove("k-ink", "k-line");
+    board.classList.toggle("k-tall", !!l.tall);
+    if (l.cls === "k-shade") board.classList.add("k-shade");
+    if (hd && l.cls === "ink") hd.classList.add("k-ink");
+    if (hd && l.cls === "line") hd.classList.add("k-line");
+    if (l.mark) l.mark.classList.add("k-mark");
+    for (const n of l.nodes) { n.classList.add("k-on"); if (l.tree) n.classList.add("k-tree"); }
+    if (l.ext && ph) { ph.dataset.kMoved = ph.style.cssText || " "; Object.assign(ph.style, { position: "absolute", left: l.ext.l + "px", top: l.ext.t + "px", width: l.ext.w + "px", height: l.ext.h + "px", margin: "0" }); }
+    if (l.text !== undefined) {
+      const n = l.nodes[0];
+      if (n.classList.contains("kw") && n.style.display !== "inline-block") { n.style.width = n.getBoundingClientRect().width + "px"; n.style.display = "inline-block"; n.style.whiteSpace = "pre"; }
+      n.textContent = l.text;
+    }
+    // Moving the photo out of the flow would shift the words, so it is put back for every other part.
+    if (!l.ext && ph && ph.dataset.kMoved) { ph.style.cssText = ph.dataset.kMoved; delete ph.dataset.kMoved; }
+    return true;
+  }
+
+  window.OVXSKit = { apply, STYLES, layerPlan, layerShow };
 })();

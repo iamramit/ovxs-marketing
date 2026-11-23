@@ -51,7 +51,7 @@ Load `<script src="../../brand/carousel-kit.js"></script>` in `<head>`. In expor
 - `photo=<unsplash/pexels URL or assets/file>` for that graphic.
 - `look=cover|a|b|c|d|last` dresses a graphic in one of the scheme's designs without moving its content (PDF mode: `lk.<id>=`);
 - `export=pdf&pages=li-graphic,slide-1,…` (+ `ph.<id>=<photo>`) lays graphics out as 1080×1350 PDF pages with live text and vector shapes, for Adobe Express.
-The Desk uses these through the photo helper (`render_slide`, `export_pdf`) to reorder, leave out, restyle and export slides instantly.
+The Desk uses these through the photo helper (`render_slide`, `render_layers`, `export_pdf`) to reorder, leave out, restyle, animate and export slides instantly. `render_layers` finds parts by class (`.ph`, `.pn`, `.ey`, `.hd`, `.stat`, `.sb`, `.src`, `.badge`, `.cta`, `.ft`), so keep those names; anything else on a slide won't appear in the video.
 
 ## Export mode
 When the URL has `?export=<id>` (`li-graphic`, `slide-1` … `slide-N`):

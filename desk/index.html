@@ -124,6 +124,22 @@ textarea:focus, input:focus, select:focus, button:focus-visible, .tab:focus-visi
 .shot.left-out img { opacity: .35; filter: grayscale(1); }
 .make-row { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
 .make-row select { width: auto; padding: 8px 10px; font-size: 14px; }
+.studio { width: min(980px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); border: 1px solid var(--line); border-radius: 24px; padding: 18px 20px 20px; background: var(--surface); color: var(--ink); overflow: auto; }
+.studio::backdrop { background: rgba(0, 0, 0, .55); }
+.studio-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+.studio-head h2 { margin: 0; font-size: 22px; min-width: 0; overflow-wrap: anywhere; }
+.studio-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; align-items: start; }
+.studio-stage { display: grid; gap: 10px; justify-items: center; }
+.studio-stage canvas { max-width: 100%; max-height: 66dvh; border-radius: 14px; background: var(--surface-2); }
+.studio-stage .row { width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: nowrap; }
+.studio-stage input[type="range"] { flex: 1; min-width: 0; }
+.studio-form { display: grid; gap: 12px; }
+.studio-form label { display: grid; gap: 5px; font-weight: 600; font-size: 14px; }
+.studio-form label[hidden] { display: none; }
+.studio-form select, .studio-form input { width: 100%; padding: 8px 10px; font-size: 14px; }
+.studio-form .btn { justify-content: center; }
+.studio-form .pending:empty { display: none; }
+@media (max-width: 720px) { .studio-body { grid-template-columns: 1fr; } .studio-stage canvas { max-height: 50dvh; } }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .photo-tools .pending { font-size: 12.5px; color: var(--warn); background: var(--warn-soft); border-radius: 10px; padding: 7px 9px; overflow-wrap: anywhere; }
 .shot { display: grid; gap: 6px; min-width: 0; }
@@ -851,10 +867,7 @@ Reply with only the finished text, nothing before or after it.`;
     const id = esc(b.id), busy = making[b.id];
     return `<div class="make-row">
       <span class="small"><b>Make from the slides</b></span>
-      ${canVideo() ? `<button class="btn ghost sm" type="button" data-make="feed" data-id="${id}" ${busy ? "disabled" : ""}>Video 4:5</button>
-      <button class="btn ghost sm" type="button" data-make="reel" data-id="${id}" ${busy ? "disabled" : ""}>Reel 9:16</button>
-      <label class="visually-hidden" for="secs-${id}">Seconds per slide</label>
-      <select id="secs-${id}" data-secs="${id}" ${busy ? "disabled" : ""}>${[2, 3, 4, 5].map((n) => `<option value="${n}" ${n === 3 ? "selected" : ""}>${n}s per slide</option>`).join("")}</select>` : ""}
+      ${st.visible.length >= 2 ? `<button class="btn sm" type="button" data-make="motion" data-id="${id}" ${busy ? "disabled" : ""}>Motion video</button>` : ""}
       ${st.visible.length >= 2 ? `<button class="btn ghost sm" type="button" data-make="stories" data-id="${id}" ${busy ? "disabled" : ""}>Story images 9:16</button>` : ""}
       ${canRender() ? `<button class="btn ghost sm" type="button" data-express="all" data-id="${id}" ${busy ? "disabled" : ""} title="One editable PDF, a page per graphic">All for Adobe Express</button>` : ""}
       ${busy ? `<span class="pending" style="font-size:13px">${esc(busy)}</span>` : ""}
@@ -895,41 +908,385 @@ Reply with only the finished text, nothing before or after it.`;
     await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
     return (muxLib = window.Mp4Muxer);
   }
-  async function makeVideo(b, kind, secs) {
-    const W = 1080, H = kind === "reel" ? 1920 : 1350, FPS = 30, TR = 0.5;
-    making[b.id] = "Preparing video…"; render();
+  // ---- Motion engine: animates a slide's parts and the cut between slides. Pure drawing, no page state.
+  // MOTION-START
+  const FPS = 30;
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+  const easeOut = (t) => 1 - Math.pow(1 - clamp(t), 3);
+  const easeIO = (t) => { t = clamp(t); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+  const easePop = (t) => { t = clamp(t); const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+  const MOTION = {
+    evergreen: { name: "Calm", speed: 1, line: "rise", cut: "match" },
+    notes: { name: "Handmade", speed: 1.05, line: "write", cut: "paper" },
+    field: { name: "Cinematic", speed: 1.25, line: "fade", cut: "zoom" },
+    poster: { name: "Punchy", speed: 0.7, line: "slam", cut: "shape" },
+    coast: { name: "Flowing", speed: 1, line: "rise", cut: "wave" }
+  };
+  const CUT_NAMES = { auto: "Match the style", match: "Photo match", push: "Push", shape: "Shape reveal", zoom: "Zoom through", paper: "Paper slide", wave: "Wave", fade: "Simple fade" };
+  function layerTimes(scene, m) {
+    // When each part comes in (seconds), from its place in the slide.
+    const L = scene.layers, sp = m.speed, lines = Math.max(0, ...L.filter((l) => l.meta.i !== undefined).map((l) => l.meta.i)) + 1;
+    const head = 0.2, step = 0.13;
+    const at = { bg: 0, flat: 0, deco: 0, photo: 0, shade: 0, panel: 0, wave: 0, tape: 0.35, badge: 0.3, glyph: 0.38, ey: 0.1, stat: 0.2, mark: 0.15, foot: 0.15 };
+    return L.map((l) => {
+      const s = l.kind === "line" || l.kind === "num" ? head + step * l.meta.i + (l.kind === "num" && m.line === "write" ? 0.4 : 0) : l.kind === "under" ? head + step * l.meta.i + 0.38 : l.kind === "sub" ? head + step * lines + 0.12 : l.kind === "cta" ? head + step * lines + 0.3 : at[l.kind] || 0;
+      return s * sp;
+    });
+  }
+  function drawClip(g, l, clip, scratch) {
+    // Footage in the photo's place, cut to the photo's own shape.
+    const m = l.meta, vw = clip.videoWidth, vh = clip.videoHeight;
+    if (!vw) return false;
+    const b = m.border, iw = m.w - b[1] - b[3], ih = m.h - b[0] - b[2];
+    const k = Math.max(iw / vw, ih / vh), sw = iw / k, sh = ih / k;
+    const put = (c) => {
+      c.translate(m.cx, m.cy); c.rotate(m.rot);
+      c.beginPath(); c.roundRect(-m.w / 2 + b[3], -m.h / 2 + b[0], iw, ih, m.radius.map((r) => Math.max(0, r - b[0]))); c.clip();
+      c.drawImage(clip, (vw - sw) / 2, (vh - sh) / 2, sw, sh, -m.w / 2 + b[3], -m.h / 2 + b[0], iw, ih);
+    };
+    if (m.mask) {
+      const c = scratch.getContext("2d"); c.globalCompositeOperation = "source-over"; c.clearRect(0, 0, scratch.width, scratch.height);
+      c.save(); put(c); c.restore();
+      c.globalCompositeOperation = "destination-in"; c.drawImage(l.bmp, l.clip.x, l.clip.y);
+      // destination-in only keeps what the sprite covers
+      g.drawImage(scratch, 0, 0);
+    } else { g.drawImage(l.bmp, l.clip.x, l.clip.y); g.save(); put(g); g.restore(); }
+    return true;
+  }
+  function drawSlide(g, scene, t, o = {}) {
+    // t: seconds since this slide's words start arriving (may be negative while it is still cutting in).
+    const { W, H } = scene, m = o.motion, times = scene.times[m.line + m.speed] || (scene.times[m.line + m.speed] = layerTimes(scene, m));
+    scene.layers.forEach((l, i) => {
+      if (l.kind === "count" || (o.skipPhoto && l.kind === "photo")) return;
+      const { x, y, w, h } = l.clip, cx = x + w / 2, cy = y + h / 2, sp = m.speed;
+      const dt = t - times[i], p = (d) => clamp(dt / (d * sp));
+      const life = t + 0.6; // keeps drifting slowly for as long as the slide is up
+      g.save();
+      const img = () => g.drawImage(l.bmp, x, y, w, h);
+      const about = (sx, rot = 0, ax = cx, ay = cy) => { g.translate(ax, ay); g.rotate(rot); g.scale(sx, sx); g.translate(-ax, -ay); };
+      if (l.kind === "bg") img();
+      else if (l.kind === "flat") { g.fillStyle = scene.edge; g.fillRect(0, 0, W, H); about(1 + 0.012 * Math.max(0, life)); img(); }
+      else if (l.kind === "photo") {
+        const mm = l.meta;
+        if (o.clip && drawClip(g, l, o.clip, o.scratch)) { /* footage */ }
+        else if (mm.rot || mm.mask === "shape") { about((mm.mask === "shape" ? 0.9 + 0.1 * easePop(clamp((t + 0.3) / (0.6 * sp))) : 1) * (1 + 0.006 * Math.max(0, life)), mm.mask === "shape" ? 0 : 0.004 * Math.sin(life * 1.3), mm.cx, mm.cy); img(); }
+        else {
+          if (!mm.mask) { g.beginPath(); g.roundRect(mm.cx - mm.w / 2, mm.cy - mm.h / 2, mm.w, mm.h, mm.radius); g.clip(); }
+          const dir = scene.n % 2 ? 1 : -1;
+          g.translate(dir * 5 * Math.max(0, life), 0); about(1.03 + 0.016 * Math.max(0, life), 0, mm.cx, mm.cy); img();
+        }
+      }
+      else if (l.kind === "deco") { about(1 + 0.02 * Math.max(0, life), 0, 1080, 0); img(); }
+      else if (l.kind === "shade" || l.kind === "panel") img();
+      else if (l.kind === "wave") { const dx = (life * 22) % 80; for (const sx of [0, 1040]) g.drawImage(l.bmp, 0, 0, 1040, h, x - dx + sx, y, 1040, h); }
+      else if (l.kind === "badge" || l.kind === "cta" || l.kind === "tape") { const e = p(0.45); g.globalAlpha = clamp(e * 3); about(Math.max(0.001, 0.6 + 0.4 * easePop(e)), l.kind === "badge" ? -0.35 * (1 - easeOut(e)) : 0); img(); }
+      else if (l.kind === "glyph") { const e = p(0.55); g.globalAlpha = clamp(e * 2.5); about(Math.max(0.001, 0.75 + 0.25 * easePop(e)) , -0.2 * (1 - easeOut(e)) + 0.015 * Math.sin(life * 1.6)); img(); }
+      else if (l.kind === "under") { const e = easeIO(p(0.5)); if (e > 0) { g.beginPath(); g.rect(x, y, w * e, h); g.clip(); img(); } }
+      else if (l.kind === "line" || l.kind === "num" || l.kind === "stat") {
+        let bmp = l.bmp;
+        const counts = scene.layers.filter((c) => c.kind === "count" && c.meta.of === l.kind);
+        if (counts.length) { const k = Math.floor(clamp(dt / (0.95 * sp)) * (counts.length + 1)); if (k < counts.length) bmp = counts[k].bmp; }
+        const put = () => g.drawImage(bmp, x, y, w, h);
+        if (m.line === "write") { const e = easeIO(p(0.5)); if (e > 0) { g.beginPath(); g.rect(x, y, w * e, h); g.clip(); put(); } }
+        else if (m.line === "slam") { const e = p(0.32); g.globalAlpha = clamp(e * 4); about(1 + 0.22 * (1 - easeOut(e)), 0, l.kind === "num" ? (scene.layers.find((o2) => o2.kind === "line" && o2.meta.i === l.meta.i) || l).clip.x : x, cy); put(); }
+        else if (m.line === "fade") { const e = easeOut(p(0.8)); g.globalAlpha = e; g.translate(0, 22 * (1 - e)); put(); }
+        else { const e = easeOut(p(0.6)); g.globalAlpha = clamp(p(0.6) * 3); g.beginPath(); g.rect(x - 20, y, w + 40, h); g.clip(); g.translate(0, h * 0.75 * (1 - e)); put(); }
+      }
+      else { const e = easeOut(p(0.6)); g.globalAlpha = e; g.translate(0, 32 * (1 - e)); img(); }
+      g.restore();
+    });
+  }
+  function scallop(g, cx, cy, r, n, depth, turn) {
+    g.beginPath();
+    for (let i = 0; i <= 240; i++) { const a = i / 240 * Math.PI * 2, rr = r * (1 + depth * Math.cos(n * a)); g.lineTo(cx + rr * Math.cos(a + turn), cy + rr * Math.sin(a + turn)); }
+    g.closePath();
+  }
+  function canMatch(a, b) {
+    const pa = a && a.layers.find((l) => l.kind === "photo"), pb = b && b.layers.find((l) => l.kind === "photo");
+    return pa && pb && !pa.meta.rot && !pb.meta.rot && !pa.meta.mask && !pb.meta.mask && !a.layers.some((l) => l.kind === "shade") && !b.layers.some((l) => l.kind === "shade") ? [pa, pb] : null;
+  }
+  function drawCut(g, cut, p, A, B, W, H, info) {
+    // A, B: canvases holding the outgoing and incoming slides.
+    const e = easeIO(p);
+    g.fillStyle = "#000";
+    if (cut === "match" && info.pair) {
+      const [pa, pb] = info.pair, mix = (u, v) => u + (v - u) * e;
+      const w = mix(pa.meta.w, pb.meta.w), h = mix(pa.meta.h, pb.meta.h), cx = mix(pa.meta.cx, pb.meta.cx), cy = mix(pa.meta.cy, pb.meta.cy);
+      g.drawImage(A, 0, 0); g.globalAlpha = e; g.drawImage(B, 0, 0);
+      g.save(); g.globalAlpha = 1; g.beginPath(); g.roundRect(cx - w / 2, cy - h / 2, w, h, pa.meta.radius.map((r, i) => mix(r, pb.meta.radius[i]))); g.clip();
+      const cover = (l, alpha) => { const iw = l.clip.w, ih = l.clip.h, k = Math.max(w / iw, h / ih) * 1.04; g.globalAlpha = alpha; g.drawImage(l.bmp, cx - iw * k / 2, cy - ih * k / 2, iw * k, ih * k); };
+      cover(pa, 1); cover(pb, e); g.restore(); g.globalAlpha = 1;
+    } else if (cut === "shape") {
+      g.drawImage(A, 0, 0); g.save(); scallop(g, W / 2, H / 2, Math.hypot(W, H) * 0.6 * Math.pow(e, 1.3), 12, 0.07, e * 1.2); g.clip(); g.drawImage(B, 0, 0); g.restore();
+    } else if (cut === "zoom") {
+      g.fillRect(0, 0, W, H); g.drawImage(B, 0, 0); // incoming underneath, settling
+      g.save(); g.translate(W / 2, H / 2); const s = 1.16 - 0.16 * easeOut(p); g.scale(s, s); g.drawImage(B, -W / 2, -H / 2); g.restore();
+      g.save(); g.globalAlpha = 1 - e; g.translate(W / 2, H / 2); g.scale(1 + 0.35 * e, 1 + 0.35 * e); g.drawImage(A, -W / 2, -H / 2); g.restore();
+    } else if (cut === "paper") {
+      g.save(); g.fillRect(0, 0, W, H); g.drawImage(A, 0, 0); g.globalAlpha = 0.28 * e; g.fillRect(0, 0, W, H); g.restore();
+      const r = easeOut(p);
+      g.save(); g.translate(W / 2 + 60 * (1 - r), H / 2 + H * 1.12 * (1 - r)); g.rotate(0.09 * (1 - r)); g.shadowColor = "rgba(0,0,0,.35)"; g.shadowBlur = 60; g.drawImage(B, -W / 2, -H / 2); g.restore();
+    } else if (cut === "wave") {
+      g.drawImage(A, 0, 0); g.save(); g.beginPath();
+      const x0 = W * 1.12 - (W * 1.3) * e;
+      g.moveTo(W, 0); for (let y = 0; y <= H; y += 16) g.lineTo(x0 + 46 * Math.sin(y / 120 + p * 6), y); g.lineTo(W, H); g.closePath(); g.clip(); g.drawImage(B, 0, 0); g.restore();
+    } else if (cut === "fade") { g.drawImage(A, 0, 0); g.globalAlpha = e; g.drawImage(B, 0, 0); g.globalAlpha = 1; }
+    else { g.drawImage(A, 0, -H * 0.3 * e); g.drawImage(B, 0, H * (1 - e)); }
+  }
+  // A film: scenes + timing. draw(g, time) paints any moment; used by both the preview and the saved file.
+  function makeFilm({ scenes, W, H, secs, cut, motion, intro, coverClip }) {
+    const TR = 0.65, introT = intro ? Math.min(6, Math.max(1, intro.duration || 0)) : 0;
+    const total = introT + secs * scenes.length + 0.4;
+    const cv = () => new OffscreenCanvas(W, H), A = cv(), B = cv(), scratch = cv();
+    const pickCut = (a, b) => { const want = cut === "auto" ? motion.cut : cut; const pair = canMatch(a, b); return { cut: want === "match" && !pair ? (cut === "auto" ? "push" : "fade") : want, pair }; };
+    const paintSlide = (g, k, t, skipPhoto) => drawSlide(g, scenes[k], t, { motion, skipPhoto, scratch, clip: k === 0 && coverClip ? coverClip : null });
+    const paintIntro = (g) => { const vw = intro.videoWidth, vh = intro.videoHeight; g.fillStyle = "#000"; g.fillRect(0, 0, W, H); if (!vw) return; const s = Math.max(W / vw, H / vh); g.drawImage(intro, (W - vw * s) / 2, (H - vh * s) / 2, vw * s, vh * s); };
+    // A slide's words start this long before the cut lands; hardly at all when the two slides overlap in the cut.
+    const leadOf = (k) => k === 0 ? (intro ? 0.48 : 0.12) : ["match", "fade", "zoom"].includes(pickCut(scenes[k - 1], scenes[k]).cut) ? 0.1 : 0.48;
+    function draw(g, time) {
+      g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1;
+      const s = Math.max(0, time) - introT;
+      if (intro && s < 0) {
+        if (s < -TR) return paintIntro(g);
+        const ga = A.getContext("2d"), gb = B.getContext("2d");
+        paintIntro(ga); paintSlide(gb, 0, s + leadOf(0));
+        return drawCut(g, pickCut(null, scenes[0]).cut, 1 + s / TR, A, B, W, H, {});
+      }
+      const k = Math.min(scenes.length - 1, Math.floor(s / secs)), local = s - k * secs, next = k < scenes.length - 1 ? k + 1 : -1;
+      const inCut = next > 0 && local > secs - TR;
+      const t = local + leadOf(k);
+      if (!inCut) return paintSlide(g, k, t);
+      const c = pickCut(scenes[k], scenes[next]), ga = A.getContext("2d"), gb = B.getContext("2d"), noPhoto = c.cut === "match";
+      paintSlide(ga, k, t, noPhoto); paintSlide(gb, next, local - secs + leadOf(next), noPhoto);
+      drawCut(g, c.cut, (local - (secs - TR)) / TR, A, B, W, H, c);
+    }
+    return { total, draw, introT, W, H };
+  }
+  // MOTION-END
+
+  // ---- Video studio: preview and save a motion video of a carousel
+  const studio = { open: false, b: null, film: null, scenes: null, playing: false, t: 0, clip: null, audio: null, run: 0 };
+  const sceneCache = new Map();
+  const b64Bitmap = async (d) => createImageBitmap(new Blob([Uint8Array.from(atob(d), (c) => c.charCodeAt(0))], { type: "image/webp" }));
+  const $s = (id) => document.getElementById("st-" + id);
+  const say = (t) => { const n = $s("note"); if (n) n.textContent = t; };
+  function studioDialog() {
+    let d = document.getElementById("studio");
+    if (d) return d;
+    d = document.createElement("dialog");
+    d.id = "studio"; d.className = "studio"; d.setAttribute("aria-labelledby", "st-title");
+    d.innerHTML = `<div class="studio-head"><h2 id="st-title">Motion video</h2><button class="btn quiet sm" type="button" id="st-close">Close</button></div>
+      <div class="studio-body">
+        <div class="studio-stage"><canvas id="st-canvas" width="1080" height="1920"></canvas>
+          <div class="row"><button class="btn ghost sm" type="button" id="st-play">Play</button><input type="range" id="st-seek" min="0" max="1" step="0.001" value="0" aria-label="Position in the video"></div></div>
+        <div class="studio-form">
+          <label>Shape<select id="st-shape"><option value="reel">Reel 9:16</option><option value="feed">Feed video 4:5</option></select></label>
+          <label>Transition<select id="st-cut">${Object.entries(CUT_NAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></label>
+          <label>Movement<select id="st-motion"><option value="auto">Match the style</option>${Object.entries(MOTION).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join("")}</select></label>
+          <label>Seconds per slide<select id="st-secs">${[2, 3, 4, 5].map((n) => `<option value="${n}" ${n === 3 ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+          <label>Your footage<input type="file" id="st-clip" accept="video/mp4,video/quicktime,video/webm"></label>
+          <label id="st-where-l" hidden>Use it as<select id="st-where"><option value="intro">Opening clip</option><option value="cover">Slide 1 photo</option></select></label>
+          <label>Music<input type="file" id="st-audio" accept="audio/*"></label>
+          <p class="small">Footage and music stay on this device. Only use music you have the rights to; for Instagram you can add a track in the app instead.</p>
+          <p class="pending" id="st-note" role="status" style="font-size:13px"></p>
+          <button class="btn" type="button" id="st-save">Save MP4</button>
+        </div>
+      </div>`;
+    document.body.appendChild(d);
+    d.addEventListener("close", () => { studio.open = false; studio.run++; stopPlay(); });
+    $s("close").onclick = () => d.close();
+    $s("play").onclick = () => studio.playing ? stopPlay() : startPlay();
+    $s("seek").oninput = () => { if (!studio.film) return; stopPlay(); studio.t = Number($s("seek").value) * studio.film.total; paintStudio(true); };
+    $s("shape").onchange = () => loadStudio();
+    for (const k of ["cut", "motion", "secs", "where"]) $s(k).onchange = () => { stopPlay(); buildFilm(); startPlay(); };
+    $s("clip").onchange = async () => {
+      if (studio.clip) { URL.revokeObjectURL(studio.clip.src); studio.clip = null; }
+      const f = $s("clip").files[0];
+      if (f) {
+        try {
+          const v = document.createElement("video");
+          v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = URL.createObjectURL(f);
+          await new Promise((ok, no) => { v.onloadeddata = ok; v.onerror = no; setTimeout(no, 15000); });
+          studio.clip = v; say("");
+        } catch (e) { $s("clip").value = ""; say("This video can't be opened here. Try an MP4."); }
+      }
+      const cov = studio.scenes && studio.scenes[0].layers.some((l) => l.kind === "photo");
+      $s("where").querySelector('[value="cover"]').disabled = !cov;
+      if (!cov) $s("where").value = "intro";
+      $s("where-l").hidden = !studio.clip;
+      stopPlay(); buildFilm();
+    };
+    $s("audio").onchange = async () => {
+      studio.audio = null;
+      const f = $s("audio").files[0];
+      if (!f) return;
+      try { const ac = new AudioContext(); studio.audio = await ac.decodeAudioData(await f.arrayBuffer()); ac.close(); say(`Music added: ${f.name}. It fades out at the end. The preview is silent.`); }
+      catch (e) { $s("audio").value = ""; say("This audio file can't be read. Try an MP3, M4A or WAV."); }
+    };
+    $s("save").onclick = saveStudio;
+    return d;
+  }
+  async function loadScenes(b, tall, tell) {
+    const st = carouselState(b), H = tall ? 1920 : 1350, look = lookOf(b), L = looksOf(b), order = orderNums(b);
+    const plain = !b.style && !b.looks && !lookDraft[b.id] && !designDraft[b.id]; // never restyled: the page exactly as written
+    const out = [];
+    let live = canRender();
+    for (let i = 0; i < st.visible.length; i++) {
+      const o = st.visible[i];
+      const args = { topic: b.id, slot: o.slot, photo: photoArg(o.x.photo), order, tall, ...(plain ? {} : { style: look.style, look: L[o.slot] }) };
+      const key = JSON.stringify(args);
+      let scene = sceneCache.get(key);
+      if (!scene && live) {
+        tell(`Getting the parts of slide ${i + 1} of ${st.visible.length}…`);
+        try {
+          const res = await mcp.callTool(HELPER, "render_layers", args, { cache: false });
+          const p = res.payload;
+          if (!p || !Array.isArray(p.layers)) throw { code: "tool_error" };
+          scene = { W: 1080, H, times: {}, layers: await Promise.all(p.layers.map(async (l) => ({ kind: l.kind, clip: l.clip, meta: l.meta || {}, bmp: await b64Bitmap(l.img) }))) };
+          if (sceneCache.size > 40) sceneCache.clear();
+          sceneCache.set(key, scene);
+        } catch (err) { live = false; studio.flat = err && err.code === "tool_error" ? "The photo helper couldn't split these slides. Quit and reopen the Claude app to load its update." : "The photo helper isn't answering on this Mac."; }
+      }
+      if (!scene) {
+        const res = await fetch(blobUrl(o.x));
+        if (!res.ok) throw new Error("fetch");
+        const bmp = await createImageBitmap(await res.blob());
+        scene = { W: 1080, H, times: {}, edge: edgeColour(bmp), layers: [{ kind: "flat", meta: {}, bmp, clip: { x: 0, y: (H - 1350) / 2, w: 1080, h: 1350 } }] };
+      }
+      scene.n = i;
+      out.push(scene);
+    }
+    return out;
+  }
+  async function openStudio(b) {
+    const d = studioDialog();
+    studio.b = b; studio.open = true; studio.scenes = null; studio.film = null;
+    $s("title").textContent = b.title;
+    d.showModal();
+    await loadStudio();
+  }
+  async function loadStudio() {
+    const run = ++studio.run;
+    stopPlay(); studio.film = null; studio.flat = canRender() ? "" : "The photo helper isn't available in this view.";
+    $s("save").disabled = $s("play").disabled = true;
+    const tall = $s("shape").value === "reel", c = $s("canvas");
+    c.width = 1080; c.height = tall ? 1920 : 1350;
     try {
-      const [bmps, M] = await Promise.all([slideBitmaps(b), loadMuxer()]);
-      const bgs = bmps.map(edgeColour);
+      const scenes = await loadScenes(studio.b, tall, (t) => run === studio.run && say(t));
+      if (run !== studio.run) return;
+      studio.scenes = scenes;
+      say(studio.flat ? `${studio.flat} Slides move as whole pictures for now.` : "");
+      buildFilm(); startPlay();
+    } catch (e) { if (run === studio.run) say("Couldn't load the slides. Close this and try again."); }
+  }
+  function buildFilm() {
+    if (!studio.scenes || !studio.scenes.length) return;
+    const style = MOTION[lookOf(studio.b).style] ? lookOf(studio.b).style : "evergreen", mo = $s("motion").value;
+    const where = $s("where").value;
+    studio.film = makeFilm({ scenes: studio.scenes, W: 1080, H: studio.scenes[0].H, secs: Number($s("secs").value), cut: $s("cut").value, motion: MOTION[mo === "auto" ? style : mo], intro: studio.clip && where === "intro" ? studio.clip : null, coverClip: studio.clip && where === "cover" ? studio.clip : null });
+    studio.t = 0;
+    $s("save").disabled = !canVideo() || !downloads; $s("play").disabled = false;
+    if (!canVideo()) say("This browser can't make MP4 video. Try the Claude app or Chrome.");
+    paintStudio(true);
+  }
+  const seekTo = (v, t) => new Promise((ok) => { t = Math.max(0, Math.min((v.duration || 1) - 0.05, t)); if (Math.abs(v.currentTime - t) < 0.008) return ok(); let done = false; const fin = () => { if (!done) { done = true; v.removeEventListener("seeked", fin); ok(); } }; v.addEventListener("seeked", fin); setTimeout(fin, 2000); v.currentTime = t; });
+  const clipTime = (t) => studio.clip && studio.clip.duration ? t % studio.clip.duration : 0;
+  async function paintStudio(still) {
+    const f = studio.film;
+    if (!f) return;
+    if (still && studio.clip) await seekTo(studio.clip, clipTime(studio.t));
+    f.draw($s("canvas").getContext("2d"), studio.t);
+    $s("seek").value = String(studio.t / f.total);
+  }
+  function startPlay() {
+    if (!studio.film || studio.playing) return;
+    studio.playing = true; $s("play").textContent = "Pause";
+    if (studio.t >= studio.film.total - 0.05) studio.t = 0;
+    if (studio.clip) { studio.clip.loop = true; studio.clip.currentTime = clipTime(studio.t); studio.clip.play().catch(() => {}); }
+    const mine = (studio.loop = (studio.loop || 0) + 1);
+    let last = performance.now();
+    const tick = (now) => {
+      if (!studio.playing || !studio.film || mine !== studio.loop) return;
+      studio.t += Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now;
+      if (studio.t >= studio.film.total) { studio.t = studio.film.total - 0.001; paintStudio(); return stopPlay(); }
+      paintStudio(); requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  function stopPlay() { studio.playing = false; if (studio.clip) studio.clip.pause(); const p = $s("play"); if (p) p.textContent = "Play"; }
+  async function musicTrack(buf, secs) {
+    for (const [codec, mux] of [["mp4a.40.2", "aac"], ["opus", "opus"]]) {
+      const cfg = { codec, sampleRate: 48000, numberOfChannels: 2, bitrate: 160000 };
+      if (typeof AudioEncoder !== "function") return null;
+      const ok = await AudioEncoder.isConfigSupported(cfg).catch(() => ({ supported: false }));
+      if (!ok.supported) continue;
+      const n = Math.ceil(secs * 48000), oc = new OfflineAudioContext(2, n, 48000), src = oc.createBufferSource(), gain = oc.createGain();
+      src.buffer = buf; src.loop = true; src.connect(gain); gain.connect(oc.destination);
+      gain.gain.setValueAtTime(1, Math.max(0, secs - 1.2)); gain.gain.linearRampToValueAtTime(0, secs);
+      src.start();
+      return { cfg, mux, pcm: await oc.startRendering() };
+    }
+    return null;
+  }
+  async function saveStudio() {
+    const f = studio.film, b = studio.b;
+    if (!f || making[b.id]) return;
+    stopPlay();
+    const run = ++studio.run, stopped = () => run !== studio.run;
+    const controls = [...document.querySelectorAll("#studio select, #studio input, #st-play, #st-save")];
+    controls.forEach((c) => (c.disabled = true));
+    making[b.id] = "Making video…"; render();
+    let note = "", enc = null;
+    try {
+      const M = await loadMuxer(), { W, H } = f, total = Math.round(f.total * FPS);
       let codec = null;
       for (const c of ["avc1.640028", "avc1.4d0028", "avc1.42003e"]) {
-        const ok = await VideoEncoder.isConfigSupported({ codec: c, width: W, height: H, bitrate: 6e6, framerate: FPS }).catch(() => ({ supported: false }));
+        const ok = await VideoEncoder.isConfigSupported({ codec: c, width: W, height: H, bitrate: 9e6, framerate: FPS }).catch(() => ({ supported: false }));
         if (ok.supported) { codec = c; break; }
       }
       if (!codec) throw { code: "nocodec" };
-      const muxer = new M.Muxer({ target: new M.ArrayBufferTarget(), video: { codec: "avc", width: W, height: H }, fastStart: "in-memory" });
+      const music = studio.audio ? await musicTrack(studio.audio, total / FPS) : null;
+      if (studio.audio && !music) note = " Music isn't supported here, so it was left out.";
+      const muxer = new M.Muxer({ target: new M.ArrayBufferTarget(), video: { codec: "avc", width: W, height: H }, ...(music ? { audio: { codec: music.mux, numberOfChannels: 2, sampleRate: 48000 } } : {}), fastStart: "in-memory" });
       let failed = null;
-      const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: (e) => { failed = e; } });
-      enc.configure({ codec, width: W, height: H, bitrate: 6e6, framerate: FPS });
+      enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: (e) => { failed = e; } });
+      enc.configure({ codec, width: W, height: H, bitrate: 9e6, framerate: FPS });
       const canvas = new OffscreenCanvas(W, H), g = canvas.getContext("2d");
-      const per = Math.round(secs * FPS), trF = Math.round(TR * FPS), total = per * bmps.length;
-      for (let f = 0; f < total; f++) {
+      for (let i = 0; i < total; i++) {
         if (failed) throw failed;
-        const ci = Math.min(bmps.length - 1, Math.floor(f / per)), local = f - ci * per;
-        const inTr = ci < bmps.length - 1 && local >= per - trF;
-        drawFrame(g, W, H, bmps[ci], bmps[ci + 1], inTr ? (local - (per - trF)) / trF : 0, bgs, ci);
-        const frame = new VideoFrame(canvas, { timestamp: Math.round(f * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
-        enc.encode(frame, { keyFrame: f % (FPS * 2) === 0 });
+        if (stopped()) throw { code: "stopped" };
+        const t = i / FPS;
+        if (studio.clip) await seekTo(studio.clip, clipTime(t));
+        f.draw(g, t);
+        const frame = new VideoFrame(canvas, { timestamp: Math.round(i * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
+        enc.encode(frame, { keyFrame: i % (FPS * 2) === 0 });
         frame.close();
-        while (enc.encodeQueueSize > 8) await new Promise((r) => setTimeout(r, 5));
-        if (f % 15 === 0) { making[b.id] = `Making ${kind === "reel" ? "Reel" : "video"}… ${Math.round(f / total * 100)}%`; render(); }
+        while (enc.encodeQueueSize > 8) await new Promise((r) => setTimeout(r, 4));
+        if (i % 10 === 0) { say(`Making the video… ${Math.round(i / total * 100)}%`); await new Promise((r) => setTimeout(r, 0)); }
       }
-      await enc.flush(); enc.close(); muxer.finalize();
-      making[b.id] = "Saving…"; render();
-      if (await save(`${slug(b.title)}-${kind === "reel" ? "reel-9x16" : "video-4x5"}.mp4`, new Blob([muxer.target.buffer], { type: "video/mp4" }))) toast("Video saved");
+      await enc.flush(); enc.close(); enc = null;
+      if (music) {
+        const ae = new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: (e) => { failed = e; } });
+        ae.configure(music.cfg);
+        const L = music.pcm.getChannelData(0), R = music.pcm.getChannelData(1), N = 4800;
+        for (let i = 0; i < L.length; i += N) {
+          const n = Math.min(N, L.length - i), d = new Float32Array(n * 2);
+          d.set(L.subarray(i, i + n), 0); d.set(R.subarray(i, i + n), n);
+          const ad = new AudioData({ format: "f32-planar", sampleRate: 48000, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(i / 48000 * 1e6), data: d });
+          ae.encode(ad); ad.close();
+        }
+        await ae.flush(); ae.close();
+      }
+      if (failed) throw failed;
+      muxer.finalize();
+      say("Saving…");
+      const kind = H === 1920 ? "reel-9x16" : "video-4x5";
+      say((await save(`${slug(b.title)}-${kind}.mp4`, new Blob([muxer.target.buffer], { type: "video/mp4" })) ? "Saved." : "Not saved.") + note);
     } catch (err) {
-      toast(err && err.code === "nocodec" ? "This browser can't make MP4 video. Try the Claude desktop app or Chrome." : "Couldn't make the video. Try again.");
+      if (!(err && err.code === "stopped")) say(err && err.code === "nocodec" ? "This browser can't make MP4 video. Try the Claude app or Chrome." : "Couldn't make the video. Try again.");
     }
+    if (enc && enc.state !== "closed") enc.close();
+    controls.forEach((c) => (c.disabled = false));
     delete making[b.id]; render();
   }
   async function exportExpress(b, which) {
@@ -1300,8 +1657,7 @@ Reply with only the finished text, nothing before or after it.`;
     const mk = e.target.closest("button[data-make]");
     if (mk) {
       const b = briefs.find((z) => z.id === mk.dataset.id); if (!b || mk.disabled) return;
-      const secs = Number((document.querySelector(`select[data-secs="${CSS.escape(b.id)}"]`) || {}).value || 3);
-      mk.dataset.make === "stories" ? makeStories(b) : makeVideo(b, mk.dataset.make, secs);
+      mk.dataset.make === "stories" ? makeStories(b) : openStudio(b);
       return;
     }
     const ph = e.target.closest("button[data-photo]");

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // OVXS photo helper: a tiny local MCP server (stdio) the Content Desk calls for instant "Generate".
-// One tool, generate_photo: search Unsplash for a keyword, render that one slide with the top unused
-// photo, and return the image. The Unsplash key stays on this Mac (.env); nothing in the repo changes.
+// generate_photo: search Unsplash for a keyword, render that one slide with the top unused
+// photo, and return the image. render_slide, render_layers (parts for motion
+// video) and export_pdf make the other graphics. The Unsplash key stays on this Mac (.env); nothing in the repo changes.
 //
 // Setup, once per Mac: Claude app → Settings → Developer → Edit Config, add inside the outer { }:
 //   "mcpServers": {
@@ -12,7 +13,7 @@
 //   }
 // then quit (Cmd+Q) and reopen the app. $HOME and a login shell keep it working on any Mac.
 import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from "node:fs";
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
@@ -104,6 +105,77 @@ async function renderSlide(args) {
   return { content: [{ type: "image", data, mimeType: "image/jpeg" }, { type: "text", text: JSON.stringify({ rendered: args.slot }) }], structuredContent: { rendered: args.slot } };
 }
 
+// ---- Layers for motion video. One warm headless Chrome over its debugging pipe, closed after a minute idle.
+let chrome = null, idle = null;
+function startChrome() {
+  if (chrome) return chrome;
+  const dir = mkdtempSync(join(tmpdir(), "ovxs-motion-"));
+  const proc = spawn(CHROME, ["--headless=new", "--remote-debugging-pipe", "--hide-scrollbars", "--force-device-scale-factor=1", "--no-first-run", `--user-data-dir=${dir}`], { stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"] });
+  const c = { n: 0, wait: new Map(), dead: false };
+  let buf = "";
+  proc.stdio[4].setEncoding("utf8");
+  proc.stdio[4].on("data", (d) => {
+    buf += d;
+    let z;
+    while ((z = buf.indexOf("\0")) >= 0) {
+      let m; try { m = JSON.parse(buf.slice(0, z)); } catch { m = {}; }
+      buf = buf.slice(z + 1);
+      const w = c.wait.get(m.id);
+      if (w) { c.wait.delete(m.id); m.error ? w.no(new Error(m.error.message)) : w.ok(m.result); }
+    }
+  });
+  const end = () => { c.dead = true; if (chrome === c) chrome = null; for (const w of c.wait.values()) w.no(new Error("Chrome closed")); c.wait.clear(); setTimeout(() => rmSync(dir, { recursive: true, force: true, maxRetries: 3 }), 500); };
+  proc.on("exit", end); proc.on("error", end); proc.stdio[3].on("error", () => {});
+  c.send = (method, params = {}, sessionId) => new Promise((ok, no) => {
+    if (c.dead) return no(new Error("Chrome closed"));
+    const id = ++c.n;
+    const t = setTimeout(() => { c.wait.delete(id); no(new Error("Chrome took too long")); }, 30000);
+    c.wait.set(id, { ok: (v) => { clearTimeout(t); ok(v); }, no: (e) => { clearTimeout(t); no(e); } });
+    proc.stdio[3].write(JSON.stringify({ id, method, params, sessionId }) + "\0");
+  });
+  c.stop = () => proc.kill();
+  return (chrome = c);
+}
+process.on("exit", () => chrome && chrome.stop());
+
+let lane = Promise.resolve(); // one render at a time
+const renderLayers = (args) => (lane = lane.catch(() => {}).then(() => layersOf(args)));
+async function layersOf(args) {
+  checkTarget(args.topic, args.slot);
+  if (!readFileSync(join(root, "topics", args.topic, "page.html"), "utf8").includes("carousel-kit.js")) throw new Error("This page doesn't use the carousel kit");
+  const photo = await resolvePhoto(args.photo, args.topic);
+  const H = args.tall === true ? 1920 : 1350;
+  const url = `file://${join(root, "topics", args.topic, "page.html")}?export=${args.slot}${lookQuery(args)}${photo ? `&photo=${encodeURIComponent(photo)}` : ""}`;
+  clearTimeout(idle);
+  const c = startChrome();
+  let targetId;
+  try {
+    ({ targetId } = await c.send("Target.createTarget", { url: "about:blank" }));
+    const { sessionId } = await c.send("Target.attachToTarget", { targetId, flatten: true });
+    const cdp = (m, p) => c.send(m, p, sessionId);
+    const ev = async (expression) => { const r = await cdp("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }); if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description?.split("\n")[0] || "Page error"); return r.result.value; };
+    await cdp("Emulation.setDeviceMetricsOverride", { width: 1080, height: H, deviceScaleFactor: 1, mobile: false });
+    await cdp("Emulation.setDefaultBackgroundColorOverride", { color: { r: 0, g: 0, b: 0, a: 0 } });
+    await cdp("Page.navigate", { url });
+    for (let i = 0; i < 100; i++) { if (await ev(`location.protocol==="file:"&&document.readyState==="complete"&&!!window.OVXSKit`).catch(() => false)) break; await new Promise((r) => setTimeout(r, 100)); }
+    await ev(`(async()=>{await document.fonts.ready;const t=(p)=>Promise.race([p,new Promise(r=>setTimeout(r,8000))]);
+      const urls=[...document.querySelectorAll(".ph")].map(e=>(/url\\("?([^")]+)"?\\)/.exec(getComputedStyle(e).backgroundImage)||[])[1]).filter(Boolean);
+      await t(Promise.all(urls.map(u=>{const i=new Image();i.src=u;return i.decode().catch(()=>{})})));await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));})()`);
+    const plan = await ev(`OVXSKit.layerPlan(${H})`);
+    const out = [];
+    for (let i = 0; i < plan.length; i++) {
+      await ev(`OVXSKit.layerShow(${i});new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))`);
+      const { x, y, w, h } = plan[i].clip;
+      const { data } = await cdp("Page.captureScreenshot", { format: "webp", quality: plan[i].kind === "photo" ? 86 : 92, clip: { x, y, width: w, height: h, scale: 1 } });
+      out.push({ ...plan[i], img: data });
+    }
+    return { content: [{ type: "text", text: JSON.stringify({ layers: out.length }) }], structuredContent: { slot: args.slot, w: 1080, h: H, layers: out } };
+  } finally {
+    if (targetId) c.send("Target.closeTarget", { targetId }).catch(() => {});
+    idle = setTimeout(() => chrome && chrome.stop(), 60000);
+  }
+}
+
 const LOOK = {
   order: { type: "array", items: { type: "integer" }, description: "Slide numbers (as in page.html) in display order; slides left out are dropped" },
   style: { type: "string", description: "evergreen, notes, field, poster or coast" },
@@ -120,6 +192,16 @@ const RENDER_TOOL = {
       photo: { type: "string", description: "Photo for this graphic: an images.unsplash.com / images.pexels.com URL, an assets/ file, or unsplash:<id> / pexels:<id>. Empty: the page's own photo." },
       ...LOOK
     },
+    required: ["topic", "slot"]
+  },
+  annotations: { readOnlyHint: true }
+};
+const LAYERS_TOOL = {
+  name: "render_layers",
+  description: "Split one graphic of an OVXS topic into transparent WebP parts (background, photo, headline lines, underlines, icon…) with their positions, so the Content Desk can animate it. Changes no files in the repo.",
+  inputSchema: {
+    type: "object",
+    properties: { ...RENDER_TOOL.inputSchema.properties, tall: { type: "boolean", description: "true: 1080x1920 for a Reel. Otherwise 1080x1350." } },
     required: ["topic", "slot"]
   },
   annotations: { readOnlyHint: true }
@@ -216,9 +298,9 @@ createInterface({ input: process.stdin }).on("line", async (line) => {
   try {
     if (method === "initialize") send({ id, result: { protocolVersion: params?.protocolVersion || "2025-06-18", capabilities: { tools: {} }, serverInfo: { name: "ovxs-photos", version: "1.0.0" } } });
     else if (method === "ping") send({ id, result: {} });
-    else if (method === "tools/list") send({ id, result: { tools: [TOOL, RENDER_TOOL, PDF_TOOL] } });
+    else if (method === "tools/list") send({ id, result: { tools: [TOOL, RENDER_TOOL, LAYERS_TOOL, PDF_TOOL] } });
     else if (method === "tools/call") {
-      const fn = { [TOOL.name]: generate, [RENDER_TOOL.name]: renderSlide, [PDF_TOOL.name]: exportPdf }[params?.name];
+      const fn = { [TOOL.name]: generate, [RENDER_TOOL.name]: renderSlide, [LAYERS_TOOL.name]: renderLayers, [PDF_TOOL.name]: exportPdf }[params?.name];
       if (!fn) throw Object.assign(new Error("Unknown tool"), { rpc: -32602 });
       try { send({ id, result: await fn(params.arguments || {}) }); }
       catch (e) { send({ id, result: { isError: true, content: [{ type: "text", text: e.message }] } }); }
