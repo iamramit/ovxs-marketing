@@ -27,6 +27,7 @@ Unattended runs (`weekly`, `daily`) never ask questions in chat and never wait: 
 Read these files first:
 - `voice.md` — the voice, the offer, proof, hard rules and channel rules. It wins over everything, including this file.
 - `pillars.md`
+- The Desk's copy of the voice rules: if `settings/voice` `text` differs from `voice.md`, set it to `{text: <voice.md>, updated_at}`. The Desk's **Write now** uses it.
 - `tracker.csv` — avoid repeating a topic or angle used in the last 6 weeks.
 - `.claude/skills/content/page-spec.md` — only needed from stage 5.
 
@@ -35,6 +36,9 @@ Then `git pull --rebase` so you work on the latest copy.
 ## Desk data model (`briefs/<folder-name>`)
 
 One document per piece. The doc id equals the topic folder name `YYYY-MM-DD-<slug>`. Fields:
+- `make_added` — `{<format>: iso|null}`; formats Ramit ticked after drafting that have no draft yet. Handled in Stage 4d; `null` means nothing to do.
+- `desk_drafts` — `{<format>: iso}`; formats written on the Desk with **Write now** (Claude in the page, using `settings/voice`). Treat the text as Ramit's current draft. Synced in Stage 4d.
+- `make` can change at any stage: Ramit ticks and unticks formats on the card. Always act on the `make` you read. An unticked format keeps its text in `drafts` but is never posted, zipped or redrafted.
 - `title`, `pillar`, `audience`, `make` (array), `cta`, `folder`, `raw_angle`
 - `status` — `researching → awaiting-decision → decided → drafting → review ⇄ changes → approved → posted`, or `dropped` / `archived`. The Desk groups them by whose move it is: **Needs you** (`awaiting-decision`, `review`, and `approved` once its slot date arrives), **With Claude** (`needs-angles`, `researching`, `decided`, `drafting`, `changes`), **Scheduled** (`approved` before its day), **Posted**. Ramit can move a piece back at any step: `decided → awaiting-decision`, `changes → review`, `needs-angles → awaiting-decision`, `approved → review` (unschedule), `posted → approved` (undo), and change `review.slot` (reschedule). Always act on the status you read, never on what it was last run. From `review` Ramit can also send a brief back:
   - to `awaiting-decision`, to pick a different existing angle (the drafts are kept)
@@ -135,6 +139,7 @@ If the doc is `changes` with `review.verdict: "photos"`, skip this stage and go 
 
 1. Set `status: "drafting"`.
 2. Write the long piece first: the Article if listed, otherwise the longest item. Cut every other item from it.
+   Keep a format listed in `desk_drafts` as written if it's newer than `decision.decided_at` and the angle hasn't changed; otherwise redraft it. If `decision.angle` is empty, don't draft: set `status: "awaiting-decision"` and ask for the angle in the notification.
 3. Save `topics/<folder>/copy.md`, one `##` section per Make item. It includes:
    - the Facebook post, if listed
    - the IG caption, if a carousel is listed
@@ -175,6 +180,14 @@ The Desk shows the photo tools on every card that has images, so requests can ar
 4. Mention it in the run's notification ("New photos ready: <title>").
 
 If the doc is about to be redrafted (`decided` or `changes`), run this stage first, so Stage 5 builds the new images with Ramit's picks. Keep a picked photo when its slide still exists; if the slides change, use it where it fits best.
+
+## Stage 4d — Formats added later (`daily`: every `review`, `approved` or `posted` doc with a non-null `make_added` entry, or a `desk_drafts` entry not yet in `copy.md`)
+
+Status, the other drafts and existing images don't change.
+1. **Desk drafts**: copy each into `copy.md` and the preview's panel. Run the voice check. In `review`, fix only what breaks a hard rule and say so in the notification; in `approved` or `posted`, change nothing and report it.
+2. **`make_added`** (skip formats no longer in `make`, or that have a draft by now): write that format from the existing drafts, with the Stage 4 rules. For **IG carousel**, also build the slides into `page.html`, export and upload them (Stage 5 steps 1–4, only the new graphics; never delete or re-render the others). If a LinkedIn or Facebook post has no `li-graphic`, make that too.
+3. Write the new text with a merge into `drafts`, add new `exports`, and set those `make_added` entries to `null`. Don't touch `review.channels`: on an approved piece Ramit approves each added format on the Desk before it's posted.
+4. Republish the preview and name the added formats in the notification.
 
 ## Stage 5 — Preview page
 

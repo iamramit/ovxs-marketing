@@ -351,7 +351,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
   }
 
   function metaLine(b) {
-    const make = Array.isArray(b.make) ? b.make.join(" · ") : "";
+    const make = makeOf(b).join(" · ");
     return `<div class="meta">
       <span class="pill ${NEEDS.includes(b.status) ? "you" : b.status === "approved" || b.status === "posted" ? "go" : ""}">${esc(STATUS_LABEL[b.status] || b.status)}</span>${b.test ? `<span class="pill test">Test</span>` : ""}
       ${b.pillar ? `<span>${esc(b.pillar)}</span>` : ""}${b.audience ? `<span>· ${esc(b.audience)}</span>` : ""}${make ? `<span>· ${esc(make)}</span>` : ""}
@@ -387,6 +387,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.raw_angle ? `<p class="small"><b>Your note:</b> ${esc(b.raw_angle)}</p>` : ""}</div>
       <p class="todo"><b>What you do now:</b> Read what the research says, pick A, B or C, and tap <b>Use angle</b>. Claude writes the drafts on the next daily run.</p>
+      ${formatsBlock(b)}
       ${research(b)}
       ${shots(b).length ? `<details${opened.has(b.id) ? " open" : ""} data-keep="${esc(b.id)}"><summary>Current drafts and images</summary>
         <p class="small">From the earlier drafts. You can swap their photos now; if you pick a different angle, Claude rewrites them and keeps your photo picks where they still fit.</p>
@@ -420,8 +421,132 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
   const draftKeys = (b) => {
     const d = b.drafts && typeof b.drafts === "object" ? b.drafts : {};
     const rank = (k) => { const i = DRAFT_ORDER.indexOf(k); return i < 0 ? DRAFT_ORDER.length : i; };
-    return Object.keys(d).filter((k) => typeof d[k] === "string" && d[k].trim()).sort((a, z) => rank(a) - rank(z));
+    return Object.keys(d).filter((k) => typeof d[k] === "string" && d[k].trim() && (!Array.isArray(b.make) || !b.make.length || makeOf(b).includes(k))).sort((a, z) => rank(a) - rank(z));
   };
+  // ---- Formats: change what a piece makes at any stage, and write a missing one right here
+  const FORMATS = DRAFT_ORDER;
+  const makeDraft = {};          // briefId -> make array not saved yet
+  const saveChain = {};          // briefId -> promise, so quick ticks save one at a time
+  const writingFmt = {};         // briefId -> format being written
+  const PRE_DRAFT = ["needs-angles", "researching", "awaiting-decision", "decided", "drafting"];
+  // Only once an angle is chosen: copy is never written before that decision.
+  const canWrite = (b) => ["decided", "changes", "review", "approved", "posted"].includes(b.status) && !!((b.decision && b.decision.angle) || draftKeys(b).length);
+  const makeOf = (b) => makeDraft[b.id] || (Array.isArray(b.make) ? b.make : []);
+  const hasDraft = (b, k) => !!(b.drafts && typeof b.drafts[k] === "string" && b.drafts[k].trim());
+  const missingFormats = (b) => makeOf(b).filter((k) => !hasDraft(b, k) && FORMATS.includes(k));
+
+  function formatsBlock(b) {
+    if (["archived", "dropped"].includes(b.status)) return "";
+    const id = esc(b.id), make = makeOf(b), dis = canEdit ? "" : "disabled";
+    const missing = canWrite(b) ? missingFormats(b) : [];
+    const ch = b.review && Array.isArray(b.review.channels) ? b.review.channels : [];
+    const toApprove = b.status === "approved" ? make.filter((k) => hasDraft(b, k) && !ch.includes(k)) : [];
+    return `<div class="section"><h3>Formats</h3>
+      <div class="checks">${FORMATS.map((k, i) => `<label for="fmt-${id}-${i}"><input type="checkbox" id="fmt-${id}-${i}" data-fmt="${esc(k)}" data-brief="${id}" ${make.includes(k) ? "checked" : ""} ${dis}> ${esc(k)}</label>`).join("")}</div>
+      ${!canWrite(b) ? `<p class="small">Claude writes the ticked formats when it drafts this piece.</p>` : ""}
+      ${missing.map((k) => k === "IG carousel"
+        ? `<p class="small"><b>IG carousel</b> needs designed slides, so Claude makes it on the next daily run. Sooner: in Claude, open <b>Scheduled</b>, pick <b>OVXS daily</b> and press <b>Run now</b>.</p>`
+        : `<div class="row"><span class="small"><b>${esc(k)}</b> isn't written yet.</span>
+            ${writingFmt[b.id] === k ? `<span class="small" role="status">Writing… ${k === "Article" ? "this one takes a minute or two" : "about half a minute"}</span>`
+              : sample ? `<button class="btn sm" type="button" data-write="${esc(k)}" data-id="${id}" ${canEdit && !writingFmt[b.id] ? "" : "disabled"}>Write now</button>`
+              : `<span class="small">Claude writes it on the next daily run.</span>`}</div>`).join("")}
+      ${toApprove.map((k) => `<div class="row"><span class="small"><b>${esc(k)}</b> isn't approved for posting. Read it below first.</span><button class="btn ghost sm" type="button" data-addch="${esc(k)}" data-id="${id}" ${dis}>Approve ${esc(k)}</button></div>`).join("")}
+    </div>`;
+  }
+
+  async function setFormat(id, fmt, on) {
+    const b = briefs.find((z) => z.id === id);
+    if (!b || !db || !canEdit) return;
+    const set = new Set(makeOf(b));
+    on ? set.add(fmt) : set.delete(fmt);
+    if (!set.size) { toast("Keep at least one format."); render(); return; }
+    makeDraft[id] = FORMATS.filter((k) => set.has(k));
+    const st = form[id];
+    if (st && st.channels) st.channels = on ? [...new Set([...st.channels, fmt])] : st.channels.filter((k) => k !== fmt);
+    render();
+    saveChain[id] = (saveChain[id] || Promise.resolve()).then(async () => {
+      const cur = briefs.find((z) => z.id === id);
+      const want = makeDraft[id] || (cur && cur.make);
+      if (!cur || !want) return;
+      const now = new Date().toISOString();
+      const patch = { make: want, updated_at: now };
+      if (!PRE_DRAFT.includes(cur.status)) patch.make_added = { [fmt]: on && !hasDraft(cur, fmt) ? now : null };
+      const ch = cur.review && Array.isArray(cur.review.channels) ? cur.review.channels : null;
+      if (!on && cur.status === "approved" && ch && ch.includes(fmt)) { patch.review = { channels: ch.filter((k) => k !== fmt) }; patch.post_prep = null; }
+      try {
+        await db.doc("briefs/" + id).update(patch);
+        toast(on ? `${fmt} added` : `${fmt} removed. Its text is kept if you tick it again.`);
+      } catch (err) {
+        delete makeDraft[id];
+        toast("Couldn't save. Try again in a moment.");
+        render();
+      }
+    });
+    await saveChain[id];
+  }
+
+  const BANNED = /\b(synergy|leverag\w*|unlock\w*|elevat\w*|game-changer|cutting-edge|seamless\w*|robust|let.s dive in|in today.s fast-paced)\b/i;
+  async function writeFormat(id, fmt) {
+    const b = briefs.find((z) => z.id === id);
+    if (!b || !db || !canEdit || !sample || writingFmt[id] || fmt === "IG carousel" || !canWrite(b)) return;
+    writingFmt[id] = fmt; render();
+    try {
+      const vs = await db.doc("settings/voice").get();
+      const voice = vs.exists && vs.data().text;
+      if (!voice) { toast("The voice rules aren't on the Desk yet. Claude writes it on the next daily run."); return; }
+      const angle = (Array.isArray(b.angles) ? b.angles : []).find((a) => b.decision && a.id === b.decision.angle);
+      const drafts = draftKeys(b).map((k) => `### ${k}\n${b.drafts[k].slice(0, 9000)}`).join("\n\n");
+      const prompt = `Write one piece of content for Studio OVXS: the ${fmt}.
+
+VOICE RULES (they win over everything else; follow the "${fmt}" channel rules exactly):
+${voice}
+
+THE PIECE
+Title: ${b.title}
+Audience: ${b.audience || "Everyone"}
+${angle ? `Angle: ${angle.name}. ${angle.argument || ""} Hook: ${angle.hook || ""} Proof: ${angle.proof || ""}` : ""}
+${b.decision && b.decision.notes ? `Ramit's notes: ${b.decision.notes}` : ""}
+${b.review && b.review.notes ? `Ramit's review notes: ${b.review.notes}` : ""}
+${Array.isArray(b.so_what) && b.so_what.length ? `Research: ${b.so_what.join(" ")}` : ""}
+${Array.isArray(b.sources) && b.sources.length ? `Sources: ${b.sources.map((s) => `${s.label} ${s.url}`).join("; ")}` : ""}
+
+ALREADY WRITTEN FOR THE OTHER FORMATS (same argument; cut this format from them, don't contradict them):
+${drafts || "(nothing yet)"}
+
+Rules: use only facts, numbers, prices and client results that appear above. No em dash without spaces, no exclamation marks, no emoji. Never mention the content pillar or that AI wrote this. ${fmt === "LinkedIn post" ? 'After the post add a line "First comment:" with the link.' : fmt === "Article" ? "Start with the title, then the italic dek. End with Meta description, Keyword and Slug lines." : fmt === "Newsletter" ? "Start with Subject and Preview lines." : ""}
+
+Reply with only the finished text, nothing before or after it.`;
+      const out = await sample(prompt, { cache: false });
+      const text = String(out && out.text || "").trim();
+      if (!text) throw { code: "empty" };
+      if (out.truncated) { toast("It came back cut off, so nothing was saved. Try again, or leave it to the daily run."); return; }
+      const cur = briefs.find((z) => z.id === id);
+      if (!cur || !makeOf(cur).includes(fmt)) { toast(`${fmt} was unticked, so it wasn't saved.`); return; }
+      if (hasDraft(cur, fmt) || !canWrite(cur)) { toast("Claude is already writing this piece. Nothing was overwritten."); return; }
+      const now = new Date().toISOString();
+      await db.doc("briefs/" + id).update({ drafts: { [fmt]: text }, desk_drafts: { [fmt]: now }, make_added: { [fmt]: null }, updated_at: now });
+      const flag = /!/.test(text) ? "an exclamation mark" : /\p{Extended_Pictographic}/u.test(text) ? "an emoji" : (BANNED.exec(text) || [])[0] ? `“${BANNED.exec(text)[0]}”` : "";
+      toast(flag ? `${fmt} written, but it has ${flag}. Check it.` : `${fmt} written. Read it under Get the content.`);
+    } catch (err) {
+      const code = err && err.code;
+      toast(code === "not_granted" ? "Writing here isn't allowed yet. Claude writes it on the next daily run." : code === "rate_limited" ? "Claude is busy. Try again in a few minutes." : "Couldn't write it. Try again in a moment.");
+    } finally {
+      delete writingFmt[id];
+      render();
+    }
+  }
+
+  async function approveFormat(id, fmt, btn) {
+    const b = briefs.find((z) => z.id === id);
+    if (!b || !db || !canEdit || b.status !== "approved" || !hasDraft(b, fmt)) return;
+    btn.disabled = true;
+    const ch = b.review && Array.isArray(b.review.channels) ? b.review.channels : [];
+    try {
+      await db.doc("briefs/" + id).update({ review: { channels: [...new Set([...ch, fmt])] }, post_prep: null, updated_at: new Date().toISOString() });
+      toast(`${fmt} approved for posting`);
+    } catch (err) { btn.disabled = false; toast("Couldn't save. Try again in a moment."); }
+  }
+
   const shots = (b) => (Array.isArray(b.exports) ? b.exports : []).filter((x) => x && /^[0-9a-f]{32}$/.test(String(x.id || "")));
   const blobUrl = (x) => "/_blob/" + x.id;
   const slug = (s) => String(s || "file").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "file";
@@ -865,7 +990,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
 
   function reviewCard(b) {
     const st = f(b.id);
-    const make = Array.isArray(b.make) ? b.make : [];
+    const make = makeOf(b);
     if (!st.channels) st.channels = make.slice();
     const pv = safeUrl(b.preview_url);
     const schedOn = scheduling !== "off";
@@ -877,6 +1002,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       </div>
       <p class="todo"><b>What you do now:</b> Read the drafts and the preview. Happy? ${schedOn ? "Pick a date and time and tap <b>Approve and schedule</b>" : "Tick the channels and tap <b>Approve, ready to post</b>"}. Not yet? Write what to change and tap <b>Ask for changes</b>.</p>
       ${pv ? `<div class="row"><a class="btn ghost" href="${esc(pv)}" target="_blank" rel="noopener">Open the designed preview ↗</a></div>` : ""}
+      ${formatsBlock(b)}
       ${draftsBlock(b, true)}
       <div class="section"><h3>${schedOn ? "Post on (US Eastern)" : "Post on"}</h3>
         ${schedOn ? `<div class="grid2">
@@ -967,6 +1093,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         ${canTake && (!busy || stalled) ? `<button class="btn ghost" type="button" data-act="takeback" data-id="${id}" ${dis}>${esc(tb[1])}</button>` : ""}
         <button class="btn quiet" type="button" data-act="archive" data-id="${id}" ${dis}>Archive</button>
       </div>
+      ${formatsBlock(b)}
       ${openBlock(b)}
     </article>`;
   }
@@ -986,6 +1113,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         <button class="btn quiet" type="button" data-act="archive" data-id="${id}" ${dis}>Archive</button>
       </div>
       ${reschedBlock(b)}
+      ${formatsBlock(b)}
       ${openBlock(b)}
     </article>`;
   }
@@ -1011,6 +1139,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
         <button class="btn ghost" type="button" data-act="unapprove" data-id="${id}" ${dis}>Back to review</button>
       </div>
       ${reschedBlock(b)}
+      ${formatsBlock(b)}
       ${openBlock(b, true)}
     </article>`;
   }
@@ -1033,6 +1162,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       return `<article class="card" data-id="${id}">
         <label class="field" for="rt-${id}">Topic<input type="text" id="rt-${id}" maxlength="140" value="${esc(r.title)}"></label>
         <label class="field" for="rn-${id}">Your take, notes or links<textarea id="rn-${id}" maxlength="4000" style="min-height:160px">${esc(r.notes)}</textarea></label>
+        <div class="section"><h3>Make</h3><div class="checks" id="rm-${id}">${FORMATS.map((k) => `<label><input type="checkbox" value="${esc(k)}" ${(r.make || []).includes(k) ? "checked" : ""}> ${esc(k)}</label>`).join("")}</div></div>
         <div class="row"><button class="btn" type="button" data-req="save" data-id="${id}">Save</button><button class="btn quiet" type="button" data-req="cancel" data-id="${id}">Cancel</button></div>
       </article>`;
     }
@@ -1072,6 +1202,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     return `<article class="card" data-id="${esc(b.id)}">
       <div class="card-head">${metaLine(b)}<h2>${esc(b.title)}</h2>${b.posted && b.posted.at ? `<p class="small">Posted ${esc(fmtDate(b.posted.at))}</p>` : ""}</div>
       ${links.length ? `<div class="row">${links.map(([k, v]) => { const u = safeUrl(v); return u ? `<a class="btn ghost" href="${esc(u)}" target="_blank" rel="noopener">${esc(k)} ↗</a>` : ""; }).join("")}</div>` : ""}
+      ${formatsBlock(b)}
       ${draftsBlock(b, false)}
       <div class="row"><button class="btn quiet" type="button" data-act="unpost" data-id="${esc(b.id)}" ${canEdit ? "" : "disabled"}>Not posted yet? Undo</button></div>
     </article>`;
@@ -1149,6 +1280,10 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
       if (ord.dataset.order === "show") { d.hidden.delete(sl); const vis = d.order.filter((x) => !d.hidden.has(x) && x !== sl); d.order = [...vis, sl, ...d.order.filter((x) => d.hidden.has(x))]; }
       render(); return;
     }
+    const wr = e.target.closest("button[data-write]");
+    if (wr) { if (!wr.disabled) writeFormat(wr.dataset.id, wr.dataset.write); return; }
+    const ac = e.target.closest("button[data-addch]");
+    if (ac) { if (!ac.disabled) approveFormat(ac.dataset.id, ac.dataset.addch, ac); return; }
     const dz = e.target.closest("button[data-design]");
     if (dz) { const b = briefs.find((z) => z.id === dz.dataset.id); if (!b || dz.disabled) return; cycleDesign(b, dz.dataset.slot, Number(dz.dataset.design)); render(); return; }
     const lk = e.target.closest("button[data-look]");
@@ -1183,6 +1318,8 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
   }, true);
 
   document.addEventListener("change", (e) => {
+    const fx = e.target.closest("input[data-fmt]");
+    if (fx) { setFormat(fx.dataset.brief, fx.dataset.fmt, fx.checked); return; }
     const sel = e.target.closest("select[data-look]");
     if (!sel) return;
     const b = briefs.find((z) => z.id === sel.dataset.id); if (!b) return;
@@ -1355,7 +1492,9 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     if (kind === "save") {
       const title = $("#rt-" + CSS.escape(id)).value.trim();
       if (!title) { toast("The topic needs a title."); return; }
-      patch = { title, notes: $("#rn-" + CSS.escape(id)).value.trim(), edited_at: now }; msg = "Saved";
+      const make = [...document.querySelectorAll("#rm-" + CSS.escape(id) + " input:checked")].map((i) => i.value);
+      if (!make.length) { toast("Keep at least one format."); return; }
+      patch = { title, notes: $("#rn-" + CSS.escape(id)).value.trim(), make, edited_at: now }; msg = "Saved";
     }
     else if (kind === "rush") { patch = { rush: true, rush_at: now }; msg = "The next daily run does this first."; }
     else if (kind === "unrush") { patch = { rush: false }; msg = "Back in the queue for Monday."; }
@@ -1447,6 +1586,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     }
     if (kind === "drop-yes") { confirming.delete(id); await write(id, { status: "dropped", dropped_at: now }, "Topic dropped"); return; }
     if (kind === "decide") {
+      if (!st.angle) { btn.disabled = false; toast("Pick an angle first."); render(); return; }
       const b = briefs.find((x) => x.id === id);
       const same = b && b.decision && b.decision.angle === st.angle && !st.notes.trim() && b.drafts && Object.keys(b.drafts).length;
       if (same) { await write(id, { status: "review" }, `Kept angle ${st.angle}. Your drafts are back in review.`); return; }
@@ -1548,6 +1688,7 @@ Reply with only JSON: {"queries": ["...", "...", "..."], "avoid": ["...", "..."]
     if (!canEdit) notice("You can view the desk, but only editors can pick angles or approve posts.");
     db.collection("briefs").orderBy("updated_at", "desc").limit(200).onSnapshot((snap) => {
       briefs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      for (const b of briefs) if (makeDraft[b.id] && String(makeDraft[b.id]) === String(b.make)) delete makeDraft[b.id];
       render();
     }, () => notice("The desk stopped updating. Reload the page."));
     db.doc("settings/posting").onSnapshot((snap) => {
