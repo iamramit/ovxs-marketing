@@ -66,7 +66,7 @@ em.p{font-style:italic;text-decoration:underline wavy var(--primary);text-decora
 
 .board{width:1080px;height:1350px;position:relative;overflow:hidden;font-family:var(--sans);display:flex;flex-direction:column}
 .board .ph{flex:0 0 46%;background-size:cover;background-position:center}
-#li-graphic .ph{flex-basis:54%}
+#li-graphic .ph,#fb-graphic .ph{flex-basis:54%}
 .board .pn{flex:1;padding:60px 80px 0;display:flex;flex-direction:column;position:relative}
 .board.full .pn{padding:0 80px 140px;justify-content:center}
 .board.ph-on .hd{font-size:84px;max-width:740px}
@@ -78,7 +78,7 @@ em.p{font-style:italic;text-decoration:underline wavy var(--primary);text-decora
 .board .src{font:500 22px/1 var(--sans);margin-top:18px;opacity:.8}
 .board .badge{position:absolute;top:56px;right:80px;width:112px;height:112px;border-radius:50%;display:grid;place-items:center;font:900 46px/1 var(--label);letter-spacing:.02em}
 .board.ph-on .badge{top:calc(46% + 48px)}
-#li-graphic.ph-on .hd{font-size:96px}
+#li-graphic.ph-on .hd,#fb-graphic.ph-on .hd{font-size:96px}
 .board .ft{position:absolute;left:80px;right:80px;bottom:56px;display:flex;justify-content:space-between;align-items:center;font:600 22px/1 var(--sans);letter-spacing:.04em}
 .board .ft img{height:46px}
 .board .cta{display:inline-flex;align-self:flex-start;gap:14px;margin-top:44px;padding:28px 44px;border-radius:999px;font:900 34px/1 var(--label);letter-spacing:.06em;text-transform:uppercase}
@@ -96,9 +96,10 @@ body.export .board{transform:none!important}
 <main class="wrap" id="app">
   <div class="eyebrow">Honest advice · Growing stores · Angle A</div>
   <h1 class="title">Another app? <em class="p">Ask what it earns.</em></h1>
-  <p class="lede">Your store doesn’t need another app: every app has to earn its place. LinkedIn post, IG carousel and article for review.</p>
+  <p class="lede">Your store doesn’t need another app: every app has to earn its place. LinkedIn post, Facebook post, IG carousel and article for review.</p>
   <nav class="tabs" role="tablist">
     <a href="#linkedin" role="tab" data-t="linkedin">LinkedIn post</a>
+    <a href="#facebook" role="tab" data-t="facebook">Facebook post</a>
     <a href="#carousel" role="tab" data-t="carousel">IG carousel</a>
     <a href="#article" role="tab" data-t="article">Article</a>
   </nav>
@@ -135,7 +136,7 @@ Link in comments.
       <div>
         <div class="h3">Graphic · 4:5</div>
         <div class="frame"><div class="board bg-primary ph-on" id="li-graphic">
-          <div class="ph" style="background-image:url(assets/li-cover.jpg)"></div>
+          <div class="ph" style="background-image:url(assets/slide1-cover.jpg)"></div>
           <div class="pn">
             <div class="ey">Honest advice · Apps</div>
             <h2 class="hd">Another app? <em>Ask what it earns.</em></h2>
@@ -146,6 +147,31 @@ Link in comments.
       </div>
     </div>
     <div class="small"><b>First comment:</b> The $99 video audit: <a href="https://ovxs.studio/pages/request-audit">https://ovxs.studio/pages/request-audit</a> · Built for Shopify performance criterion (2.2.1): <a href="https://shopify.dev/docs/apps/launch/built-for-shopify/achievement-criteria">https://shopify.dev/docs/apps/launch/built-for-shopify/achievement-criteria</a></div>
+  </section>
+
+  <section class="panel" id="p-facebook">
+    <div class="two">
+      <div class="card">
+        <div class="li-head"><div class="av">OV</div><div><b>Studio OVXS</b><span>1d</span></div></div>
+        <div class="post">Your store doesn’t need another app. It needs the ones you have to earn their place.
+
+Every app that touches your storefront has something to load. Even one Shopify certifies as “Built for Shopify” is allowed to cost up to 10 points on your storefront speed score.
+
+So here’s the test. List every app you pay for. Next to each, write the sale it helped make last month. Where two do one job, keep one. Cut the ones that can’t answer.
+
+Some apps earn their place many times over. It’s one job per app.
+
+Not sure what to cut? Our $99 video audit gives you three ranked fixes. No call, no logins.
+
+Which app would you struggle to defend?
+
+https://ovxs.studio/pages/request-audit</div>
+      </div>
+      <div>
+        <div class="h3">Graphic · 4:5 (same as LinkedIn)</div>
+        <div class="frame" id="fb-frame" style="max-width:360px"></div>
+      </div>
+    </div>
   </section>
 
   <section class="panel" id="p-carousel">
@@ -240,6 +266,7 @@ if(q){
   document.body.replaceChildren(el);
   if(window.OVXSKit)OVXSKit.apply(el,q,typeof slides!=="undefined"?slides:null);
 }else{
+  const g=document.getElementById("li-graphic").cloneNode(true);document.getElementById("fb-frame").append(g);g.id="fb-graphic";
   const fit=()=>document.querySelectorAll(".frame").forEach(f=>{const b=f.firstElementChild;b.style.transform=`scale(${f.clientWidth/1080})`});
   new ResizeObserver(fit).observe(document.body);fit();
   const show=()=>{const t=(location.hash.slice(1)||"linkedin");const ok=document.getElementById("p-"+t)?t:"linkedin";

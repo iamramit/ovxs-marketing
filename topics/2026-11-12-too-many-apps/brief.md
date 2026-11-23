@@ -1,5 +1,5 @@
 # Your store doesn’t need another app
-Pillar: Honest advice · Audience: Growing stores · Make: LinkedIn post, IG carousel, Article · CTA: Book a $99 video audit · Status: review
+Pillar: Honest advice · Audience: Growing stores · Make: LinkedIn post, Facebook post, IG carousel, Article · CTA: Book a $99 video audit · Status: review
 
 ## Raw input
 No request from Ramit. Picked by the weekly run on 2026-11-12: no new Desk requests and no real Ovi chats since 2026-11-02, so topics came from pillars. Honest advice was last used on 2026-10-14 (more than two weeks ago). “Too many apps” is listed as an example topic in pillars.md. Make taken from the pillar’s best formats.
@@ -58,22 +58,24 @@ No request from Ramit. Picked by the weekly run on 2026-11-12: no new Desk reque
 
 ## Decisions
 - Angle: A — Every app has to earn its place (picked on the Desk 2026-11-13, no notes; Publish now tapped 2026-11-14)
+- Angle A picked again on the Desk 2026-11-23, no notes; Publish now tapped. Facebook post added.
 - Must include: the four-step test; Built for Shopify 10-point ceiling as the only hard stat on social
 - Must avoid: claiming speed points equal sales; editing the live theme (copy says duplicate first)
 - CTA: Book a $99 video audit
-- Make (final): LinkedIn post, IG carousel (8 slides), Article
+- Make (final): LinkedIn post, Facebook post, IG carousel (8 slides), Article
 - Decided on: 2026-11-13
 - Drafted 2026-11-14 in an interactive session (the scheduled daily run was cancelled). Preview: https://claude.ai/artifact/Dbh5KEYGtPEojQiZRKnK64
 - 2026-11-14: Ramit asked for fresh photos. Brief 1 photos replaced with three new Unsplash picks (see Photos); only the four photo images were re-rendered and re-uploaded.
 - 2026-11-18: LinkedIn graphic photo: Andrew Neel (QLqNalPe0RA), swapped on the Desk. Downloaded with credit; all nine graphics re-rendered as PNGs in the Studio Notes scheme with the Desk's designs.
 - 2026-11-20: Slide 1 photo: Andrew Neel (ute2XAFQU2I), swapped on the Desk. Downloaded with credit as assets/slide1-cover.jpg; slide 1 re-rendered as PNG and uploaded; preview republished. The previous slide 1 photo (cover.jpg) stays in assets/ as the Desk backup.
 - 2026-11-22 (daily run): the Desk re-rendered all 9 graphics as helper JPEGs on 2026-11-21 (after the carousel kit update). No new photos. All 9 re-rendered from page.html with the new kit (Studio Notes scheme, Desk looks) and uploaded as PNGs in place of the JPEGs; old JPEGs removed from the Desk.
+- 2026-11-23 (two daily runs): LinkedIn graphic photo: Andrew Neel (ute2XAFQU2I), Desk pick, same as slide 1; all 9 graphics re-rendered as PNGs in Deep Field and uploaded (first run, which stalled before committing). Facebook post written on the Desk (Write now) predates the angle pick, so it was redrafted: cut to 120 words, storefront claim tightened, curly quotes. LinkedIn post, carousel and article kept (same angle, no notes). Preview gets a Facebook tab; back in review.
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
-| assets/li-cover.jpg | Unsplash QLqNalPe0RA | Andrew Neel | LinkedIn graphic (Desk pick 2026-11-18) |
-| assets/slide1-cover.jpg | Unsplash ute2XAFQU2I | Andrew Neel | slide 1 (Desk pick 2026-11-20) |
+| assets/li-cover.jpg | Unsplash QLqNalPe0RA | Andrew Neel | LinkedIn graphic backup on the Desk (not in use) |
+| assets/slide1-cover.jpg | Unsplash ute2XAFQU2I | Andrew Neel | slide 1 (Desk pick 2026-11-20) and LinkedIn graphic (Desk pick 2026-11-23) |
 | assets/cover.jpg | Unsplash ag5H7Nqbf9U | Filipp Romanovski | slide 1 backup on the Desk (not in use) |
 | assets/notes.jpg | Unsplash 1rm4_SojyNM | Jakub Żerdzicki | slide 4 |
 | assets/code.jpg | Unsplash _4HiCxdOBLU | Tracy Adams | slide 6 |

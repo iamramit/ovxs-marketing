@@ -33,6 +33,22 @@ Link in comments.
 
 **Graphic (4:5):** photo top · eyebrow “Honest advice · Apps” · “Another app? *Ask what it earns.*” · “Every app loads something on every page. Make each one earn it.” · CTA “Book a $99 video audit →”
 
+## Facebook post
+
+Your store doesn’t need another app. It needs the ones you have to earn their place.
+
+Every app that touches your storefront has something to load. Even one Shopify certifies as “Built for Shopify” is allowed to cost up to 10 points on your storefront speed score.
+
+So here’s the test. List every app you pay for. Next to each, write the sale it helped make last month. Where two do one job, keep one. Cut the ones that can’t answer.
+
+Some apps earn their place many times over. It’s one job per app.
+
+Not sure what to cut? Our $99 video audit gives you three ranked fixes. No call, no logins.
+
+Which app would you struggle to defend?
+
+https://ovxs.studio/pages/request-audit
+
 ## IG carousel
 
 1. Cover (photo) · Honest advice · Apps — Another app? *Ask what it earns.* — Every app loads something on every page. Swipe for the test.
