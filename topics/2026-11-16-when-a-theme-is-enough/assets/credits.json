@@ -1,0 +1,35 @@
+[
+  {
+    "file": "cover.jpg",
+    "source": "Unsplash",
+    "id": "IliCVGFNUng",
+    "photographer": "Alexander Mass",
+    "photographer_url": "https://unsplash.com/@alexandermassph?utm_source=ovxs_studio&utm_medium=referral",
+    "page": "https://unsplash.com/photos/colorful-mugs-and-knitted-items-on-shelves-IliCVGFNUng",
+    "alt": "Colorful mugs and knitted items on shelves",
+    "license": "https://unsplash.com/license",
+    "downloaded_at": "2026-11-25T06:09:02.990Z"
+  },
+  {
+    "file": "li-cover.jpg",
+    "source": "Unsplash",
+    "id": "wwTpWxyhaC0",
+    "photographer": "loli mass",
+    "photographer_url": "https://unsplash.com/@lolimass?utm_source=ovxs_studio&utm_medium=referral",
+    "page": "https://unsplash.com/photos/woven-straw-baskets-with-colorful-patterns-wwTpWxyhaC0",
+    "alt": "A collection of woven straw baskets with colorful patterns displayed on a wall",
+    "license": "https://unsplash.com/license",
+    "downloaded_at": "2026-11-25T06:09:05.457Z"
+  },
+  {
+    "file": "catalogue.jpg",
+    "source": "Unsplash",
+    "id": "ysv-Ty3JdV8",
+    "photographer": "Anastasiia Abramtsova",
+    "photographer_url": "https://unsplash.com/@lacrimk?utm_source=ovxs_studio&utm_medium=referral",
+    "page": "https://unsplash.com/photos/a-shop-interior-filled-with-wooden-crafts-bags-and-souvenirs-ysv-Ty3JdV8",
+    "alt": "A shop interior filled with wooden crafts, bags, and souvenirs",
+    "license": "https://unsplash.com/license",
+    "downloaded_at": "2026-11-25T06:09:07.513Z"
+  }
+]

@@ -1,5 +1,5 @@
 # What’s inside a $99 video audit
-Pillar: Behind the studio · Audience: Growing stores · Make: LinkedIn post, LinkedIn video, Facebook post · CTA: Book a $99 video audit · Status: awaiting-decision
+Pillar: Behind the studio · Audience: Growing stores · Make: LinkedIn post, Facebook post, IG carousel, Newsletter, Article, LinkedIn video · CTA: Book a $99 video audit · Status: review
 
 ## Raw input
 No request from Ramit. Picked by the weekly run: Behind the studio hasn't been used yet (tracker.csv), and the pillars file lists “what's inside a video audit” as an example topic. Make chosen from the pillar's best formats.
@@ -53,13 +53,19 @@ No request from Ramit. Picked by the weekly run: Behind the studio hasn't been u
 - Risk: Talking about price can feel salesy; keep it plain and short.
 
 ## Decisions
-- Angle:
-- Must include:
-- Must avoid:
-- CTA:
-- Make (final):
-- Decided on:
+- Angle: A — Fifteen minutes, three fixes (picked on the Desk 2026-11-25, no notes)
+- CTA: Book a $99 video audit
+- Make (final): LinkedIn post, Facebook post, IG carousel, Newsletter, Article, LinkedIn video
+- 2026-11-25 (daily run): LinkedIn post, Facebook post, newsletter, article and video were written on the Desk (Write now) after the angle pick, so kept as written apart from voice fixes. The “founder sent us a 40-page audit she’d paid for” story was invented (nothing in the proof list), so it is now a plain “say the report is 40 pages” example. Baymard’s 42% corrected from “cart abandoners” to US online shoppers. Placeholder store link replaced with ovxs.studio; Speed, SEO & Conversion service linked in the article. IG carousel written and built (7 slides, Coastline).
+- Preview: https://claude.ai/artifact/HtWAzLbddKd8mwmGbnDntU
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
+| li-cover.jpg | Unsplash Hx-4TbpsoIw | Justin Morgan | https://unsplash.com/photos/black-pen-on-white-notebook-Hx-4TbpsoIw |
+| papers.jpg | Unsplash BdwZg4--fyI | Giuseppe Famiani | https://unsplash.com/photos/a-close-up-of-a-messy-stack-of-papers-and-files-BdwZg4--fyI |
+
+## SEO (articles only)
+- Target keyword: video audit
+- Meta description: A $99 video audit is a 15-minute walkthrough of your store with three ranked fixes you can act on this month. Here’s what’s inside.
+- Slug: /blogs/journal/whats-inside-a-99-video-audit

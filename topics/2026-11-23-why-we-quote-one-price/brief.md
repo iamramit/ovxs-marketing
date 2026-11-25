@@ -1,5 +1,5 @@
 # Why we quote one fixed price
-Pillar: Behind the studio · Audience: Growing stores · Make: LinkedIn post, LinkedIn video, Facebook post · CTA: Book a $99 video audit · Status: awaiting-decision
+Pillar: Behind the studio · Audience: Growing stores · Make: LinkedIn post, Facebook post, Newsletter, LinkedIn video · CTA: Book a $99 video audit · Status: review
 
 ## Raw input
 No request from Ramit. Picked by the weekly run on 2026-11-23: no new Desk requests, and Ovi logs weren’t checked. Picked because Behind the studio hasn’t had a real piece in the last two weeks (only a test brief). “Why we give fixed prices” is an example topic in pillars.md. Kept apart from “What’s inside a $99 video audit” (2026-11-02, waiting for an angle): this is about project prices, not the audit fee.
@@ -57,13 +57,13 @@ No request from Ramit. Picked by the weekly run on 2026-11-23: no new Desk reque
 - Risk: Argues against our own model for part of the piece. It needs a clear turn to how we settle scope.
 
 ## Decisions
-- Angle:
-- Must include:
-- Must avoid:
-- CTA:
-- Make (final):
-- Decided on:
+- Angle: B — Cheap quotes leave things out (picked on the Desk 2026-11-23, no notes)
+- CTA: Book a $99 video audit
+- Make (final): LinkedIn post, Facebook post, Newsletter, LinkedIn video
+- 2026-11-25 (daily run): LinkedIn post, Facebook post, newsletter and LinkedIn video drafted from angle B. The two quotes are framed as an example (“say”), not a real client; 63% is the only stat. The Wellingtone 49% figure is not used (secondary source). LinkedIn graphic in Studio Notes.
+- Preview: https://claude.ai/artifact/QzLkFg65H4PACLGxa1MkRQ
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
+| li-cover.jpg | Unsplash IqVqS1V1ch8 | Markus Spiske | https://unsplash.com/photos/white-printer-paper-beside-black-pen-IqVqS1V1ch8 |

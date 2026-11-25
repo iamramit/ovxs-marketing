@@ -1,5 +1,5 @@
 # When a Shopify theme is all you need
-Pillar: Honest advice · Audience: New founders · Make: LinkedIn post, Facebook post, IG carousel · CTA: Book a $99 video audit · Status: awaiting-decision
+Pillar: Honest advice · Audience: New founders · Make: LinkedIn post, Facebook post, IG carousel, Newsletter · CTA: Book a $99 video audit · Status: review
 
 ## Raw input
 No request from Ramit. Picked by the weekly run on 2026-11-16: no new Desk requests, and Ovi logs couldn’t be checked (wrangler not signed in). Picked from the weekly mix in pillars.md (two Honest advice a week). “When a theme is enough” is an example topic in pillars.md. A “redesign vs fix” idea was considered and dropped because it sits too close to “Why beautiful stores still underperform” (2026-10-14) and “Your store doesn’t need another app” (2026-11-12). New founders haven’t had a piece since 2026-11-02. Make taken from the pillar’s best formats plus Facebook for a warmer founder audience.
@@ -58,13 +58,15 @@ No request from Ramit. Picked by the weekly run on 2026-11-16: no new Desk reque
 - Risk: The $10,000 figure is illustrative, not a stat. Present it as an example, and don’t give budget splits we can’t source.
 
 ## Decisions
-- Angle:
-- Must include:
-- Must avoid:
-- CTA:
-- Make (final):
-- Decided on:
+- Angle: B — Five signs you’ve outgrown your theme (picked on the Desk 2026-11-25, no notes)
+- CTA: Book a $99 video audit
+- Make (final): LinkedIn post, Facebook post, IG carousel, Newsletter
+- 2026-11-25 (daily run): LinkedIn post, Facebook post and newsletter were written on the Desk (Write now) after the angle pick, so kept as written apart from voice fixes. The “founder came to us last year” story was invented (nothing in the proof list), so it is now a plain “say you’re planning” example. Paid themes corrected to “$400 or more” as Shopify has it. Link corrected to ovxs.studio. LinkedIn cut to under 250 words. IG carousel written and built (8 slides, Evergreen). No client example for each of the five signs: add real ones if you have them.
+- Preview: https://claude.ai/artifact/Pc48FeCZviHp7uAEuZbwP1
 
 ## Photos
 | File | Source | Photographer | Page |
 |---|---|---|---|
+| cover.jpg | Unsplash IliCVGFNUng | Alexander Mass | https://unsplash.com/photos/colorful-mugs-and-knitted-items-on-shelves-IliCVGFNUng |
+| li-cover.jpg | Unsplash wwTpWxyhaC0 | loli mass | https://unsplash.com/photos/woven-straw-baskets-with-colorful-patterns-wwTpWxyhaC0 |
+| catalogue.jpg | Unsplash ysv-Ty3JdV8 | Anastasiia Abramtsova | https://unsplash.com/photos/a-shop-interior-filled-with-wooden-crafts-bags-and-souvenirs-ysv-Ty3JdV8 |
